@@ -24,8 +24,10 @@ mongoose.connect(uri,connectionParams)
     })
 
 
-app.get('/api', (req, res) => {
-    const data = {
-        user: 'emanuele'
-    }
+app.get('/', (req, res) => {
+    res.send('test');
 })
+
+var listener = app.listen(PORT, function(){
+    console.log('Listening on port ' + listener.address().port); //Listening on port 8000
+  });
