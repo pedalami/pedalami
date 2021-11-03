@@ -40,7 +40,7 @@ const UserSchema = new Schema({
 // Model
 const User = mongoose.model('User', UserSchema)
 
-app.post('/createUser', (req, res) => {
+app.get('/createUser', (req, res) => {
     //console.log(req)
     console.log(req.body)
     
@@ -52,7 +52,7 @@ app.post('/createUser', (req, res) => {
             console.log('The user has been saved.')
         }
     })
-    res.send('test response');
+    res.send('createUser response!');
 
 })
 /*
