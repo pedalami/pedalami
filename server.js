@@ -2,12 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
-const { getMaxListeners } = require('process');
-
 
 const app = express();
 app.use(express.json());
-
 const PORT = process.env.PORT || 8000
 
 const uri = String(process.env.MONGO_URI);
@@ -29,11 +26,10 @@ var listener = app.listen(PORT, function(){
 });
 
 app.get('/', (req, res) => {
-    console.log(req.body)
     res.send('test response');
 })
 
-/*
+
 // Schema
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
@@ -44,15 +40,24 @@ const UserSchema = new Schema({
 // Model
 const User = mongoose.model('User', UserSchema)
 
+app.post('/createUser', (req, res) => {
+    //console.log(req)
+    console.log(req.body)
+    
+    const newUser = new User(req.body)
+    newUser.save((error) => {
+        if(error) {
+            console.log('Error saving the user.');
+        } else {
+            console.log('The user has been saved.')
+        }
+    })
+    res.send('test response');
+
+})
+/*
 const example_user_data = {
     token: 'a5d122cb9edf7',
     email: 'et@gmail.com'
 }
-const newUser = new User(example_user_data)
-newUser.save((error) => {
-    if(error) {
-        console.log('Error saving the user.');
-    } else {
-        console.log('The user has been saved.')
-    }
-})*/
+*/
