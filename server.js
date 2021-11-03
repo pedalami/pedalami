@@ -2,23 +2,24 @@ require('dotenv').config();
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const routes = require('routes');
 
 const app = express();
 app.use(express.json());
-const PORT = process.env.PORT || 8000
 
-const uri = String(process.env.MONGO_URI);
-console.log(uri)
+const PORT = process.env.PORT || 8000
+const MONGO_URI = String(process.env.MONGO_URI);
+
 const connectionParams={
     useNewUrlParser: true,
     useUnifiedTopology: true 
 }
-mongoose.connect(uri,connectionParams)
+mongoose.connect(MONGO_URI,connectionParams)
     .then( () => {
         console.log('Connected to database!')
     })
     .catch( (err) => {
-        console.error(`Error connecting to the database. \n${err}`);
+        console.error(`Error connecting to the database.\n${err}`);
     })
 
 var listener = app.listen(PORT, function(){
@@ -26,7 +27,7 @@ var listener = app.listen(PORT, function(){
 });
 
 app.get('/', (req, res) => {
-    res.send('<h1>Welcome!<h1>');
+    res.send('<h1>Welcome to PedalaMi!<h1>');
 })
 
 
@@ -41,23 +42,14 @@ const UserSchema = new Schema({
 const User = mongoose.model('User', UserSchema)
 
 app.get('/createUser', (req, res) => {
-    //console.log(req)
-    console.log(req.body)
-    
     const newUser = new User(req.body)
     newUser.save((error) => {
         if(error) {
             console.log('Error saving the user.');
+            res.send('Error saving the user!');
         } else {
             console.log('The user has been saved.')
+            res.send('User saved correctly!');
         }
     })
-    res.send('createUser response!');
-
 })
-/*
-const example_user_data = {
-    token: 'a5d122cb9edf7',
-    email: 'et@gmail.com'
-}
-*/
