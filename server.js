@@ -4,7 +4,10 @@ const path = require('path');
 const mongoose = require('mongoose');
 const { getMaxListeners } = require('process');
 
+
 const app = express();
+app.use(express.json());
+
 const PORT = process.env.PORT || 8000
 
 const uri = String(process.env.MONGO_URI);
@@ -26,10 +29,11 @@ var listener = app.listen(PORT, function(){
 });
 
 app.get('/', (req, res) => {
+    console.log(req.body)
     res.send('test response');
 })
 
-
+/*
 // Schema
 const Schema = mongoose.Schema;
 const UserSchema = new Schema({
@@ -51,4 +55,4 @@ newUser.save((error) => {
     } else {
         console.log('The user has been saved.')
     }
-})
+})*/
