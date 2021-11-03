@@ -42,6 +42,8 @@ const UserSchema = new Schema({
 const User = mongoose.model('User', UserSchema)
 
 app.get('/createUser', (req, res) => {
+    console.log("Received createUser GET request:")
+    console.log(req.body)
     const newUser = new User(req.body)
     newUser.save((error) => {
         if(error) {
