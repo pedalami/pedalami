@@ -26,7 +26,7 @@ var listener = app.listen(PORT, function(){
 });
 
 app.get('/', (req, res) => {
-    res.send('test response');
+    res.send('<h1>Welcome!<h1>');
 })
 
 
