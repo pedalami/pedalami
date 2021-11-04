@@ -5,9 +5,6 @@ const mongoose = require('mongoose');
 
 var usersRouter = require('./routes/users');
 
-const app = express();
-app.use(express.json());
-
 const PORT = process.env.PORT || 8000
 const MONGO_URI = String(process.env.MONGO_URI);
 
@@ -24,6 +21,8 @@ mongoose.connect(MONGO_URI,connectionParams)
         console.error(`Error connecting to the database.\n${err}`);
     })
 
+const app = express();
+app.use(express.json());
 
 var listener = app.listen(PORT, function(){
     console.log('Listening on port ' + listener.address().port);

@@ -16,6 +16,7 @@ const User = mongoose.model('User', UserSchema)
 app.get('/create', (req, res) => {
     console.log("Received createUser GET request:")
     console.log(req.body)
+    if(req.body.token && req.body.email) {
     const newUser = new User(req.body)
     newUser.save((error) => {
         if(error) {
@@ -26,6 +27,10 @@ app.get('/create', (req, res) => {
             res.send('User saved correctly!');
         }
     })
+    } else {
+        console.log('Error: Missing parameters.')
+        res.send('Error: Missing parameters.');
+    }
 })
 
 module.exports = app;
