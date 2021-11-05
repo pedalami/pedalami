@@ -41,30 +41,20 @@ app.get('/addPoints', (req, res) => {
 
   var query = { token: req.body.token };
 
-  let oldUserPoints;
 
-  async function doSomething() {
-    const oldUser = await User.findOne({ 'token': req.body.token });
-    oldUserPoints = oldUser.points;
-    console.log(oldUser.points)
-  }
-  doSomething().then();
+  User.findOne({ 'token': req.body.token }).then(function (oldUser) {
+      
+    User.findOneAndUpdate(
+        query,
+        {points: +oldUser.points + +req.body.points},
+        { upsert: true },
+        function (err, doc) {
+          if (err) return res.send(500, { error: err });
+          return res.send('Succesfully saved.');
+        }
+      );
+});
 
-  oldUserPoints = oldUserPoints + req.body.points;
-  
-  newUpdatePointUser = {
-      points: oldUserPoints
-  }
-
-  User.findOneAndUpdate(
-    query,
-    newUpdatePointUser,
-    { upsert: true },
-    function (err, doc) {
-      if (err) return res.send(500, { error: err });
-      return res.send('Succesfully saved.');
-    }
-  );
 });
 
  
