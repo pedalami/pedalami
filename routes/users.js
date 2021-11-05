@@ -39,36 +39,50 @@ app.get('/addPoints', (req, res) => {
   //Read token
   //Number of points to add for ID Profile
 
-  if(req.body.points <= 0){
+  if (req.body.points <= 0) {
     res.send('Points cannot be negative!');
-  }
-  else{
+  } else {
+    var query = { token: req.body.token };
 
-  var query = { token: req.body.token };
-
-  
-
-  User.findOne({ 'token': req.body.token }).then(function (oldUser) {
-      
-    User.findOneAndUpdate(
+    User.findOne({ token: req.body.token }).then(function (oldUser) {
+      User.findOneAndUpdate(
         query,
-        {points: +oldUser.points + +req.body.points},
+        { points: +oldUser.points + +req.body.points },
         { upsert: true },
         function (err, doc) {
           if (err) return res.send(500, { error: err });
-          return res.send('Succesfully sum points.');
+          return res.send('Succesfully added points.');
         }
       );
-});
+    });
   }
-
 });
 
- 
-
-app.patch('/removePoints', (req, res) => {
+app.get('/removePoints', (req, res) => {
   //Read Token
   //Number of points to remove for ID Profile
+
+  if (req.body.points <= 0) {
+    res.send('Points cannot be negative!');
+  } else {
+    var query = { token: req.body.token };
+
+    User.findOne({ token: req.body.token }).then(function (oldUser) {
+      if (0 > +oldUser.points - +req.body.points) {
+        res.send('User Points Result cannot be negative!');
+      } else {
+        User.findOneAndUpdate(
+          query,
+          { points: +oldUser.points - +req.body.points },
+          { upsert: true },
+          function (err, doc) {
+            if (err) return res.send(500, { error: err });
+            return res.send('Succesfully removed points.');
+          }
+        );
+      }
+    });
+  }
 });
 
 module.exports = app;
