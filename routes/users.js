@@ -39,8 +39,14 @@ app.get('/addPoints', (req, res) => {
   //Read token
   //Number of points to add for ID Profile
 
+  if(req.body.points <= 0){
+    res.send('Points cannot be negative!');
+  }
+  else{
+
   var query = { token: req.body.token };
 
+  
 
   User.findOne({ 'token': req.body.token }).then(function (oldUser) {
       
@@ -50,10 +56,11 @@ app.get('/addPoints', (req, res) => {
         { upsert: true },
         function (err, doc) {
           if (err) return res.send(500, { error: err });
-          return res.send('Succesfully saved.');
+          return res.send('Succesfully sum points.');
         }
       );
 });
+  }
 
 });
 
