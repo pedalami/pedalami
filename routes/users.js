@@ -40,15 +40,25 @@ app.get('/addPoints', (req, res) => {
   //Number of points to add for ID Profile
 
   var query = { token: req.body.token };
+
+  let oldUserPoints;
+
+  async function doSomething() {
+    const oldUser = await User.findOne({ 'token': req.body.token });
+    oldUserPoints = oldUser.points;
+    console.log(oldUser.points)
+  }
+  doSomething().then();
+
+  oldUserPoints = oldUserPoints + req.body.points;
   
-  
-  var newUpdate = {
-      points: req.body.points
+  newUpdatePointUser = {
+      points: oldUserPoints
   }
 
   User.findOneAndUpdate(
     query,
-    newUpdate,
+    newUpdatePointUser,
     { upsert: true },
     function (err, doc) {
       if (err) return res.send(500, { error: err });
@@ -56,6 +66,8 @@ app.get('/addPoints', (req, res) => {
     }
   );
 });
+
+ 
 
 app.patch('/removePoints', (req, res) => {
   //Read Token
