@@ -36,8 +36,6 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/addPoints', (req, res) => {
-  //Read token
-  //Number of points to add for ID Profile
 
   if (req.body.points <= 0) {
     res.send('Points cannot be negative!');
@@ -59,8 +57,6 @@ app.get('/addPoints', (req, res) => {
 });
 
 app.get('/removePoints', (req, res) => {
-  //Read Token
-  //Number of points to remove for ID Profile
 
   if (req.body.points <= 0) {
     res.send('Points cannot be negative!');
