@@ -52,7 +52,7 @@ app.get('/addPoints', (req, res) => {
           return res.send('Succesfully added points.');
         }
       );
-    });
+    }).catch(err => res.send(500, { error: err.message }))
   }
 });
 
@@ -77,7 +77,7 @@ app.get('/removePoints', (req, res) => {
           }
         );
       }
-    });
+    }).catch(err => res.send(500, { error: err.message }));
   }
 });
 
