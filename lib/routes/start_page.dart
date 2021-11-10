@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:convert' show json;
 import "package:http/http.dart" as http;
+import 'package:font_awesome_flutter/font_awesome_flutter.dart' as aIcon;
 
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -11,6 +12,7 @@ class StartPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     User? result = FirebaseAuth.instance.currentUser;
     return Container(
       decoration: BoxDecoration(
@@ -24,9 +26,9 @@ class StartPage extends StatelessWidget {
             0.9
           ],
               colors: [
-            Colors.green[800]!,
             Colors.green[700]!,
             Colors.green[600]!,
+            Colors.green[500]!,
             Colors.green[400]!,
           ])),
       child: Scaffold(
@@ -35,11 +37,11 @@ class StartPage extends StatelessWidget {
           child: Container(
             child: Column(
               children: [
-                pedalaLogo(context),
-                SizedBox(height: 100,),
+                pedalaLogo(context, size),
                 signUpButton(context, result),
-                SizedBox(height: 20,),
-                loginButton(context),
+                SizedBox(
+                  height: 20,
+                ),
               ],
             ),
           ),
@@ -49,30 +51,51 @@ class StartPage extends StatelessWidget {
   }
 }
 
-Widget pedalaLogo(context) {
+Widget pedalaLogo(context, size) {
   return Padding(
-    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height) / 4,
+    padding: EdgeInsets.only(top: MediaQuery.of(context).size.height) / 8,
     child: Container(
-      child: Text("Text here"),
+      child: Image(
+        image: AssetImage('lib/assets/pedala_logo.png'),
+        height: size.height / 2,
+      ),
     ),
   );
 }
 
 Widget signUpButton(context, result) {
-  return Container(
-    child: ElevatedButton(
-      child: Text("Sign in with google"),
+  return OutlinedButton(
+      style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(Colors.white),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(40),
+          ))),
       onPressed: () {
         result == null
             ? Navigator.pushNamed(context, '/sign_in')
-            : Navigator.pushNamed(context, '/profile');
+            : Navigator.pushNamed(context, '/switch_page');
       },
-    ),
-  );
-}
-
-Widget loginButton(context) {
-  return Container(
-    child: ElevatedButton(child: Text("Create an account"), onPressed: () {}),
-  );
+      child: Padding(
+        padding: EdgeInsets.fromLTRB(0, 10, 0, 10),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Image(
+              image: AssetImage('lib/assets/google_logo.png'),
+              height: 35.0,
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 10),
+              child: Text(
+                "Sign in with Google",
+                style: TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.black54,
+                    fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
+      ));
 }
