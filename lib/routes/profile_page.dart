@@ -158,8 +158,134 @@ class _ProfilePageState extends State<ProfilePage> {
                     topRight: Radius.circular(30.0),
                     topLeft: Radius.circular(30.0),
                   )),
+              child: Container(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Current Team",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2.5 * SizeConfig.textMultiplier!),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Stack(
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.only(left: 20.0),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(50),
+                                  child: Image.network(
+                                    "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
+                                    height: 20.0 * SizeConfig.heightMultiplier!,
+                                    width: 50.0 * SizeConfig.widthMultiplier!,
+                                  ),
+                                ),
+                              ),
+                              Positioned.fill(
+                                  child: Align(
+                                      alignment: Alignment.bottomCenter,
+                                      child: Text(
+                                        "Team Awesome",
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold),
+                                      )))
+                            ],
+                          ),
+                          SizedBox(
+                            width: 7.0 * SizeConfig.widthMultiplier!,
+                          ),
+                          Container(
+                            width: 32.0 * SizeConfig.widthMultiplier!,
+                            child: ElevatedButton.icon(
+                              onPressed: () {},
+                              label: Text("Change Team"),
+                              icon: FaIcon(FontAwesomeIcons.userCog),
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.green[400]),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Colors.green)))),
+                            ),
+                          )
+                        ],
+                      ),
+                      Divider(
+                        color: Colors.black,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Badges",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2.5 * SizeConfig.textMultiplier!),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 3 * SizeConfig.heightMultiplier!,
+                      ),
+                      Container(
+                        height: 20 * SizeConfig.heightMultiplier!,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            displayBadge(1),
+                            displayBadge(1),
+                            displayBadge(1),
+                            displayBadge(1),
+                            displayBadge(1),
+                          ],
+                        ),
+                      ),
+                      Divider(
+                        color: Colors.grey,
+                      )
+                    ],
+                  ),
+                ),
+              ),
             ))
       ],
+    );
+  }
+
+  Widget displayBadge(badgeID) {
+    //If you want to be able to click on a badge for more information you can wrap all this in GestureDetector and a Hero widget to another page
+
+    return Padding(
+      padding: EdgeInsets.all(9),
+      child: Container(
+        height: 20.0 * SizeConfig.heightMultiplier!,
+        width: 30.0 * SizeConfig.widthMultiplier!,
+        child: Stack(
+          children: [
+            Image.network(
+              "https://thumbs.dreamstime.com/b/gold-badge-5392868.jpg",
+            ),
+            Positioned.fill(
+                child: Align(
+              child: Text(
+                "Badge info here",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              alignment: Alignment.bottomCenter,
+            )),
+          ],
+        ),
+      ),
     );
   }
 
