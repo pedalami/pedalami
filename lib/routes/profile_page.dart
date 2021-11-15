@@ -127,18 +127,23 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ],
                     ),
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white60),
-                        borderRadius: BorderRadius.circular(5.0),
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(
-                          "EDIT PROFILE",
-                          style: TextStyle(
-                              color: Colors.white60,
-                              fontSize: 1.8 * SizeConfig.textMultiplier!),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, "/edit");
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white60),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text(
+                            "EDIT PROFILE",
+                            style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 1.8 * SizeConfig.textMultiplier!),
+                          ),
                         ),
                       ),
                     ),
