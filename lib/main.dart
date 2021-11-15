@@ -6,6 +6,7 @@ import 'package:pedala_mi/routes/switching_page.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'routes/start_page.dart';
 import 'package:flutter/services.dart';
+import 'package:pedala_mi/routes/profile_editing.dart';
 import 'dart:async';
 
 void main() async {
@@ -28,6 +29,7 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             routes: {
               '/profile': (context) => ProfilePage(),
+              '/edit': (context) => ProfileEditing(),
               '/start': (context) => StartPage(),
               '/sign_in': (context) => SignInPage(),
               '/switch_page': (context) => SwitchPage(),
