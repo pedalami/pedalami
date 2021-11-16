@@ -1,4 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pedala_mi/routes/sign_in_page.dart';
+import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -35,16 +37,24 @@ class _ProfilePageState extends State<ProfilePage> {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Container(
-                      height: 11 * SizeConfig.heightMultiplier!,
-                      width: 22 * SizeConfig.widthMultiplier!,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          image: DecorationImage(
-                            fit: BoxFit.cover,
-                            image:
-                                NetworkImage(nStringToNNString(user!.photoURL)),
-                          )),
+                    GestureDetector(
+                      child: Container(
+                        height: 11 * SizeConfig.heightMultiplier!,
+                        width: 22 * SizeConfig.widthMultiplier!,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image:
+                                  NetworkImage(nStringToNNString(user!.photoURL)),
+                            )),
+                      ),
+                      onTap: () async{
+                        await Authentication.signOut(context: context);
+                        Navigator.of(context).pushAndRemoveUntil(
+                            _routeToSignInScreen(),
+                                (Route<dynamic> route) => false);
+                      },
                     ),
                     SizedBox(
                       width: 5 * SizeConfig.widthMultiplier!,
@@ -296,5 +306,24 @@ class _ProfilePageState extends State<ProfilePage> {
 
   String nStringToNNString(String? str) {
     return str ?? "";
+  }
+
+  Route _routeToSignInScreen() {
+    return PageRouteBuilder(
+      pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(),
+      transitionsBuilder: (context, animation, secondaryAnimation, child) {
+        var begin = Offset(-1.0, 0.0);
+        var end = Offset.zero;
+        var curve = Curves.ease;
+
+        var tween =
+        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+
+        return SlideTransition(
+          position: animation.drive(tween),
+          child: child,
+        );
+      },
+    );
   }
 }

@@ -1,4 +1,0 @@
-#Wed Nov 10 14:36:49 CET 2021
-base.0=/home/ezent/AndroidStudioProjects/pedala_mi/build/app/intermediates/dex/debug/mergeDexDebug/classes.dex
-renamed.0=classes.dex
-path.0=classes.dex

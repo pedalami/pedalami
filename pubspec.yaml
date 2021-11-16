@@ -34,10 +34,23 @@ dependencies:
   firebase_core: ^1.8.0
   font_awesome_flutter: ^9.2.0
   build_runner: ^2.1.4
+  cloud_firestore: ^3.1.0
+  path_provider: ^2.0.6
+  firebase_storage: ^10.1.0
+  uuid: ^3.0.5
+  flutter_launcher_icons: ^0.9.2
+
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons:
+  ios: true
+  android: true
+  image_path_ios: "lib/assets/app_icon.png"
+  image_path_android: "lib/assets/app_icon.png"
+  adaptive_icon_background: "#EA7819"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -54,6 +67,9 @@ flutter:
   assets:
     - lib/assets/google_logo.png
     - lib/assets/pedala_logo.png
+    - lib/assets/app_logo.png
+    - lib/assets/app_icon.png
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
