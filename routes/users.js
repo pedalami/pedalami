@@ -21,15 +21,15 @@ app.post('/create', (req, res) => {
     newUser.save((error) => {
       if (error) {
         console.log('Error saving the user.');
-        res.send('Error saving the user!');
+        res.status(500).send('Error saving the user!');
       } else {
         console.log('The user has been saved.');
-        res.send('User saved correctly!');
+        res.status(200).send('User saved correctly!');
       }
     });
   } else {
     console.log('Error: Missing parameters.');
-    res.send('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
   }
 });
 
