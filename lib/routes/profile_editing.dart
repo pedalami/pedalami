@@ -20,6 +20,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
   User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   MiUser _miUser=new MiUser("","","","");
 
 
@@ -35,6 +36,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
       setState(() {
         _miUser = new MiUser(querySnapshot.docs[0].id, querySnapshot.docs[0].get("Image"), querySnapshot.docs[0].get("Mail"), querySnapshot.docs[0].get("Username"));
         usernameController.value=usernameController.value.copyWith(text: _miUser.username);
+        emailController.value=emailController.value.copyWith(text: _miUser.mail);
       });
     });
     super.initState();
@@ -69,9 +71,9 @@ class _ProfileEditingState extends State<ProfileEditing> {
                               NetworkImage(nStringToNNString(user!.photoURL)),
                             )),
                       ),
-                      // SizedBox(
-                      //   width: 5 * SizeConfig.widthMultiplier!,
-                      // ),
+                      SizedBox(
+                        width: 5 * SizeConfig.widthMultiplier!,
+                       ),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
@@ -130,13 +132,6 @@ class _ProfileEditingState extends State<ProfileEditing> {
                           padding: EdgeInsets.only(
                               left: 10.0, top: 3 * SizeConfig.heightMultiplier!, right: 10),
                           child:
-                          /*Text(
-                            nStringToNNString(user!.displayName),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2.5 * SizeConfig.textMultiplier!),
-                          ),*/
                           TextField(
                             cursorColor: CustomColors.green,
                             decoration: InputDecoration(
@@ -150,7 +145,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                   borderSide:
                                   BorderSide(color: CustomColors.green),
                                 ),
-                                hintText: "Insert here your username",
+                                hintText: "Insert new username",
                                 hintStyle: TextStyle(
                                     color: CustomColors.silver)),
                             controller: usernameController,
@@ -165,21 +160,33 @@ class _ProfileEditingState extends State<ProfileEditing> {
                             style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.lightGreen)),
                           ),
                         ),
-                        Divider(
+                        /*Divider(
                           color: Colors.black,
-                        ),
+                        ),*/
                         Padding (
                         padding: EdgeInsets.only(
-                        left: 10, top: 3 * SizeConfig.heightMultiplier!),
+                        left: 10, top: 3 * SizeConfig.heightMultiplier!, right: 10.0),
                         child:
-                          Text(
-                          nStringToNNString(
-                          nStringToNNString(user!.email)),
-                          style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 2.5 * SizeConfig.textMultiplier!),
-                          ),
+                        TextField(
+                          cursorColor: CustomColors.green,
+                          decoration: InputDecoration(
+                              counterStyle:
+                              TextStyle(color: CustomColors.silver,),
+                              enabledBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: CustomColors.silver),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide:
+                                BorderSide(color: CustomColors.green),
+                              ),
+                              hintText: "Insert new email address",
+                              hintStyle: TextStyle(
+                                  color: CustomColors.silver)),
+                          controller: emailController,
+                          maxLength: 40,
+                          style: TextStyle(color: Colors.black),
+                        )
                         ),
                         Container(
                           child: ElevatedButton(
