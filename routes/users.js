@@ -6,8 +6,8 @@ const Schema = mongoose.Schema;
 
 // Schema
 const UserSchema = new Schema({
-  uid: String,
-  points: Number,
+  uid: {type: String, required: true},
+  points: {type: Number, required: true, default: 0},
 });
 
 // Model
