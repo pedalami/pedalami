@@ -150,7 +150,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                   borderSide:
                                   BorderSide(color: CustomColors.green),
                                 ),
-                                hintText: "Insert here your username",
+                                hintText: "Insert new username",
                                 hintStyle: TextStyle(
                                     color: CustomColors.silver)),
                             controller: usernameController,
@@ -165,21 +165,41 @@ class _ProfileEditingState extends State<ProfileEditing> {
                             style: ButtonStyle(backgroundColor: MaterialStateProperty.all(Colors.lightGreen)),
                           ),
                         ),
-                        Divider(
+                        /*Divider(
                           color: Colors.black,
-                        ),
+                        ),*/
                         Padding (
                         padding: EdgeInsets.only(
-                        left: 10, top: 3 * SizeConfig.heightMultiplier!),
+                        left: 10, top: 3 * SizeConfig.heightMultiplier!, right: 10.0),
                         child:
-                          Text(
+                          /*Text(
                           nStringToNNString(
                           nStringToNNString(user!.email)),
                           style: TextStyle(
                           color: Colors.black,
                           fontWeight: FontWeight.bold,
                           fontSize: 2.5 * SizeConfig.textMultiplier!),
-                          ),
+                          ),*/
+                          TextField(
+                            cursorColor: CustomColors.green,
+                            decoration: InputDecoration(
+                                counterStyle:
+                                TextStyle(color: CustomColors.silver,),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide: BorderSide(
+                                      color: CustomColors.silver),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                  BorderSide(color: CustomColors.green),
+                                ),
+                                hintText: "Insert new email address",
+                                hintStyle: TextStyle(
+                                    color: CustomColors.silver)),
+                            //controller: usernameController,
+                            maxLength: 30,
+                            style: TextStyle(color: Colors.black),
+                          )
                         ),
                         Container(
                           child: ElevatedButton(
