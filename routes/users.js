@@ -1,25 +1,23 @@
 var express = require('express');
 var app = express.Router();
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
 // Schema
-const Schema = mongoose.Schema;
 const UserSchema = new Schema({
-  token: String,
-  email: String,
+  uid: String,
   points: Number,
 });
 
 // Model
 const User = mongoose.model('User', UserSchema);
 
-app.get('/create', (req, res) => {
-  console.log('Received createUser GET request:');
-  console.log(req.body);
-  if (req.body.token && req.body.email) {
-    const newUser = new User(req.body);
-    newUser.points = 0;
 
+app.post('/create', (req, res) => {
+  console.log('Received create POST request:');
+  console.log(req.body);
+  if (req.body.uid) {
+    const newUser = new User(req.body);
     newUser.save((error) => {
       if (error) {
         console.log('Error saving the user.');
@@ -36,7 +34,6 @@ app.get('/create', (req, res) => {
 });
 
 app.get('/addPoints', (req, res) => {
-
   if (req.body.points <= 0) {
     res.send('Points cannot be negative!');
   } else {
