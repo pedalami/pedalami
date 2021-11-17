@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:uuid/uuid.dart';
 
 import 'custom_alert_dialog.dart';
@@ -39,15 +40,13 @@ Future<void> checkUsername(String newUsername, BuildContext context,
           },
         );
       } else {
+        await MongoDB.instance.initUser(actualUser.uid);
         var uuid = Uuid().v4();
         Map<String, Object> user = new HashMap();
-        user["Username"]=actualUser.displayName!;
         user["Mail"] = actualUser.email!;
         user["Username"] = newUsername.trim();
         File image = File(imageData);
-        FirebaseStorage storage = FirebaseStorage.instance;
-        Reference storageRef = storage.ref();
-        Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
+        Reference imageRef = FirebaseStorage.instance.ref().child(uuid.toString() + ".jpg");
         await imageRef.putFile(image);
         await imageRef.getDownloadURL().then((url) {
           user["Image"] = url;
@@ -56,7 +55,6 @@ Future<void> checkUsername(String newUsername, BuildContext context,
               .add(user)
               .then((value) {
             Navigator.pushNamedAndRemoveUntil(context, '/switch_page', (route) => false);
-
           }).catchError((error) {});
         }).catchError((error) {});
       }

@@ -13,7 +13,7 @@ class StartPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    User? result = FirebaseAuth.instance.currentUser;
+    User result = FirebaseAuth.instance.currentUser!;
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
