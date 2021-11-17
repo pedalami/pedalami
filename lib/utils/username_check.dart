@@ -8,9 +8,9 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/user.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
+import 'package:pedala_mi/widget/custom_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
 
-import 'custom_alert_dialog.dart';
 
 Future<void> checkUsername(String newUsername, BuildContext context,
     User actualUser, String imageData) async {
