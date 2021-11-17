@@ -1,5 +1,6 @@
 var express = require('express');
 var app = express.Router();
+app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
