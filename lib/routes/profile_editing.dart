@@ -23,7 +23,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
   User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
-  final emailController = TextEditingController();
+  //final emailController = TextEditingController();
   MiUser _miUser = new MiUser("", "", "", "");
   bool imgInserted = false;
   File? f;
@@ -44,8 +44,8 @@ class _ProfileEditingState extends State<ProfileEditing> {
             querySnapshot.docs[0].get("Username"));
         usernameController.value =
             usernameController.value.copyWith(text: _miUser.username);
-        emailController.value =
-            emailController.value.copyWith(text: _miUser.mail);
+        //emailController.value =
+        //   emailController.value.copyWith(text: _miUser.mail);
       });
     });
     super.initState();
@@ -150,7 +150,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                         Padding(
                             padding: EdgeInsets.only(
                                 left: 10.0,
-                                top: 3 * SizeConfig.heightMultiplier!,
+                                top: 10 * SizeConfig.heightMultiplier!,
                                 right: 10),
                             child: TextField(
                               cursorColor: CustomColors.green,
@@ -192,7 +192,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                 left: 10,
                                 top: 3 * SizeConfig.heightMultiplier!,
                                 right: 10.0),
-                            child: TextField(
+                            /*child: TextField(
                               cursorColor: CustomColors.green,
                               decoration: InputDecoration(
                                   counterStyle: TextStyle(
@@ -209,7 +209,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                   hintText: "Insert new email address",
                                   hintStyle:
                                       TextStyle(color: CustomColors.silver)),
-                              controller: emailController,
+                              //controller: emailController,
                               maxLength: 40,
                               style: TextStyle(color: Colors.black),
                             )),
@@ -220,7 +220,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                             style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(
                                     Colors.lightGreen)),
-                          ),
+                          ),*/
                         ),
                         SizedBox(
                           height: 30 * SizeConfig.heightMultiplier!,
