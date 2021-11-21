@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pedala_mi/models/user.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/size_config.dart';
@@ -14,9 +16,24 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   User? user = FirebaseAuth.instance.currentUser;
+  MiUser _miUser = new MiUser("", "", "", "");
 
   @override
   void initState() {
+    CollectionReference usersCollection =
+    FirebaseFirestore.instance.collection("Users");
+    usersCollection
+        .where("Mail", isEqualTo: user!.email)
+        .get()
+        .then((QuerySnapshot querySnapshot) async {
+      setState(() {
+        _miUser = new MiUser(
+            querySnapshot.docs[0].id,
+            querySnapshot.docs[0].get("Image"),
+            querySnapshot.docs[0].get("Mail"),
+            querySnapshot.docs[0].get("Username"));
+      });
+    });
     super.initState();
   }
 
@@ -46,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image:
-                                  NetworkImage(nStringToNNString(user!.photoURL)),
+                                  NetworkImage(_miUser.image),
                             )),
                       ),
                       onTap: () async{
@@ -63,7 +80,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: <Widget>[
                         Text(
-                          nStringToNNString(user!.displayName),
+                          nStringToNNString(_miUser.username),
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 3 * SizeConfig.textMultiplier!,
