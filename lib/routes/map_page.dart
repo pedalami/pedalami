@@ -112,8 +112,15 @@ class _MapPageState extends State<MapPage> {
                 showContributorBadgeForOSM: false,
                 //trackMyPosition: trackingNotifier.value,
                 showDefaultInfoWindow: false,
-                onLocationChanged: (myLocation) {
-                  print(myLocation);
+                onLocationChanged: (myLocation) async {
+                  if (_isRecording = true) {
+                    controller.currentLocation();
+                    path.add(await controller.myLocation());
+                    if (path.length > 3) {
+                      await controller.drawRoadManually(
+                          path, Colors.blue, 10.0);
+                    }
+                  }
                 },
                 onGeoPointClicked: (geoPoint) async {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -166,8 +173,6 @@ class _MapPageState extends State<MapPage> {
                           return ElevatedButton.icon(
                             onPressed: () async {
                               if (_isRecording == false) {
-                                controller.currentLocation();
-                                path.add(await controller.myLocation());
                                 internalState(() {
                                   _isRecording = true;
                                   _currentButtonColor = Colors.redAccent;
@@ -177,49 +182,16 @@ class _MapPageState extends State<MapPage> {
                                   print(_startLocation);
                                 });
                                 _stateTick = Timer.periodic(
-                                    Duration(seconds: 15), (Timer t) async {
-                                  controller.currentLocation();
-                                  var latestPoint =
-                                      await controller.myLocation();
-
-                                  if (latestPoint.longitude ==
-                                          path.last.longitude &&
-                                      latestPoint.latitude ==
-                                          path.last.longitude) {
-                                    print(
-                                        "No progress have been made, no saving");
-                                  } else {
-                                    path.add(latestPoint);
-                                  }
-                                  if (path.length > 3){
-                                    await controller.drawRoadManually(
-                                        path, Colors.blue, 10.0);
-                                  }
-                                  else{
-                                    print("No path yet to draw");
-                                  }
-
-                                  /* RoadInfo roadInfo = await controller.drawRoad(
-                                      _startLocation!, _lastLocation!,
-                                      roadType: RoadType.bike,
-                                      roadOption: RoadOption(
-                                        roadWidth: 10,
-                                        roadColor: Colors.blue,
-                                        showMarkerOfPOI: false,
-                                      ));
-                                  _rideDistance += roadInfo.distance!;*/
+                                    Duration(seconds: 1), (Timer t) async {
                                   internalState(() {
-                                    elapsedTime += 15;
-                                    print(elapsedTime);
+                                    elapsedTime += 1;
                                   });
                                 });
                               } else {
-                                if (path.length < 2) {
+                                if (path.length < 3) {
                                   showAlertDialog(context);
                                 } else {
                                   //TODO: Show dialog with the saved ride, stats, points earned etc...
-                                  print(
-                                      "Distance: " + _rideDistance.toString());
                                 }
 
                                 internalState(() {
