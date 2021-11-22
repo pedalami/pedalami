@@ -52,17 +52,11 @@ class _MapPageState extends State<MapPage> {
   GeoPoint? _startLocation;
   GeoPoint? _endLocation;
   GeoPoint? _lastLocation;
-  GeoPoint? _tempLocation;
   double _rideDistance = 0;
+  List<GeoPoint> path = [];
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
-  }
-
-  void getCurrent() async {
-    await controller.currentLocation();
-    await controller.enableTracking();
-    return;
   }
 
   @override
@@ -71,126 +65,8 @@ class _MapPageState extends State<MapPage> {
     getLocationPermission();
     controller = CustomController(
       initMapWithUserPosition: true,
-      // areaLimit: BoundingBox(
-      //   east: 10.4922941,
-      //   north: 47.8084648,
-      //   south: 45.817995,
-      //   west: 5.9559113,
-      // ),
     );
-    controller.currentLocation();
-    scaffoldKey = GlobalKey<ScaffoldState>();
-    controller.listenerMapLongTapping.addListener(() async {
-      if (controller.listenerMapLongTapping.value != null) {
-        print(controller.listenerMapLongTapping.value);
-        await controller.addMarker(
-          controller.listenerMapLongTapping.value!,
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.store,
-              color: Colors.brown,
-              size: 48,
-            ),
-          ),
-          angle: pi / 3,
-        );
-      }
-    });
-    controller.listenerMapSingleTapping.addListener(() async {
-      if (controller.listenerMapSingleTapping.value != null) {
-        if (lastGeoPoint.value != null) {
-          controller.removeMarker(lastGeoPoint.value!);
-        }
-        print(controller.listenerMapSingleTapping.value);
-        lastGeoPoint.value = controller.listenerMapSingleTapping.value;
-        await controller.addMarker(
-          lastGeoPoint.value!,
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.person,
-              color: Colors.red,
-            ),
-          ),
-          angle: -pi / 4,
-        );
-      }
-    });
-
-    controller.listenerMapIsReady.addListener(mapIsInitialized);
-  }
-
-  void mapIsInitialized() async {
-    if (controller.listenerMapIsReady.value) {
-      // Future.delayed(Duration(seconds: 5), () async {
-      //   await controller.zoomIn();
-      // });
-      timer = Timer(Duration(seconds: 3), () async {
-        await controller.setZoom(zoomLevel: 12);
-        /*await controller.setMarkerOfStaticPoint(
-          id: "line 2",
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.train,
-              color: Colors.orange,
-              size: 48,
-            ),
-          ),
-        );
-        await controller.setStaticPosition(
-          [
-            GeoPointWithOrientation(
-              latitude: 47.4433594,
-              longitude: 8.4680184,
-              angle: pi / 4,
-            ),
-            GeoPointWithOrientation(
-              latitude: 47.4517782,
-              longitude: 8.4716146,
-              angle: pi / 2,
-            ),
-          ],
-          "line 2",
-        );*/
-        await controller.addMarker(
-          GeoPoint(
-            latitude: 20.4517782,
-            longitude: 20.4716146,
-          ),
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.person,
-              color: Colors.red,
-            ),
-          ),
-          angle: -pi / 4,
-        );
-        await controller.addMarker(
-          GeoPoint(
-            latitude: 20.4433594,
-            longitude: 20.4680184,
-          ),
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.local_hospital,
-              color: Colors.red,
-            ),
-          ),
-          angle: pi / 4,
-        );
-        timer?.cancel();
-      });
-    }
-    controller.currentLocation();
-  }
-
-  @override
-  void dispose() {
-    if (timer != null && timer!.isActive) {
-      timer?.cancel();
-    }
-    //controller.listenerMapIsReady.removeListener(mapIsInitialized);
-    controller.dispose();
-    super.dispose();
+    controller.enableTracking();
   }
 
   @override
@@ -253,36 +129,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                   );
                 },
-                staticPoints: [
-                  StaticPositionGeoPoint(
-                    "line 1",
-                    MarkerIcon(
-                      icon: Icon(
-                        Icons.train,
-                        color: Colors.green,
-                        size: 48,
-                      ),
-                    ),
-                    [
-                      GeoPoint(latitude: 47.4333594, longitude: 8.4680184),
-                      GeoPoint(latitude: 47.4317782, longitude: 8.4716146),
-                    ],
-                  ),
-                  /*StaticPositionGeoPoint(
-                      "line 2",
-                      MarkerIcon(
-                        icon: Icon(
-                          Icons.train,
-                          color: Colors.red,
-                          size: 48,
-                        ),
-                      ),
-                      [
-                        GeoPoint(latitude: 47.4433594, longitude: 8.4680184),
-                        GeoPoint(latitude: 47.4517782, longitude: 8.4716146),
-                      ],
-                    )*/
-                ],
                 road: Road(
                   startIcon: MarkerIcon(
                     icon: Icon(
@@ -320,8 +166,8 @@ class _MapPageState extends State<MapPage> {
                           return ElevatedButton.icon(
                             onPressed: () async {
                               if (_isRecording == false) {
-                                _startLocation = await controller.myLocation();
-                                _tempLocation = await controller.myLocation();
+                                controller.currentLocation();
+                                path.add(await controller.myLocation());
                                 internalState(() {
                                   _isRecording = true;
                                   _currentButtonColor = Colors.redAccent;
@@ -331,42 +177,44 @@ class _MapPageState extends State<MapPage> {
                                   print(_startLocation);
                                 });
                                 _stateTick = Timer.periodic(
-                                    Duration(seconds: 15), (Timer t) {
-                                  internalState(() async {
-                                    elapsedTime += 15;
-                                    _lastLocation =
-                                        await controller.myLocation();
+                                    Duration(seconds: 15), (Timer t) async {
+                                  controller.currentLocation();
+                                  var latestPoint =
+                                      await controller.myLocation();
 
-                                    if (_startLocation!.latitude ==
-                                            _lastLocation!.latitude &&
-                                        _startLocation!.longitude ==
-                                            _lastLocation!.longitude) {
-                                      print(
-                                          "No progress on ride has been made, ignore saving");
-                                    } else {
-                                      RoadInfo roadInfo =
-                                          await controller.drawRoad(
-                                              _startLocation!, _lastLocation!,
-                                              roadOption: RoadOption(
-                                                roadWidth: 10,
-                                                roadColor: Colors.blue,
-                                                showMarkerOfPOI: false,
-                                              ));
-                                      _rideDistance += roadInfo.distance!;
-                                      _tempLocation = _lastLocation;
-                                    }
+                                  if (latestPoint.longitude ==
+                                          path.last.longitude &&
+                                      latestPoint.latitude ==
+                                          path.last.longitude) {
+                                    print(
+                                        "No progress have been made, no saving");
+                                  } else {
+                                    path.add(latestPoint);
+                                  }
+                                  if (path.length > 3){
+                                    await controller.drawRoadManually(
+                                        path, Colors.blue, 10.0);
+                                  }
+                                  else{
+                                    print("No path yet to draw");
+                                  }
+
+                                  /* RoadInfo roadInfo = await controller.drawRoad(
+                                      _startLocation!, _lastLocation!,
+                                      roadType: RoadType.bike,
+                                      roadOption: RoadOption(
+                                        roadWidth: 10,
+                                        roadColor: Colors.blue,
+                                        showMarkerOfPOI: false,
+                                      ));
+                                  _rideDistance += roadInfo.distance!;*/
+                                  internalState(() {
+                                    elapsedTime += 15;
                                     print(elapsedTime);
                                   });
                                 });
                               } else {
-                                _endLocation = await controller.myLocation();
-
-                                print(_endLocation);
-                                print(_startLocation);
-                                if (_startLocation!.latitude ==
-                                        _endLocation!.latitude &&
-                                    _startLocation!.longitude ==
-                                        _endLocation!.longitude) {
+                                if (path.length < 2) {
                                   showAlertDialog(context);
                                 } else {
                                   //TODO: Show dialog with the saved ride, stats, points earned etc...
