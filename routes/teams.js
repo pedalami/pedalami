@@ -93,3 +93,5 @@ app.post('/join', (req, res) => {
     res.status(400).send('Error: Missing parameters.');
   }
 });
+
+module.exports = app;
