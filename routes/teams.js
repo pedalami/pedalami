@@ -3,6 +3,7 @@ var app = express.Router();
 app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const UserSchema = Schema.UserSchema;
 
 // Schema
 const TeamSchema = new Schema({
