@@ -6,10 +6,10 @@ import 'package:pedala_mi/routes/sign_in.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/routes/splashscreen_page.dart';
 import 'package:pedala_mi/routes/switching_page.dart';
+import 'package:pedala_mi/routes/team_members.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'routes/start_page.dart';
 import 'package:flutter/services.dart';
-import 'package:pedala_mi/routes/profile_editing.dart';
 import 'dart:async';
 
 void main() async {
@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
               '/sign_in': (context) => SignInPage(),
               '/sign_in_page': (context) => SignInScreen(),
               '/switch_page': (context) => SwitchPage(),
+              '/team_members': (context) => TeamMembers(),
             },
 
             home: SplashScreen(),
