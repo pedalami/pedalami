@@ -49,6 +49,11 @@ class _MapPageState extends State<MapPage> {
   Color _currentButtonColor = Colors.green[400]!;
   Text _currentButtonText = Text("Start");
   FaIcon _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+  GeoPoint? _startLocation;
+  GeoPoint? _endLocation;
+  GeoPoint? _lastLocation;
+  GeoPoint? _tempLocation;
+  double _rideDistance = 0;
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
@@ -313,27 +318,68 @@ class _MapPageState extends State<MapPage> {
                       child: StatefulBuilder(
                         builder: (context, internalState) {
                           return ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_isRecording == false) {
+                                _startLocation = await controller.myLocation();
+                                _tempLocation = await controller.myLocation();
                                 internalState(() {
                                   _isRecording = true;
                                   _currentButtonColor = Colors.redAccent;
                                   _currentButtonText = Text("Stop");
-                                  _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
+                                  _currentButtonIcon =
+                                      FaIcon(FontAwesomeIcons.pause);
+                                  print(_startLocation);
                                 });
                                 _stateTick = Timer.periodic(
-                                    Duration(seconds: 3), (Timer t) {
-                                  internalState(() {
-                                    elapsedTime += 1;
+                                    Duration(seconds: 15), (Timer t) {
+                                  internalState(() async {
+                                    elapsedTime += 15;
+                                    _lastLocation =
+                                        await controller.myLocation();
+
+                                    if (_startLocation!.latitude ==
+                                            _lastLocation!.latitude &&
+                                        _startLocation!.longitude ==
+                                            _lastLocation!.longitude) {
+                                      print(
+                                          "No progress on ride has been made, ignore saving");
+                                    } else {
+                                      RoadInfo roadInfo =
+                                          await controller.drawRoad(
+                                              _startLocation!, _lastLocation!,
+                                              roadOption: RoadOption(
+                                                roadWidth: 10,
+                                                roadColor: Colors.blue,
+                                                showMarkerOfPOI: false,
+                                              ));
+                                      _rideDistance += roadInfo.distance!;
+                                      _tempLocation = _lastLocation;
+                                    }
                                     print(elapsedTime);
                                   });
                                 });
                               } else {
+                                _endLocation = await controller.myLocation();
+
+                                print(_endLocation);
+                                print(_startLocation);
+                                if (_startLocation!.latitude ==
+                                        _endLocation!.latitude &&
+                                    _startLocation!.longitude ==
+                                        _endLocation!.longitude) {
+                                  showAlertDialog(context);
+                                } else {
+                                  //TODO: Show dialog with the saved ride, stats, points earned etc...
+                                  print(
+                                      "Distance: " + _rideDistance.toString());
+                                }
+
                                 internalState(() {
                                   _isRecording = false;
                                   _currentButtonText = Text("Start");
                                   _currentButtonColor = Colors.green[400]!;
-                                  _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+                                  _currentButtonIcon =
+                                      FaIcon(FontAwesomeIcons.play);
                                   _stateTick!.cancel();
                                 });
                               }
@@ -425,6 +471,34 @@ class _MapPageState extends State<MapPage> {
             ],
           ),
         );
+      },
+    );
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Unable to Save Ride"),
+      content: Text(
+          "We are unable to detect that you have moved since you started recording your ride"),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
       },
     );
   }
