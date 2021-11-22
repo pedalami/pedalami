@@ -7,6 +7,7 @@ import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
 
@@ -237,9 +238,9 @@ class _ProfilePageState extends State<ProfilePage> {
                             width: 32.0 * SizeConfig.widthMultiplier!,
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                Navigator.pushNamed(context, "/team_members");
+                                Navigator.pushNamed(context, "/current_team");
                               },
-                              label: Text("Manage Team"),
+                              label: Text("Info"),
                               icon: FaIcon(FontAwesomeIcons.userCog),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(

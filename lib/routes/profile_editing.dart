@@ -96,7 +96,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            nStringToNNString(user!.displayName),
+                            nStringToNNString(_miUser.username),
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 3 * SizeConfig.textMultiplier!,
@@ -184,9 +184,6 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                     Colors.lightGreen)),
                           ),
                         ),
-                        /*Divider(
-                          color: Colors.black,
-                        ),*/
                         Padding(
                             padding: EdgeInsets.only(
                                 left: 10,
