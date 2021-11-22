@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class CustomController extends MapController {
@@ -42,6 +43,12 @@ class _MapPageState extends State<MapPage> {
   ValueNotifier<bool> showFab = ValueNotifier(true);
   ValueNotifier<GeoPoint?> lastGeoPoint = ValueNotifier(null);
   Timer? timer;
+  Timer? _stateTick;
+  int elapsedTime = 0;
+  bool _isRecording = false;
+  Color _currentButtonColor = Colors.green[400]!;
+  Text _currentButtonText = Text("Start");
+  FaIcon _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
@@ -58,11 +65,7 @@ class _MapPageState extends State<MapPage> {
     super.initState();
     getLocationPermission();
     controller = CustomController(
-      initMapWithUserPosition: false,
-      initPosition: GeoPoint(
-        latitude: 50.4358055,
-        longitude: 8.4737324,
-      ),
+      initMapWithUserPosition: true,
       // areaLimit: BoundingBox(
       //   east: 10.4922941,
       //   north: 47.8084648,
@@ -187,6 +190,7 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return OrientationBuilder(
       builder: (ctx, orientation) {
         return Container(
@@ -205,16 +209,16 @@ class _MapPageState extends State<MapPage> {
                     ],
                   ),
                 ),
-                initZoom: 8,
+                initZoom: 17,
                 minZoomLevel: 8,
-                maxZoomLevel: 14,
+                maxZoomLevel: 19,
                 stepZoom: 1.0,
                 userLocationMarker: UserLocationMaker(
                   personMarker: MarkerIcon(
                     icon: Icon(
                       Icons.location_history_rounded,
                       color: Colors.red,
-                      size: 48,
+                      size: 80,
                     ),
                   ),
                   directionArrowMarker: MarkerIcon(
@@ -224,7 +228,7 @@ class _MapPageState extends State<MapPage> {
                     ),
                   ),
                 ),
-                showContributorBadgeForOSM: true,
+                showContributorBadgeForOSM: false,
                 //trackMyPosition: trackingNotifier.value,
                 showDefaultInfoWindow: false,
                 onLocationChanged: (myLocation) {
@@ -301,6 +305,53 @@ class _MapPageState extends State<MapPage> {
                   ),
                 ),
               ),
+              Positioned(
+                  bottom: size.height / 8,
+                  width: size.width / 1,
+                  child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: StatefulBuilder(
+                        builder: (context, internalState) {
+                          return ElevatedButton.icon(
+                            onPressed: () {
+                              if (_isRecording == false) {
+                                internalState(() {
+                                  _isRecording = true;
+                                  _currentButtonColor = Colors.redAccent;
+                                  _currentButtonText = Text("Stop");
+                                  _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
+                                });
+                                _stateTick = Timer.periodic(
+                                    Duration(seconds: 3), (Timer t) {
+                                  internalState(() {
+                                    elapsedTime += 1;
+                                    print(elapsedTime);
+                                  });
+                                });
+                              } else {
+                                internalState(() {
+                                  _isRecording = false;
+                                  _currentButtonText = Text("Start");
+                                  _currentButtonColor = Colors.green[400]!;
+                                  _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+                                  _stateTick!.cancel();
+                                });
+                              }
+                            },
+                            label: _currentButtonText,
+                            icon: _currentButtonIcon,
+                            style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                    Size(size.width / 2, size.height / 15)),
+                                backgroundColor: MaterialStateProperty.all(
+                                    _currentButtonColor),
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                ))),
+                          );
+                        },
+                      ))),
               Positioned(
                 bottom: 10,
                 left: 10,
