@@ -7,6 +7,7 @@ import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
 
@@ -233,11 +234,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: 7.0 * SizeConfig.widthMultiplier!,
                           ),
-                          Container(
+                            Container(
                             width: 32.0 * SizeConfig.widthMultiplier!,
                             child: ElevatedButton.icon(
-                              onPressed: () {},
-                              label: Text("Change Team"),
+                              onPressed: () {
+                                Navigator.pushNamed(context, "/current_team");
+                              },
+                              label: Text("Info"),
                               icon: FaIcon(FontAwesomeIcons.userCog),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
@@ -248,8 +251,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               BorderRadius.circular(18.0),
                                           side: BorderSide(
                                               color: Colors.green)))),
-                            ),
-                          )
+                                ),
+                            )
                         ],
                       ),
                       Divider(
