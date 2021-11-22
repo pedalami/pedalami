@@ -233,11 +233,13 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: 7.0 * SizeConfig.widthMultiplier!,
                           ),
-                          Container(
+                            Container(
                             width: 32.0 * SizeConfig.widthMultiplier!,
                             child: ElevatedButton.icon(
-                              onPressed: () {},
-                              label: Text("Change Team"),
+                              onPressed: () {
+                                Navigator.pushNamed(context, "/team_members");
+                              },
+                              label: Text("Manage Team"),
                               icon: FaIcon(FontAwesomeIcons.userCog),
                               style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(
@@ -248,8 +250,8 @@ class _ProfilePageState extends State<ProfilePage> {
                                               BorderRadius.circular(18.0),
                                           side: BorderSide(
                                               color: Colors.green)))),
-                            ),
-                          )
+                                ),
+                            )
                         ],
                       ),
                       Divider(
