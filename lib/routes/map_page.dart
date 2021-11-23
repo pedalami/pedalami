@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -49,9 +50,6 @@ class _MapPageState extends State<MapPage> {
   Color _currentButtonColor = Colors.green[400]!;
   Text _currentButtonText = Text("Start");
   FaIcon _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
-  GeoPoint? _startLocation;
-  GeoPoint? _endLocation;
-  GeoPoint? _lastLocation;
   double _rideDistance = 0;
   List<GeoPoint> path = [];
 
@@ -66,7 +64,6 @@ class _MapPageState extends State<MapPage> {
     controller = CustomController(
       initMapWithUserPosition: true,
     );
-    controller.enableTracking();
   }
 
   @override
@@ -79,6 +76,12 @@ class _MapPageState extends State<MapPage> {
             children: [
               OSMFlutter(
                 controller: controller,
+                onMapIsReady: (myLocation) {
+                  controller.enableTracking();
+                  controller.currentLocation();
+                  controller.setZoom(stepZoom: 10.0);
+                  controller.zoomIn();
+                },
                 mapIsLoading: Center(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -112,16 +115,6 @@ class _MapPageState extends State<MapPage> {
                 showContributorBadgeForOSM: false,
                 //trackMyPosition: trackingNotifier.value,
                 showDefaultInfoWindow: false,
-                onLocationChanged: (myLocation) async {
-                  if (_isRecording = true) {
-                    controller.currentLocation();
-                    path.add(await controller.myLocation());
-                    if (path.length > 3) {
-                      await controller.drawRoadManually(
-                          path, Colors.blue, 10.0);
-                    }
-                  }
-                },
                 onGeoPointClicked: (geoPoint) async {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -172,20 +165,58 @@ class _MapPageState extends State<MapPage> {
                         builder: (context, internalState) {
                           return ElevatedButton.icon(
                             onPressed: () async {
+                              await controller.enableTracking();
+                              await controller.currentLocation();
                               if (_isRecording == false) {
+                                _isRecording = true;
+                                path.add(await controller.myLocation());
+                                controller.addMarker(path.last,
+                                    markerIcon: MarkerIcon(
+                                      image: AssetImage(
+                                          'lib/assets/map_marker.png'),
+                                    ));
+                                print(path);
                                 internalState(() {
-                                  _isRecording = true;
                                   _currentButtonColor = Colors.redAccent;
                                   _currentButtonText = Text("Stop");
                                   _currentButtonIcon =
                                       FaIcon(FontAwesomeIcons.pause);
-                                  print(_startLocation);
                                 });
                                 _stateTick = Timer.periodic(
-                                    Duration(seconds: 1), (Timer t) async {
+                                    Duration(seconds: 15), (Timer t) async {
+                                  //Ugly and repeating code, but was the only fix for the tracking bug
+                                  await controller.enableTracking();
+                                  await controller.currentLocation();
+                                  await Future.delayed(Duration(seconds: 2));
+                                  controller.removeMarker(path.last);
+                                  var latestLocation =
+                                      await controller.myLocation();
+                                  if (path.last.latitude ==
+                                          latestLocation.latitude &&
+                                      path.last.latitude ==
+                                          latestLocation.latitude) {
+                                    print("No progress to save");
+                                  } else {
+                                    path.add(latestLocation);
+                                  }
+                                  if (path.length > 2) {
+                                    controller.drawRoad(path.first, path.last,
+                                        intersectPoint:
+                                            path.sublist(1, path.length - 1),
+                                        roadType: RoadType.bike,
+                                        roadOption: RoadOption(
+                                          roadWidth: 10,
+                                          roadColor: Colors.green,
+                                        ));
+                                  }
                                   internalState(() {
-                                    elapsedTime += 1;
+                                    elapsedTime += 15;
                                   });
+                                  controller.addMarker(path.last,
+                                      markerIcon: MarkerIcon(
+                                          image: AssetImage(
+                                        'lib/assets/map_marker.png',
+                                      )));
                                 });
                               } else {
                                 if (path.length < 3) {
@@ -193,15 +224,18 @@ class _MapPageState extends State<MapPage> {
                                 } else {
                                   //TODO: Show dialog with the saved ride, stats, points earned etc...
                                 }
-
+                                path.forEach((element) {
+                                  controller.removeMarker(element);
+                                });
+                                path.clear();
+                                _isRecording = false;
                                 internalState(() {
-                                  _isRecording = false;
                                   _currentButtonText = Text("Start");
                                   _currentButtonColor = Colors.green[400]!;
                                   _currentButtonIcon =
                                       FaIcon(FontAwesomeIcons.play);
-                                  _stateTick!.cancel();
                                 });
+                                _stateTick!.cancel();
                               }
                             },
                             label: _currentButtonText,
@@ -218,76 +252,6 @@ class _MapPageState extends State<MapPage> {
                           );
                         },
                       ))),
-              Positioned(
-                bottom: 10,
-                left: 10,
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: advPickerNotifierActivation,
-                  builder: (ctx, visible, child) {
-                    return Visibility(
-                      visible: visible,
-                      child: AnimatedOpacity(
-                        opacity: visible ? 1.0 : 0.0,
-                        duration: Duration(milliseconds: 500),
-                        child: child,
-                      ),
-                    );
-                  },
-                  child: FloatingActionButton(
-                    key: UniqueKey(),
-                    child: Icon(Icons.arrow_forward),
-                    heroTag: "confirmAdvPicker",
-                    onPressed: () async {
-                      advPickerNotifierActivation.value = false;
-                      GeoPoint p =
-                          await controller.selectAdvancedPositionPicker();
-                      print(p);
-                    },
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: 10,
-                left: 10,
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: visibilityZoomNotifierActivation,
-                  builder: (ctx, visibility, child) {
-                    return Visibility(
-                      visible: visibility,
-                      child: child!,
-                    );
-                  },
-                  child: ValueListenableBuilder<bool>(
-                    valueListenable: zoomNotifierActivation,
-                    builder: (ctx, isVisible, child) {
-                      return AnimatedOpacity(
-                        opacity: isVisible ? 1.0 : 0.0,
-                        onEnd: () {
-                          visibilityZoomNotifierActivation.value = isVisible;
-                        },
-                        duration: Duration(milliseconds: 500),
-                        child: child,
-                      );
-                    },
-                    child: Column(
-                      children: [
-                        ElevatedButton(
-                          child: Icon(Icons.add),
-                          onPressed: () async {
-                            controller.zoomIn();
-                          },
-                        ),
-                        ElevatedButton(
-                          child: Icon(Icons.remove),
-                          onPressed: () async {
-                            controller.zoomOut();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
         );
@@ -321,121 +285,5 @@ class _MapPageState extends State<MapPage> {
         return alert;
       },
     );
-  }
-
-  void roadActionBt(BuildContext ctx) async {
-    try {
-      await controller.removeLastRoad();
-
-      ///selection geoPoint
-      GeoPoint point = await controller.selectPosition(
-          icon: MarkerIcon(
-        icon: Icon(
-          Icons.person_pin_circle,
-          color: Colors.amber,
-          size: 100,
-        ),
-      ));
-      GeoPoint point2 = await controller.selectPosition();
-      showFab.value = false;
-      ValueNotifier<RoadType> notifierRoadType = ValueNotifier(RoadType.car);
-      final bottomPersistant = showBottomSheet(
-        context: ctx,
-        backgroundColor: Colors.transparent,
-        elevation: 0.0,
-        builder: (ctx) {
-          return Container(
-            height: 96,
-            child: WillPopScope(
-              onWillPop: () async => false,
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  height: 64,
-                  width: 196,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8.0),
-                  ),
-                  alignment: Alignment.center,
-                  margin: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          notifierRoadType.value = RoadType.car;
-                          Navigator.pop(ctx, RoadType.car);
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.directions_car),
-                            Text("Car"),
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          notifierRoadType.value = RoadType.bike;
-                          Navigator.pop(ctx, RoadType.bike);
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.directions_bike),
-                            Text("Bike"),
-                          ],
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          notifierRoadType.value = RoadType.foot;
-                          Navigator.pop(ctx, RoadType.foot);
-                        },
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: const [
-                            Icon(Icons.directions_walk),
-                            Text("Foot"),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      );
-
-      await bottomPersistant.closed.whenComplete(() {
-        showFab.value = true;
-      }).then((roadType) async {
-        RoadInfo roadInformation = await controller.drawRoad(
-          point, point2,
-          roadType: notifierRoadType.value,
-          //interestPoints: [pointM1, pointM2],
-          roadOption: RoadOption(
-            roadWidth: 10,
-            roadColor: Colors.blue,
-            showMarkerOfPOI: false,
-          ),
-        );
-        print(
-            "duration:${Duration(seconds: roadInformation.duration!.toInt()).inMinutes}");
-        print("distance:${roadInformation.distance}Km");
-      });
-    } on RoadException catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            "${e.errorMessage()}",
-          ),
-        ),
-      );
-    }
   }
 }

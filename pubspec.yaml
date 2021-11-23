@@ -74,6 +74,7 @@ flutter:
     - lib/assets/pedala_logo.png
     - lib/assets/app_logo.png
     - lib/assets/app_icon.png
+    - lib/assets/map_marker.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
