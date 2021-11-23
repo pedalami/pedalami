@@ -9,6 +9,7 @@ const UserSchema = Schema.UserSchema;
 const TeamSchema = new Schema({
   team_id: { type: String, required: true },
   admin_uid: { type: String, required: true },
+  name: { type: String, required: true },
   members: { type: Array, required: true }, // At least the admin
   active_events: { type: Array, required: false }, // IDs of active events
   event_requests: { type: Array, required: false }, // To better define once requests are defined
