@@ -8,14 +8,14 @@ import 'package:pedala_mi/models/user.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 
-class TeamManagement extends StatefulWidget {
-  TeamManagement({Key? key}) : super(key: key);
+class TeamProfile extends StatefulWidget {
+  TeamProfile({Key? key}) : super(key: key);
 
   @override
-  _TeamManagementState createState() => _TeamManagementState();
+  _TeamProfileState createState() => _TeamProfileState();
 }
 
-class _TeamManagementState extends State<TeamManagement> {
+class _TeamProfileState extends State<TeamProfile> {
   User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
@@ -50,7 +50,7 @@ class _TeamManagementState extends State<TeamManagement> {
         clipBehavior: Clip.none,
         children: <Widget>[
           Container(
-            color: Colors.white, //green[600],
+            color: Colors.green[600],
             height: 45 * SizeConfig.heightMultiplier!,
             width: 100 * SizeConfig.heightMultiplier!,
             child: Padding(
@@ -62,8 +62,7 @@ class _TeamManagementState extends State<TeamManagement> {
                 children: <Widget>[
                   Column(
                     children: <Widget>[
-                      GestureDetector(
-                          child: Container(
+                      Container(
                             height: 22 * SizeConfig.heightMultiplier!,
                             width: 32 * SizeConfig.widthMultiplier!,
                             decoration: BoxDecoration(
@@ -75,20 +74,19 @@ class _TeamManagementState extends State<TeamManagement> {
                                       nStringToNNString(_miUser.image)),*/
                                 ),
                           ),
-                          onTap: () {}
-                          ),
                       Text( "Team Awesome",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black54,
-                          fontSize: 4 * SizeConfig.textMultiplier!,),
-                      ),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                              fontSize: 4 * SizeConfig.textMultiplier!,),
+                          ),
+
                       SizedBox(
                         width: 5 * SizeConfig.widthMultiplier!,
                       ),
-                      Divider(
+                      /*Divider(
                         color: Colors.black54,
-                      )
+                      ),*/
                     ],
                   ),
                 ],
@@ -96,14 +94,11 @@ class _TeamManagementState extends State<TeamManagement> {
             ),
           ),
           Padding (
-              padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
+              padding: EdgeInsets.only(top: 10 * SizeConfig.heightMultiplier!),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(
-                      height: 3 * SizeConfig.heightMultiplier!,
-                  ),
-                ]
+                  ]
               ),
           ),
             Padding(
@@ -118,106 +113,99 @@ class _TeamManagementState extends State<TeamManagement> {
                     )),
                 child: Container(
                   //child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Text( "Description",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            fontSize: 2.5 * SizeConfig.textMultiplier!,),
-                        ),
-                        Text( "Nerd guys with high ambitions",
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black54,
-                            fontSize: 2 * SizeConfig.textMultiplier!,),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10.0,
-                              top: 5 * SizeConfig.heightMultiplier!,
-                              right: 10.0,
-                              bottom: 10.0),
-                            child: Text( "Team Admin",
+                      child: Padding(
+                          padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
+                          child: Column(
+                            children: <Widget>[
+                              Text( "Description",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54,
+                                  fontSize: 2.5 * SizeConfig.textMultiplier!,),
+                              ),
+                              Text( "Nerd guys with high ambitions",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.black54,
+                                  fontSize: 2 * SizeConfig.textMultiplier!,),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    top: 3 * SizeConfig.heightMultiplier!),),
+                              Text( "Team Admin",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                   fontSize: 2.5 * SizeConfig.textMultiplier!,),
                                   ),
-                        ),
-                        Text( "Admin's username",
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black54,
-                            fontSize: 2.3 * SizeConfig.textMultiplier!,),
-                        ),
-                        Padding(
-                            padding: EdgeInsets.only(
-                                left: 10.0,
-                                top: 10 * SizeConfig.heightMultiplier!,
-                                right: 10),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, "/events");
-                            },
-                            child: Text("Team Events"),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen),
-                                    shape: MaterialStateProperty.all(
-                                         RoundedRectangleBorder(
-                                             borderRadius: BorderRadius.circular(18.0),
-                                             side: BorderSide(
-                                        color: Colors.lightGreen)))),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10.0,
-                              top: 3 * SizeConfig.heightMultiplier!,
-                              right: 10),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.pushNamed(context, "/team_members");
-                            },
-                            child: Text("Team Members"),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen),
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(
-                                            color: Colors.lightGreen)))),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10.0,
-                              top: 3 * SizeConfig.heightMultiplier!,
-                              right: 10),
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: Text("Leave current team", style: TextStyle(color: Colors.grey[800]),),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.redAccent),
-                                    shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(
-                                            color: Colors.redAccent)))),
-                          ),
-                        ),
-                        SizedBox(
-                          height: 3 * SizeConfig.heightMultiplier!,
-                        ),
-                      ],
-                    ),
+                                Text( "Admin's username",
+                                style: TextStyle(
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.black54,
+                                  fontSize: 2.3 * SizeConfig.textMultiplier!,),
+                                  ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                    top: 7 * SizeConfig.heightMultiplier!),),
+                                 ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, "/events");
+                                  },
+                                  child: Text("Team Events"),
+                                  style: ButtonStyle(
+                                      backgroundColor: MaterialStateProperty.all(
+                                          Colors.lightGreen),
+                                          shape: MaterialStateProperty.all(
+                                               RoundedRectangleBorder(
+                                                   borderRadius: BorderRadius.circular(18.0),
+                                                   side: BorderSide(
+                                              color: Colors.lightGreen)))),
+                                  ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 10.0,
+                                      top: 3 * SizeConfig.heightMultiplier!,
+                                      right: 10),
+                                      child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, "/team_members");
+                                        },
+                                        child: Text("Team Members"),
+                                        style: ButtonStyle(
+                                            backgroundColor: MaterialStateProperty.all(
+                                                Colors.lightGreen),
+                                            shape: MaterialStateProperty.all(
+                                                RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(18.0),
+                                                    side: BorderSide(
+                                                        color: Colors.lightGreen)))),
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                          left: 10.0,
+                                          top: 3 * SizeConfig.heightMultiplier!,
+                                          right: 10),
+                                      child: ElevatedButton(
+                                        onPressed: () {},
+                                        child: Text("Leave current team", style: TextStyle(color: Colors.grey[800]),),
+                                        style: ButtonStyle(
+                                            backgroundColor: MaterialStateProperty.all(
+                                                Colors.redAccent),
+                                                shape: MaterialStateProperty.all(
+                                                RoundedRectangleBorder(
+                                                    borderRadius: BorderRadius.circular(18.0),
+                                                    side: BorderSide(
+                                                        color: Colors.redAccent)))),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 3 * SizeConfig.heightMultiplier!,
+                                    ),
+                    ],
                   ),
                 ),
-              )//)
-        ],
+            )))],
       ),
     );
   }

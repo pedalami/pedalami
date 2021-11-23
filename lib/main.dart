@@ -9,6 +9,7 @@ import 'package:pedala_mi/routes/splashscreen_page.dart';
 import 'package:pedala_mi/routes/switching_page.dart';
 import 'package:pedala_mi/routes/team_members.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
+import 'package:pedala_mi/routes/teams_search.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'routes/start_page.dart';
 import 'package:flutter/services.dart';
@@ -40,8 +41,9 @@ class MyApp extends StatelessWidget {
               '/sign_in_page': (context) => SignInScreen(),
               '/switch_page': (context) => SwitchPage(),
               '/team_members': (context) => TeamMembers(),
-              '/current_team': (context) => TeamManagement(),
+              '/current_team': (context) => TeamProfile(),
               '/events': (context) => EventsPage(),
+              '/search_team': (context) => TeamsSearchPage(),
             },
 
             home: SplashScreen(),
