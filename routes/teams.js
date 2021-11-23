@@ -25,13 +25,26 @@ app.post('/create', (req, res) => {
   console.log(req.body);
   if (req.body.team_id) {
     const newTeam = new Team(req.body);
-    newTeam.save((error) => {
+    const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
-        console.log('Error saving the team..\n'+error);
-        res.status(500).send('Error saving the team!');
-      } else {
-        console.log('The team has been saved.');
-        res.status(200).send('Team saved correctly!');
+        console.log('Error while searching for the edmin!\n'+error);
+        res.status(500).send('Error while creating the team: the admin does not exist!');
+      }
+      if (!admin) {
+        console.log('Cannot find the admin specified!\n');
+        res.status(500).send('Error while creating the team: the admin specified does not exist!');
+      } 
+      else {
+        newTeam.members.push(req.body.admin_uid);
+        newTeam.save((error) => {
+          if (error) {
+            console.log('Error saving the team..\n'+error);
+            res.status(500).send('Error saving the team!');
+          } else {
+            console.log('The team has been saved.');
+            res.status(200).send('Team saved correctly!');
+          }
+        });
       }
     });
   } else {
