@@ -22,6 +22,10 @@ class _TeamProfileState extends State<TeamProfile> {
   MiUser _miUser = new MiUser("", "", "", "");
   File? f;
 
+  String team_name = "Team Awesome";  //TODO: Make dynamic, read data from DB
+  String description = "Nerd guys with high ambitions"; //TODO: Make dynamic, read data from DB
+  String team_admin = "Admin's username"; //TODO: Make dynamic, read data from DB
+
   @override
   void initState() {
     CollectionReference usersCollection =
@@ -52,7 +56,7 @@ class _TeamProfileState extends State<TeamProfile> {
           Container(
             color: Colors.green[600],
             height: 45 * SizeConfig.heightMultiplier!,
-            width: 100 * SizeConfig.heightMultiplier!,
+            width: 100 * SizeConfig.widthMultiplier!,
             child: Padding(
               padding: EdgeInsets.only(
                   left: 30.0,
@@ -74,7 +78,7 @@ class _TeamProfileState extends State<TeamProfile> {
                                       nStringToNNString(_miUser.image)),*/
                                 ),
                           ),
-                      Text( "Team Awesome",
+                      Text( team_name,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black54,
@@ -97,8 +101,7 @@ class _TeamProfileState extends State<TeamProfile> {
               padding: EdgeInsets.only(top: 10 * SizeConfig.heightMultiplier!),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  ]
+                children: <Widget>[]
               ),
           ),
             Padding(
@@ -114,20 +117,23 @@ class _TeamProfileState extends State<TeamProfile> {
                 child: Container(
                   //child: SingleChildScrollView(
                       child: Padding(
-                          padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
+                          padding: EdgeInsets.only(left: 30.0, top: 4 * SizeConfig.heightMultiplier!, right: 30.0,),
                           child: Column(
-                            children: <Widget>[
+                            children: <Widget> [
                               Text( "Description",
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.black54,
                                   fontSize: 2.5 * SizeConfig.textMultiplier!,),
                               ),
-                              Text( "Nerd guys with high ambitions",
+                              Text( description,
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   color: Colors.black54,
                                   fontSize: 2 * SizeConfig.textMultiplier!,),
+                              ),
+                              Divider(
+                                color: Colors.black54,
                               ),
                               Padding(
                                 padding: EdgeInsets.only(
@@ -138,7 +144,7 @@ class _TeamProfileState extends State<TeamProfile> {
                                   color: Colors.black54,
                                   fontSize: 2.5 * SizeConfig.textMultiplier!,),
                                   ),
-                                Text( "Admin's username",
+                                Text( team_admin,
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   color: Colors.black54,
@@ -146,13 +152,15 @@ class _TeamProfileState extends State<TeamProfile> {
                                   ),
                                 Padding(
                                   padding: EdgeInsets.only(
-                                    top: 7 * SizeConfig.heightMultiplier!),),
+                                    top: 5 * SizeConfig.heightMultiplier!),),
                                  ElevatedButton(
                                   onPressed: () {
                                     Navigator.pushNamed(context, "/events");
                                   },
-                                  child: Text("Team Events"),
+                                  child: Text("Events", textAlign: TextAlign.center,),
                                   style: ButtonStyle(
+                                      fixedSize: MaterialStateProperty.all(
+                                          Size(200, 35)),
                                       backgroundColor: MaterialStateProperty.all(
                                           Colors.lightGreen),
                                           shape: MaterialStateProperty.all(
@@ -172,6 +180,8 @@ class _TeamProfileState extends State<TeamProfile> {
                                         },
                                         child: Text("Team Members"),
                                         style: ButtonStyle(
+                                            fixedSize: MaterialStateProperty.all(
+                                                Size(200, 35)),
                                             backgroundColor: MaterialStateProperty.all(
                                                 Colors.lightGreen),
                                             shape: MaterialStateProperty.all(
@@ -187,9 +197,13 @@ class _TeamProfileState extends State<TeamProfile> {
                                           top: 3 * SizeConfig.heightMultiplier!,
                                           right: 10),
                                       child: ElevatedButton(
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.pushNamed(context, "/search_team");
+                                        },
                                         child: Text("Leave current team", style: TextStyle(color: Colors.grey[800]),),
                                         style: ButtonStyle(
+                                            fixedSize: MaterialStateProperty.all(
+                                                Size(200, 35)),
                                             backgroundColor: MaterialStateProperty.all(
                                                 Colors.redAccent),
                                                 shape: MaterialStateProperty.all(
@@ -202,10 +216,13 @@ class _TeamProfileState extends State<TeamProfile> {
                                     SizedBox(
                                       height: 3 * SizeConfig.heightMultiplier!,
                                     ),
-                    ],
-                  ),
+                              ],
+                          ),
+                      ),
                 ),
-            )))],
+              ),
+            ),
+        ],
       ),
     );
   }

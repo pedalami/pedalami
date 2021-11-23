@@ -180,9 +180,13 @@ class _ProfileEditingState extends State<ProfileEditing> {
                             },
                             child: Text("Change username"),
                             style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                    Size(200, 35)),
                                 backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen)),
-                          ),
+                                    Colors.lightGreen),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0))))),
                         ),
                         Padding(
                             padding: EdgeInsets.only(
