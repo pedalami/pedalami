@@ -47,6 +47,7 @@ app.get('/search', (req, res) => {
   console.log(req.body);
   const to_search = req.query.name;
   if (to_search) {
+    console.log(to_search);
     const teams = Team.find({ name: "test" }, (error, team) => {
       if (error) {
         console.log('Error finding the user.');
