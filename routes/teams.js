@@ -45,7 +45,7 @@ app.post('/create', (req, res) => {
 app.get('/search', (req, res) => {
   console.log('Received search GET request:');
   console.log(req.body);
-  if (req.body.name) {
+  if (req.query.name) {
     const teams = Team.find({ team_id: "/^"+req.body.team_id+"/i" }, (error, team) => {
       if (error) {
         console.log('Error finding the user.');
