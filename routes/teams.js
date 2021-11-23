@@ -27,12 +27,12 @@ app.post('/create', (req, res) => {
     const newTeam = new Team(req.body);
     const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
-        console.log('Error while searching for the edmin!\n'+error);
-        res.status(500).send('Error while creating the team: the admin does not exist!');
+        console.log('Error while searching for the user specified as admin!\n'+error);
+        res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
       }
       if (!admin) {
-        console.log('Cannot find the admin specified!\n');
-        res.status(500).send('Error while creating the team: the admin specified does not exist!');
+        console.log('Cannot find the user specified as admin!\n');
+        res.status(500).send('Error while creating the team: the team admin specified does not exist!');
       } 
       else {
         newTeam.members.push(req.body.admin_uid);
