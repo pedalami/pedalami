@@ -45,8 +45,9 @@ app.post('/create', (req, res) => {
 app.get('/search', (req, res) => {
   console.log('Received search GET request:');
   console.log(req.body);
-  if (req.query.name) {
-    const teams = Team.find({ team_id: "/^"+req.body.team_id+"/i" }, (error, team) => {
+  const to_search = req.query.name;
+  if (to_search) {
+    const teams = Team.find({ name: "/^"+to_search+"/i" }, (error, team) => {
       if (error) {
         console.log('Error finding the user.');
         res.status(500).send('Error finding the user!');
