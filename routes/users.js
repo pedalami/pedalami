@@ -37,7 +37,7 @@ app.post('/create', (req, res) => {
 
 app.get('/addPoints', (req, res) => {
   if (req.body.points <= 0) {
-    res.send('Points cannot be negative!');
+    res.status(500).send('Points cannot be negative!');
   } else {
     var query = { token: req.body.token };
 

@@ -10,7 +10,6 @@ const TeamSchema = new Schema({
   team_id: { type: String, required: true },
   admin_uid: { type: String, required: true },
   members: { type: Array, required: true }, // At least the admin
-  points: { type: Number, required: true, default: 0 },
   active_events: { type: Array, required: false }, // IDs of active events
   event_requests: { type: Array, required: false }, // To better define once requests are defined
 });
@@ -35,6 +34,27 @@ app.post('/create', (req, res) => {
       }
     });
   } else {
+    console.log('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
+  }
+});
+
+
+// GET /search?name=start_of_name
+app.get('/search', (req, res) => {
+  console.log('Received search GET request:');
+  console.log(req.body);
+  if (req.body.name) {
+    const teams = Team.find({ team_id: "/^"+req.body.team_id+"/i" }, (error, team) => {
+      if (error) {
+        console.log('Error finding the user.');
+        res.status(500).send('Error finding the user!');
+      } else {
+        res.status(200).send(teams);
+      }
+    });
+  }
+  else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
   }
@@ -77,8 +97,8 @@ app.post('/join', (req, res) => {
                     console.log('Error adding the team in the user.');
                     res.status(500).send('Error adding the team in the user!');
                   } else {
-                    console.log('The user has been added to the teem.');
-                    res.status(200).send('User added correctly!');
+                    console.log('The user has been added to the team.');
+                    res.status(200).send('The user has been added to the team.');
                   }
                 })
               }
