@@ -52,6 +52,7 @@ class _MapPageState extends State<MapPage> {
   FaIcon _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
   double _rideDistance = 0;
   List<GeoPoint> path = [];
+  RoadInfo? _roadInfo;
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
@@ -200,7 +201,7 @@ class _MapPageState extends State<MapPage> {
                                     path.add(latestLocation);
                                   }
                                   if (path.length > 2) {
-                                    controller.drawRoad(path.first, path.last,
+                                    var roadInfo = controller.drawRoad(path.first, path.last,
                                         intersectPoint:
                                             path.sublist(1, path.length - 1),
                                         roadType: RoadType.bike,
@@ -222,7 +223,7 @@ class _MapPageState extends State<MapPage> {
                                 if (path.length < 3) {
                                   showAlertDialog(context);
                                 } else {
-                                  //TODO: Show dialog with the saved ride, stats, points earned etc...
+                                  showRideCompleteDialog(context, size, _roadInfo!);
                                 }
                                 path.forEach((element) {
                                   controller.removeMarker(element);
@@ -255,6 +256,65 @@ class _MapPageState extends State<MapPage> {
             ],
           ),
         );
+      },
+    );
+  }
+
+  showRideCompleteDialog(BuildContext context, Size size, RoadInfo roadInfo) {
+
+    TextStyle textStyle = TextStyle(
+      fontSize: 15,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.w400
+    );
+
+    Center alert = Center(
+      child: Card(
+        child: InkWell(
+          splashColor: Colors.green.shade200,
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: SizedBox(
+            width: 300,
+            height: size.height / 4,
+            child: (Column(
+              children: [
+                Container(
+                  height: size.height / 13,
+                  color: Colors.green,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: Text(
+                          "Great Job!",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 18.0),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                SizedBox(height: size.height/40,),
+                Text("The ride has now been saved, impressive!", style: textStyle,),
+                SizedBox(height: size.height/40,),
+                Text("You managed to ride a whopping ${roadInfo.distance}m!", style: textStyle,),
+                SizedBox(height: size.height/40,),
+                Text("And the ride took only ${roadInfo.duration} seconds, wow!" , style: textStyle,),
+              ],
+            )),
+          ),
+        ),
+      ),
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
       },
     );
   }
