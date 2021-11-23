@@ -19,7 +19,7 @@ app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
   if (req.body.uid) {
-    const newUser = new User(req.body);
+    const newUser = new User(req.body.uid);
     newUser.save((error) => {
       if (error) {
         console.log('Error saving the user.');

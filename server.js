@@ -6,6 +6,10 @@ const mongoose = require('mongoose');
 var usersRouter = require('./routes/users');
 var teamsRouter = require('./routes/teams');
 
+var swaggerUi = require('swagger-ui-express');
+var swaggerDocument = require('./swagger.json');
+
+
 const PORT = process.env.PORT || 8000
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -35,6 +39,8 @@ app.get('/', (req, res) => {
 
 app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
+
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 

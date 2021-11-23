@@ -1,0 +1,94 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "PedalaMi",
+    "description": "PedalaMi: cycling and having fun in your city"
+  },
+  "basePath": "/api/",
+  "tags": [
+    {
+      "name": "Users"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/users/create": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "description": "Create new user in system",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "user_id",
+            "description": "ID of the user that we want to create",
+            "schema": {
+              "properties": {
+                "userName": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "User saved correctly!"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error saving the user"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users in system",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Users"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": [
+        "uid"
+      ],
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "points": {
+          "type": "integer",
+          "default": 0
+        }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
+      }
+    }
+  }
+}
