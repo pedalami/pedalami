@@ -27,7 +27,7 @@ app.post('/create', (req, res) => {
     const newTeam = new Team(req.body);
     newTeam.save((error) => {
       if (error) {
-        console.log('Error saving the team.');
+        console.log('Error saving the team..\n'+error);
         res.status(500).send('Error saving the team!');
       } else {
         console.log('The team has been saved.');
@@ -46,10 +46,11 @@ app.get('/search', (req, res) => {
   const to_search = req.query.name;
   console.log('Received search GET request with param name='+to_search);
   if (to_search) {
-    Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
+    //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
+    Team.find({ name: {$regex: to_search} }, (error, teams) => {
       if (error) {
-        console.log('Error finding the user.');
-        res.status(500).send('Error finding the user!');
+        console.log('Error finding the teams.\n'+error);
+        res.status(500).send('Error finding the teams!');
       } else {
         res.status(200).send(teams);
       }
@@ -68,13 +69,13 @@ app.post('/join', (req, res) => {
   if (req.body.team_id && req.body.uid) {
     const user = User.findOne({ uid: req.body.uid }, (error, user) => {
       if (error) {
-        console.log('Error finding the user.');
+        console.log('Error finding the user..\n'+error);
         res.status(500).send('Error finding the user!');
       }
     });
     const team = Team.findOne({ team_id: req.body.team_id }, (error, team) => {
       if (error) {
-        console.log('Error finding the team.');
+        console.log('Error finding the team..\n'+error);
         res.status(500).send('Error finding the team!');
       } else {
         if (team) {
@@ -89,12 +90,12 @@ app.post('/join', (req, res) => {
             team.members.push(req.body.uid);
             team.save((error) => {
               if (error) {
-                console.log('Error adding the user in the team.');
+                console.log('Error adding the user in the team..\n'+error);
                 res.status(500).send('Error adding the user in the team!');
               } else {
                 user.save((error) => {
                   if (error) {
-                    console.log('Error adding the team in the user.');
+                    console.log('Error adding the team in the user..\n'+error);
                     res.status(500).send('Error adding the team in the user!');
                   } else {
                     console.log('The user has been added to the team.');
