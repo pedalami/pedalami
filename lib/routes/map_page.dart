@@ -49,15 +49,14 @@ class _MapPageState extends State<MapPage> {
   Color _currentButtonColor = Colors.green[400]!;
   Text _currentButtonText = Text("Start");
   FaIcon _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+  GeoPoint? _startLocation;
+  GeoPoint? _endLocation;
+  GeoPoint? _lastLocation;
+  double _rideDistance = 0;
+  List<GeoPoint> path = [];
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
-  }
-
-  void getCurrent() async {
-    await controller.currentLocation();
-    await controller.enableTracking();
-    return;
   }
 
   @override
@@ -66,126 +65,8 @@ class _MapPageState extends State<MapPage> {
     getLocationPermission();
     controller = CustomController(
       initMapWithUserPosition: true,
-      // areaLimit: BoundingBox(
-      //   east: 10.4922941,
-      //   north: 47.8084648,
-      //   south: 45.817995,
-      //   west: 5.9559113,
-      // ),
     );
-    controller.currentLocation();
-    scaffoldKey = GlobalKey<ScaffoldState>();
-    controller.listenerMapLongTapping.addListener(() async {
-      if (controller.listenerMapLongTapping.value != null) {
-        print(controller.listenerMapLongTapping.value);
-        await controller.addMarker(
-          controller.listenerMapLongTapping.value!,
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.store,
-              color: Colors.brown,
-              size: 48,
-            ),
-          ),
-          angle: pi / 3,
-        );
-      }
-    });
-    controller.listenerMapSingleTapping.addListener(() async {
-      if (controller.listenerMapSingleTapping.value != null) {
-        if (lastGeoPoint.value != null) {
-          controller.removeMarker(lastGeoPoint.value!);
-        }
-        print(controller.listenerMapSingleTapping.value);
-        lastGeoPoint.value = controller.listenerMapSingleTapping.value;
-        await controller.addMarker(
-          lastGeoPoint.value!,
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.person,
-              color: Colors.red,
-            ),
-          ),
-          angle: -pi / 4,
-        );
-      }
-    });
-
-    controller.listenerMapIsReady.addListener(mapIsInitialized);
-  }
-
-  void mapIsInitialized() async {
-    if (controller.listenerMapIsReady.value) {
-      // Future.delayed(Duration(seconds: 5), () async {
-      //   await controller.zoomIn();
-      // });
-      timer = Timer(Duration(seconds: 3), () async {
-        await controller.setZoom(zoomLevel: 12);
-        /*await controller.setMarkerOfStaticPoint(
-          id: "line 2",
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.train,
-              color: Colors.orange,
-              size: 48,
-            ),
-          ),
-        );
-        await controller.setStaticPosition(
-          [
-            GeoPointWithOrientation(
-              latitude: 47.4433594,
-              longitude: 8.4680184,
-              angle: pi / 4,
-            ),
-            GeoPointWithOrientation(
-              latitude: 47.4517782,
-              longitude: 8.4716146,
-              angle: pi / 2,
-            ),
-          ],
-          "line 2",
-        );*/
-        await controller.addMarker(
-          GeoPoint(
-            latitude: 20.4517782,
-            longitude: 20.4716146,
-          ),
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.person,
-              color: Colors.red,
-            ),
-          ),
-          angle: -pi / 4,
-        );
-        await controller.addMarker(
-          GeoPoint(
-            latitude: 20.4433594,
-            longitude: 20.4680184,
-          ),
-          markerIcon: MarkerIcon(
-            icon: Icon(
-              Icons.local_hospital,
-              color: Colors.red,
-            ),
-          ),
-          angle: pi / 4,
-        );
-        timer?.cancel();
-      });
-    }
-    controller.currentLocation();
-  }
-
-  @override
-  void dispose() {
-    if (timer != null && timer!.isActive) {
-      timer?.cancel();
-    }
-    //controller.listenerMapIsReady.removeListener(mapIsInitialized);
-    controller.dispose();
-    super.dispose();
+    controller.enableTracking();
   }
 
   @override
@@ -231,8 +112,15 @@ class _MapPageState extends State<MapPage> {
                 showContributorBadgeForOSM: false,
                 //trackMyPosition: trackingNotifier.value,
                 showDefaultInfoWindow: false,
-                onLocationChanged: (myLocation) {
-                  print(myLocation);
+                onLocationChanged: (myLocation) async {
+                  if (_isRecording = true) {
+                    controller.currentLocation();
+                    path.add(await controller.myLocation());
+                    if (path.length > 3) {
+                      await controller.drawRoadManually(
+                          path, Colors.blue, 10.0);
+                    }
+                  }
                 },
                 onGeoPointClicked: (geoPoint) async {
                   ScaffoldMessenger.of(context).showSnackBar(
@@ -248,36 +136,6 @@ class _MapPageState extends State<MapPage> {
                     ),
                   );
                 },
-                staticPoints: [
-                  StaticPositionGeoPoint(
-                    "line 1",
-                    MarkerIcon(
-                      icon: Icon(
-                        Icons.train,
-                        color: Colors.green,
-                        size: 48,
-                      ),
-                    ),
-                    [
-                      GeoPoint(latitude: 47.4333594, longitude: 8.4680184),
-                      GeoPoint(latitude: 47.4317782, longitude: 8.4716146),
-                    ],
-                  ),
-                  /*StaticPositionGeoPoint(
-                      "line 2",
-                      MarkerIcon(
-                        icon: Icon(
-                          Icons.train,
-                          color: Colors.red,
-                          size: 48,
-                        ),
-                      ),
-                      [
-                        GeoPoint(latitude: 47.4433594, longitude: 8.4680184),
-                        GeoPoint(latitude: 47.4517782, longitude: 8.4716146),
-                      ],
-                    )*/
-                ],
                 road: Road(
                   startIcon: MarkerIcon(
                     icon: Icon(
@@ -313,27 +171,35 @@ class _MapPageState extends State<MapPage> {
                       child: StatefulBuilder(
                         builder: (context, internalState) {
                           return ElevatedButton.icon(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_isRecording == false) {
                                 internalState(() {
                                   _isRecording = true;
                                   _currentButtonColor = Colors.redAccent;
                                   _currentButtonText = Text("Stop");
-                                  _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
+                                  _currentButtonIcon =
+                                      FaIcon(FontAwesomeIcons.pause);
+                                  print(_startLocation);
                                 });
                                 _stateTick = Timer.periodic(
-                                    Duration(seconds: 3), (Timer t) {
+                                    Duration(seconds: 1), (Timer t) async {
                                   internalState(() {
                                     elapsedTime += 1;
-                                    print(elapsedTime);
                                   });
                                 });
                               } else {
+                                if (path.length < 3) {
+                                  showAlertDialog(context);
+                                } else {
+                                  //TODO: Show dialog with the saved ride, stats, points earned etc...
+                                }
+
                                 internalState(() {
                                   _isRecording = false;
                                   _currentButtonText = Text("Start");
                                   _currentButtonColor = Colors.green[400]!;
-                                  _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+                                  _currentButtonIcon =
+                                      FaIcon(FontAwesomeIcons.play);
                                   _stateTick!.cancel();
                                 });
                               }
@@ -425,6 +291,34 @@ class _MapPageState extends State<MapPage> {
             ],
           ),
         );
+      },
+    );
+  }
+
+  showAlertDialog(BuildContext context) {
+    // set up the button
+    Widget okButton = TextButton(
+      child: Text("OK"),
+      onPressed: () {
+        Navigator.pop(context);
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: Text("Unable to Save Ride"),
+      content: Text(
+          "We are unable to detect that you have moved since you started recording your ride"),
+      actions: [
+        okButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
       },
     );
   }
