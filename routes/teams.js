@@ -43,12 +43,10 @@ app.post('/create', (req, res) => {
 
 // GET /search?name=start_of_name
 app.get('/search', (req, res) => {
-  console.log('Received search GET request:');
-  console.log(req.body);
   const to_search = req.query.name;
+  console.log('Received search GET request with param name='+to_search);
   if (to_search) {
-    console.log(to_search);
-    const teams = Team.find({ name: "test" }, (error, team) => {
+    Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
       if (error) {
         console.log('Error finding the user.');
         res.status(500).send('Error finding the user!');
