@@ -43,10 +43,14 @@ app.post('/create', (req, res) => {
       } 
       else {
         newTeam.members.push(req.body.admin_uid);
-        newTeam.save((error, team) => {
-          if (error || !team) {
+        newTeam.insert((error, team) => {
+          if (error) {
             console.log('Error while saving the team!\n');
             response.status(400).send('Error while creating the team!');
+          }
+          else if (!team) {
+            console.log('Cannot find team!\n');
+            response.status(400).send('Error while finding team!');
           }
           else {
             console.log("Request with id:"+result._id+" added successfully");
