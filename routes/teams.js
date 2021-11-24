@@ -31,6 +31,8 @@ app.post('/create', (req, res) => {
     newTeam.active_events = [];
     newTeam.event_requests = [];
     const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
+      console.log('Admin: ' + req.body.admin_uid);
+      console.log('Team name: ' + req.body.name);
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
