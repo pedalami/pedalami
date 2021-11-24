@@ -54,10 +54,9 @@ app.post('/create', (req, res) => {
         )
         .catch(
           (error) => {
+            console.log("Error while adding the team: "+error);
             console.log('Error while saving the team!\n');
-            response.status(400).json({
-              error: 'Error while saving the team'
-            });
+            response.status(400).send('Error while creating the team!');
           }
         );
       }
