@@ -43,21 +43,18 @@ app.post('/create', (req, res) => {
       } 
       else {
         newTeam.members.push(req.body.admin_uid);
-        newTeam.save()
-        .then(
-          (result) => {
-            console.log("Request with id:"+result._id+" added successfully");
-            response.status(200).json({
-              team_id: result._id
-            });
-          }
-        )
-        .catch(
-          (error) => {
-            console.log("Error while adding the team: "+error);
+        newTeam.save((error, team) => {
+          if (error || !team) {
             console.log('Error while saving the team!\n');
             response.status(400).send('Error while creating the team!');
           }
+          else {
+            console.log("Request with id:"+result._id+" added successfully");
+            response.status(200).json({
+              team_id: team._id
+            });
+          }
+        }
         );
       }
     });
