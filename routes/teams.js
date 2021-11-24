@@ -5,6 +5,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const UserSchema = Schema.UserSchema;
 
+const { 
+  v1: uuidv1,
+  v4: uuidv4,
+} = require('uuid');
+
+
 // Schema
 const TeamSchema = new Schema({
   team_id: { type: String, required: true },
@@ -25,7 +31,7 @@ app.post('/create', (req, res) => {
   console.log(req.body);
   if (req.body.name) {
     newTeam = new Team();
-    newTeam.team_id = reqcrypto.randomUUID();
+    newTeam.team_id = uuidv4();
     newTeam.admin_uid = req.body.admin_uid;
     newTeam.name = req.body.name;
     newTeam.members = [req.body.admin_uid];
