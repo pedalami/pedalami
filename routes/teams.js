@@ -23,8 +23,14 @@ const User = mongoose.model('User', UserSchema);
 app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
-  if (req.body.team_id) {
-    const newTeam = new Team(req.body);
+  if (req.body.name) {
+    newTeam = new Team();
+    newTeam.team_id = reqcrypto.randomUUID();
+    newTeam.admin_uid = req.body.admin_uid;
+    newTeam.name = req.body.name;
+    newTeam.members = [req.body.admin_uid];
+    newTeam.active_events = [];
+    newTeam.event_requests = [];
     const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
