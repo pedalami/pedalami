@@ -4,17 +4,11 @@ app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const UserSchema = Schema.UserSchema;
-
-const { 
-  v1: uuidv1,
-  v4: uuidv4,
-} = require('uuid');
-
+const ObjectId = require('mongodb').ObjectId;
 
 // Schema
 const TeamSchema = new Schema({
-  team_id: { type: String, required: true },
-  admin_uid: { type: String, required: true },
+  admin_uid: { type: ObjectId, required: true },
   name: { type: String, required: true },
   members: { type: Array, required: true }, // At least the admin
   active_events: { type: Array, required: false }, // IDs of active events
@@ -31,7 +25,6 @@ app.post('/create', (req, res) => {
   console.log(req.body);
   if (req.body.name) {
     newTeam = new Team();
-    newTeam.team_id = uuidv4();
     newTeam.admin_uid = req.body.admin_uid;
     newTeam.name = req.body.name;
     newTeam.members = [req.body.admin_uid];
@@ -48,15 +41,23 @@ app.post('/create', (req, res) => {
       } 
       else {
         newTeam.members.push(req.body.admin_uid);
-        newTeam.save((error) => {
-          if (error) {
-            console.log('Error saving the team..\n'+error);
-            res.status(500).send('Error saving the team!');
-          } else {
-            console.log('The team has been saved.');
-            res.status(200).send('Team saved correctly!');
+        newTeam.save()
+        .then(
+          (result) => {
+            console.log("Request with id:"+result._id+" added successfully");
+            response.status(200).json({
+              team_id: result._id
+            });
           }
-        });
+        )
+        .catch(
+          (error) => {
+            console.log('Error while saving the team!\n'+error);
+            response.status(400).json({
+              error: error
+            });
+          }
+        );
       }
     });
   } else {
