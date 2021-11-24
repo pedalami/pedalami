@@ -8,7 +8,7 @@ const ObjectId = require('mongodb').ObjectId;
 
 // Schema
 const TeamSchema = new Schema({
-  admin_uid: { type: ObjectId, required: true },
+  admin_uid: { type: String, required: true },
   name: { type: String, required: true },
   members: { type: Array, required: true }, // At least the admin
   active_events: { type: Array, required: false }, // IDs of active events
@@ -30,7 +30,7 @@ app.post('/create', (req, res) => {
     newTeam.members = [req.body.admin_uid];
     newTeam.active_events = [];
     newTeam.event_requests = [];
-    const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
+    const admin = User.findOne({uid: req.body.admin_uid }, (error, admin) => {
       console.log('Admin: ' + req.body.admin_uid);
       console.log('Team name: ' + req.body.name);
       if (error) {
@@ -54,9 +54,9 @@ app.post('/create', (req, res) => {
         )
         .catch(
           (error) => {
-            console.log('Error while saving the team!\n'+error);
+            console.log('Error while saving the team!\n');
             response.status(400).json({
-              error: error
+              error: 'Error while saving the team'
             });
           }
         );
