@@ -1,0 +1,187 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "PedalaMi",
+    "description": "PedalaMi: cycling and having fun in your city"
+  },
+  "basePath": "/api/",
+  "tags": [
+    {
+      "name": "Users"
+    }
+  ],
+  "schemes": [
+    "https"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/users/create": {
+      "post": {
+        "summary": "Create new user",
+        "tags": [
+          "Users"
+        ],
+        "description": "Create new user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "user ID",
+            "description": "ID of the user that we want to create",
+            "schema": {
+              "properties": {
+                "uid": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "User saved correctly!"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error saving the user"
+          }
+        }
+      }
+    },
+    "/teams/create": {
+      "post": {
+        "summary": "Create new team",
+        "tags": [
+          "Teams"
+        ],
+        "description": "Create new team",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "team data",
+            "description": "Data of the team that we want to create",
+            "schema": {
+              "$ref": "#/definitions/Team"
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Team saved correctly!"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error saving the team"
+          }
+        }
+      }
+    },
+    "/teams/search": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Get all the teams whose name contains the one provided",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "name",
+            "type": "string",
+            "description": "(Part of) the name of the team"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Teams"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while searching the teams"
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "User": {
+      "required": [
+        "uid"
+      ],
+      "properties": {
+        "uid": {
+          "type": "string"
+        },
+        "points": {
+          "type": "integer",
+          "default": 0
+        }
+      }
+    },
+    "Team": {
+      "required": [
+        "team_id",
+        "admin_uid",
+        "name",
+        "members"
+      ],
+      "properties": {
+        "team_id": {
+          "type": "string"
+        },
+        "admin_uid": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "active_events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "event_requests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Users": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/User"
+      }
+    },
+    "Teams": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Team"
+      }
+    }
+  }
+}
