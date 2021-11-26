@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "215517273270",
+    "project_id": "pedala-mi",
+    "storage_bucket": "pedala-mi.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:215517273270:android:39a511b7afa5329e329a17",
+        "android_client_info": {
+          "package_name": "com.example.pedala_mi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "215517273270-jgnp4qbgc748scjel28c5nmmte1h4tng.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.pedala_mi",
+            "certificate_hash": "a9969591df3cb49c83747632942ad2216fe6b766"
+          }
+        },
+        {
+          "client_id": "215517273270-bd5kggh0dk75t0hccpt25c44233e6n1s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmnDaUzTnt37d9OelYJD_IbS1hMDpcc2U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "215517273270-bd5kggh0dk75t0hccpt25c44233e6n1s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
