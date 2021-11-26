@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:pedala_mi/routes/create_team.dart';
 import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/profile_page.dart';
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
               '/current_team': (context) => TeamProfile(),
               '/events': (context) => EventsPage(),
               '/search_team': (context) => TeamsSearchPage(),
+              '/create_team': (context) => TeamCreation(),
             },
 
             home: SplashScreen(),

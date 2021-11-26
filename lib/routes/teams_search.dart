@@ -24,7 +24,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
             Container(
               color: Colors.green[600],
               height: 45 * SizeConfig.heightMultiplier!,
-              //width: 5 * SizeConfig.widthMultiplier!,
               child: Padding(
                 padding: EdgeInsets.only(
                     left: 30.0,
@@ -85,6 +84,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                       Align(alignment: Alignment.center),
                       ElevatedButton(
                           onPressed: () {
+                            Navigator.pushNamed(context, "/create_team");
                             },
                           child: Text("Create New Team"),
                           style: ButtonStyle(
@@ -98,7 +98,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                        ),
                       ElevatedButton(
                         onPressed: () {
-                          Navigator.pushNamed(context, "/current_team");
+                          Navigator.pushNamed(context, "/current_team");  //TODO: If user has no active team, show dialog window with message to join the team
                         },
                         child: Text("Your Current Team"),
                         style: ButtonStyle(

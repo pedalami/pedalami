@@ -1,4 +1,5 @@
 import 'dart:io';
+//import 'dart:js_util';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,9 +23,9 @@ class _TeamProfileState extends State<TeamProfile> {
   MiUser _miUser = new MiUser("", "", "", "");
   File? f;
 
-  String team_name = "Team Awesome";  //TODO: Make dynamic, read data from DB
-  String description = "Nerd guys with high ambitions"; //TODO: Make dynamic, read data from DB
-  String team_admin = "Admin's username"; //TODO: Make dynamic, read data from DB
+  String teamName = "Team Awesome";  //TODO: Make dynamic, read data from mongoDB
+  String description = "Nerd guys with high ambitions"; //TODO: Make dynamic, read data from mongoDB
+  String teamAdmin = "Admin's username"; //TODO: Make dynamic, read data from mongoDB
 
   @override
   void initState() {
@@ -78,7 +79,7 @@ class _TeamProfileState extends State<TeamProfile> {
                                       nStringToNNString(_miUser.image)),*/
                                 ),
                           ),
-                      Text( team_name,
+                      Text( teamName,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.black54,
@@ -144,7 +145,7 @@ class _TeamProfileState extends State<TeamProfile> {
                                   color: Colors.black54,
                                   fontSize: 2.5 * SizeConfig.textMultiplier!,),
                                   ),
-                                Text( team_admin,
+                                Text( teamAdmin,
                                 style: TextStyle(
                                   fontWeight: FontWeight.normal,
                                   color: Colors.black54,
