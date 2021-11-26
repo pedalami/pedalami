@@ -3,8 +3,8 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 
-var usersRouter = require('./backend/routes/users');
-var teamsRouter = require('./backend/routes/teams');
+var usersRouter = require('./backend/components/profile_controller');
+var teamsRouter = require('./backend/components/team_controller');
 
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./backend/swagger.json');
