@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:pedala_mi/models/team.dart';
 
@@ -26,11 +25,11 @@ class MongoDB {
 
   //Returns the team_id if everything went fine
   //Returns null in case of error
-  Future<String?> createTeam(String adminId, String name) async {
+  Future<String?> createTeam(String adminId, String name, String? description) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/teams/create');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'admin_uid': adminId, 'name': name})
+        body: json.encode({'admin_uid': adminId, 'name': name, 'description': description})
     );
     if (response.statusCode == 200 && json.decode(response.body)["team_id"] != null) {
       return json.decode(response.body)["team_id"];

@@ -10,6 +10,7 @@ const UserSchema = Schema.UserSchema;
 const TeamSchema = new Schema({
   admin_uid: { type: String, required: true },
   name: { type: String, required: true },
+  description: { type: String, required: false },
   members: { type: Array, required: true }, // At least the admin
   active_events: { type: Array, required: false }, // IDs of active events
   event_requests: { type: Array, required: false }, // To better define once requests are defined
@@ -27,6 +28,7 @@ app.post('/create', (req, res) => {
     newTeam = new Team();
     newTeam.admin_uid = req.body.admin_uid;
     newTeam.name = req.body.name;
+    newTeam.description = req.body.description;
     newTeam.members = [req.body.admin_uid];
     const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
@@ -127,70 +129,5 @@ app.post('/join', (req, res) => {
     res.status(400).send('Error: Missing parameters.');
   }
 });
-
-
-/*
-// POST /join
-app.post('/join', (req, res) => {
-  console.log('Received join POST request:');
-  console.log(req.body);
-  if (req.body.team_id && req.body.uid) {
-    const user = User.findOne({ uid: req.body.uid }, (error) => {
-      if (error) {
-        console.log('Error finding the user.\n'+error);
-        res.status(500).send('Error finding the user!');
-      }
-    });
-    Team.findOne({ _id: req.body.team_id }, (error, team) => {
-      if (error) {
-        console.log('Error finding the team.\n'+error);
-        res.status(500).send('Error finding the team!');
-      } else {
-        if (!team) {
-          console.log('Team to join not found');
-          res.status(500).send('Team to join not found');
-        }
-        else {
-          if (team.members.includes(req.body.uid)) {
-            console.log('Error: User already in team.');
-            console.log(team);
-            console.log(team.members);
-            res.status(400).send('Error: User already in team.');
-          } else {
-            if (user.teams == null) {
-              user.teams = [];
-            }
-            user.teams.push(req.body.team_id);
-            team.members.push(req.body.uid);
-            team.save((error2) => {
-              if (error2) {
-                console.log('Error adding the user in the team.\n'+error2);
-                res.status(500).send('Error adding the user in the team!');
-              } else {
-                //TO FIX ASAP! Race condition and bad stuff can happen... Use transactions
-                user.save((error3) => {
-                  if (error3) {
-                    console.log('Error adding the team in the user.\n'+error3);
-                    res.status(500).send('Error adding the team in the user!');
-                  } else {
-                    console.log('The user has been added to the team.');
-                    res.status(200).send('The user has been added to the team.');
-                  }
-                })
-              }
-            })
-          }
-        }
-      }
-    })
-  }
-  else {
-    console.log('Error: Missing parameters.');
-    res.status(400).send('Error: Missing parameters.');
-  }
-});
-*/
-
-
 
 module.exports = app;
