@@ -10,11 +10,9 @@ class MongoDB {
 
   static final MongoDB instance = new MongoDB();
 
-  @protected
-  http.Client serverClient = http.Client();
+  http.Client _serverClient = http.Client();
 
-  @protected
-  Map<String, String> headers = {
+  Map<String, String> _headers = {
     'Content-type': 'application/json; charset=utf-8',
     'Accept': 'application/json',
   };
@@ -22,36 +20,32 @@ class MongoDB {
   //Returns true if everything went fine, false otherwise
   Future<bool> initUser(String uid) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/users/create');
-    var response = await serverClient.post(url, headers: headers, body: json.encode({'uid': uid}));
+    var response = await _serverClient.post(url, headers: _headers, body: json.encode({'uid': uid}));
     return response.statusCode == 200 ? true : false;
   }
 
   //Returns the team_id if everything went fine
   //Returns null in case of error
-  //DART code should be fine, server side needs some fixes
   Future<String?> createTeam(String adminId, String name) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/teams/create');
-    var response = await serverClient.post(url,
-        headers: headers,
+    var response = await _serverClient.post(url,
+        headers: _headers,
         body: json.encode({'admin_uid': adminId, 'name': name})
     );
-    if (response.statusCode == 200 && json.decode(response.body)["team_id"]) {
+    if (response.statusCode == 200 && json.decode(response.body)["team_id"] != null) {
       return json.decode(response.body)["team_id"];
     } else {
-      print(response.statusCode);
-      print(response.body);
       return null;
     }
   }
 
   //Returns an array of the teams with the name matching the query if everything went fine
   //Returns null in case of error
-  //TESTED
   Future<List<Team>?> searchTeam(String name) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/teams/search').replace(queryParameters: {
       'name': name
     });
-    var response = await serverClient.get(url, headers: headers);
+    var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Team> teamList = decodedBody.map((team) => Team.fromJson(team)).toList();
@@ -61,12 +55,11 @@ class MongoDB {
   }
 
   //Returns true if everything went fine, false otherwise
-  //TO TEST
   Future<bool> joinTeam(String teamID, String userID) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/teams/join');
-    var response = await serverClient.post(url,
-        headers: headers,
-        body: json.encode({'team_id': teamID, 'userID': userID})
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'team_id': teamID, 'uid': userID})
     );
     return response.statusCode == 200 ? true : false;
   }
