@@ -3,8 +3,8 @@ var app = express.Router();
 app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const UserSchema = Schema.UserSchema;
 const ObjectId = require('mongodb').ObjectId;
+const UserSchema = Schema.UserSchema;
 
 // Schema
 const TeamSchema = new Schema({
@@ -28,11 +28,7 @@ app.post('/create', (req, res) => {
     newTeam.admin_uid = req.body.admin_uid;
     newTeam.name = req.body.name;
     newTeam.members = [req.body.admin_uid];
-    newTeam.active_events = [];
-    newTeam.event_requests = [];
-    const admin = User.findOne({uid: req.body.admin_uid }, (error, admin) => {
-      console.log('Admin: ' + req.body.admin_uid);
-      console.log('Team name: ' + req.body.name);
+    const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
@@ -42,19 +38,14 @@ app.post('/create', (req, res) => {
         res.status(500).send('Error while creating the team: the team admin specified does not exist!');
       } 
       else {
-        newTeam.members.push(req.body.admin_uid);
-        newTeam.insert((error, team) => {
-          if (error) {
-            console.log('Error while saving the team!\n');
-            response.status(400).send('Error while creating the team!');
-          }
-          else if (!team) {
-            console.log('Cannot find team!\n');
-            response.status(400).send('Error while finding team!');
-          }
-          else {
-            console.log("Request with id:"+result._id+" added successfully");
-            response.status(200).json({
+        //newTeam.members.push(req.body.admin_uid);
+        newTeam.save((error, team) => {
+          if (error || !team) {
+            console.log('Error while saving the team!\n'+error);
+            res.status(400).send('Error while creating the team!');
+          } else {
+            console.log("Team with id: "+team._id+" added successfully");
+            res.status(200).json({
               team_id: team._id
             });
           }
@@ -95,20 +86,75 @@ app.post('/join', (req, res) => {
   console.log('Received join POST request:');
   console.log(req.body);
   if (req.body.team_id && req.body.uid) {
-    const user = User.findOne({ uid: req.body.uid }, (error, user) => {
+    Promise.all([
+      User.findOne({ uid: req.body.uid }),
+      Team.findOne({ _id: req.body.team_id })
+    ]).then(([user, team]) => {
+      console.log(team);
+      console.log(user);
+      if (team.members.includes(req.body.uid)) {
+        console.log('Error: User already in team.');
+        res.status(500).send('Error: User already in team.');
+      } else {
+        if (user.teams == null) {
+          user.teams = [];
+        }
+        user.teams.push(req.body.team_id);
+        team.members.push(req.body.uid);
+        Promise.all([
+          team.save(),
+          user.save()
+        ])
+        .then(([user, team]) => {
+          if (user != null && team != null) {
+            console.log('The user has been added to the team.');
+            res.status(200).send('The user has been added to the team.');
+          }
+        })
+        .catch((error2) => {
+          console.log('Error while joining the team\n'+error2);
+          res.status(500).send('Error while joining the team');
+        });
+      }
+    }).catch((error) => {
+      console.log('Error finding the user or the team.\n'+error);
+      res.status(500).send('Error finding the user or the team!');
+    });
+    
+  }
+  else {
+    console.log('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
+  }
+});
+
+
+/*
+// POST /join
+app.post('/join', (req, res) => {
+  console.log('Received join POST request:');
+  console.log(req.body);
+  if (req.body.team_id && req.body.uid) {
+    const user = User.findOne({ uid: req.body.uid }, (error) => {
       if (error) {
-        console.log('Error finding the user..\n'+error);
+        console.log('Error finding the user.\n'+error);
         res.status(500).send('Error finding the user!');
       }
     });
-    const team = Team.findOne({ team_id: req.body.team_id }, (error, team) => {
+    Team.findOne({ _id: req.body.team_id }, (error, team) => {
       if (error) {
-        console.log('Error finding the team..\n'+error);
+        console.log('Error finding the team.\n'+error);
         res.status(500).send('Error finding the team!');
       } else {
-        if (team) {
+        if (!team) {
+          console.log('Team to join not found');
+          res.status(500).send('Team to join not found');
+        }
+        else {
           if (team.members.includes(req.body.uid)) {
             console.log('Error: User already in team.');
+            console.log(team);
+            console.log(team.members);
             res.status(400).send('Error: User already in team.');
           } else {
             if (user.teams == null) {
@@ -116,14 +162,15 @@ app.post('/join', (req, res) => {
             }
             user.teams.push(req.body.team_id);
             team.members.push(req.body.uid);
-            team.save((error) => {
-              if (error) {
-                console.log('Error adding the user in the team..\n'+error);
+            team.save((error2) => {
+              if (error2) {
+                console.log('Error adding the user in the team.\n'+error2);
                 res.status(500).send('Error adding the user in the team!');
               } else {
-                user.save((error) => {
-                  if (error) {
-                    console.log('Error adding the team in the user..\n'+error);
+                //TO FIX ASAP! Race condition and bad stuff can happen... Use transactions
+                user.save((error3) => {
+                  if (error3) {
+                    console.log('Error adding the team in the user.\n'+error3);
                     res.status(500).send('Error adding the team in the user!');
                   } else {
                     console.log('The user has been added to the team.');
@@ -142,5 +189,8 @@ app.post('/join', (req, res) => {
     res.status(400).send('Error: Missing parameters.');
   }
 });
+*/
+
+
 
 module.exports = app;

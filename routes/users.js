@@ -8,6 +8,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   uid: {type: String, required: true},
   points: {type: Number, required: true, default: 0},
+  teams: { type: Array, required: false, default: null }
 });
 
 // Model
