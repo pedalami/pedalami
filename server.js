@@ -3,11 +3,11 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 
-var usersRouter = require('./routes/users');
-var teamsRouter = require('./routes/teams');
+var usersRouter = require('./backend/routes/users');
+var teamsRouter = require('./backend/routes/teams');
 
 var swaggerUi = require('swagger-ui-express');
-var swaggerDocument = require('./swagger.json');
+var swaggerDocument = require('./backend/swagger.json');
 
 
 const PORT = process.env.PORT || 8000
