@@ -2,8 +2,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
-import 'package:flutter/material.dart';
+import 'package:pedala_mi/widget/teams_search_button.dart';
 
 
 
@@ -14,12 +16,23 @@ class TeamsSearchPage extends StatefulWidget {
 }
 
 class _TeamsSearchPageState extends State<TeamsSearchPage> {
-  User? user = FirebaseAuth.instance.currentUser;
+  User? user;
+  List<Team>? foundTeams;
+  late bool hasSearched;
+  final teamSearchController = TextEditingController();
+
+  @override
+  void initState() {
+    user = FirebaseAuth.instance.currentUser;
+    hasSearched=false;
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-          clipBehavior: Clip.none,
+        body: Column(
           children: <Widget>[
             Container(
               color: Colors.green[600],
@@ -41,6 +54,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                   top: 10 * SizeConfig.heightMultiplier!,
                                   right: 20),
                               child: TextField(
+                                style: TextStyle(color: Colors.white),
                                 cursorColor: CustomColors.green,
                                 decoration: InputDecoration(
                                     counterStyle: TextStyle(
@@ -57,6 +71,16 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                     hintText: "Search for team",
                                     hintStyle:
                                     TextStyle(color: CustomColors.silver)),
+                                controller: teamSearchController,
+                                onSubmitted: (value)async{
+                                  hasSearched=true;
+                                  foundTeams=await MongoDB.instance.searchTeam(teamSearchController.text);
+                                  setState(() {
+
+                                  });
+
+
+                                },
                                 //controller: usernameController,
                                 //maxLength: 20,
                                 //style: TextStyle(color: Colors.black),
@@ -72,51 +96,59 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 ),
               ),
             ),
+            !hasSearched?
             Container(
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: 30.0,
-                    right: 30.0,
-                    top: 50 * SizeConfig.heightMultiplier!),
+              child: SingleChildScrollView(
                 child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Align(alignment: Alignment.center),
-                      ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/create_team");
-                            },
-                          child: Text("Create New Team"),
-                          style: ButtonStyle(
-                              fixedSize: MaterialStateProperty.all(
-                                  Size(200, 35)),
-                              backgroundColor: MaterialStateProperty.all(
-                                  Colors.lightGreen),
-                              shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0)))),
-                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/current_team");  //TODO: If user has no active team, show dialog window with message to join the team
-                        },
-                        child: Text("Your Current Team"),
-                        style: ButtonStyle(
-                            fixedSize: MaterialStateProperty.all(
-                                Size(200, 35)),
-                            backgroundColor: MaterialStateProperty.all(
-                                Colors.lightGreen),
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0)))),
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,),
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Align(alignment: Alignment.center),
+                            ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, "/create_team");
+                                  },
+                                child: Text("Create New Team"),
+                                style: ButtonStyle(
+                                    fixedSize: MaterialStateProperty.all(
+                                        Size(200, 35)),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.lightGreen),
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(18.0)))),
+                             ),
+                            ElevatedButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, "/current_team");  //TODO: If user has no active team, show dialog window with message to join the team
+                              },
+                              child: Text("Your Current Team"),
+                              style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                      Size(200, 35)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0)))),
+                            ),
+                          ],
                       ),
-                    ],
+                    ),
+                  ],
                 ),
               ),
-            ),
+            ):(foundTeams!.length==0?Text("No teams found"):TeamSearchButton(teamsFound: foundTeams!)),
           ],
         ),
     );
   }
+
+
 }
 

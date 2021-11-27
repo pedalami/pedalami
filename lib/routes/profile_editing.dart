@@ -283,7 +283,6 @@ class _ProfileEditingState extends State<ProfileEditing> {
                             //here
                             var status = await Permission.storage.request();
                             if (status == PermissionStatus.permanentlyDenied) {
-                              //here
                               ScaffoldMessenger.of(context)
                                   .showSnackBar(SnackBar(
                                 content: Text(
