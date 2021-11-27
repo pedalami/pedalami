@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CustomController extends MapController {
   CustomController({
@@ -58,13 +59,27 @@ class _MapPageState extends State<MapPage> {
     await Permission.locationAlways.request();
   }
 
+  void onUpd(GeoPoint newLoc) {
+    print("Heyyy");
+  }
+
   @override
   void initState() {
     super.initState();
     getLocationPermission();
     controller = CustomController(
-      initMapWithUserPosition: true,
+      initMapWithUserPosition: true
     );
+  }
+
+  @override
+  void dispose() {
+    if (timer != null && timer!.isActive) {
+      timer?.cancel();
+    }
+    //controller.listenerMapIsReady.removeListener(mapIsInitialized);
+    controller.dispose();
+    super.dispose();
   }
 
   @override
@@ -77,9 +92,9 @@ class _MapPageState extends State<MapPage> {
             children: [
               OSMFlutter(
                 controller: controller,
-                onMapIsReady: (myLocation) {
-                  controller.enableTracking();
+                onMapIsReady: (isReady) {
                   controller.currentLocation();
+                  controller.enableTracking();
                   controller.setZoom(stepZoom: 10.0);
                   controller.zoomIn();
                 },
@@ -116,6 +131,9 @@ class _MapPageState extends State<MapPage> {
                 showContributorBadgeForOSM: false,
                 //trackMyPosition: trackingNotifier.value,
                 showDefaultInfoWindow: false,
+                onLocationChanged: (myLocation) {
+                  print(myLocation);
+                },
                 onGeoPointClicked: (geoPoint) async {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
@@ -184,7 +202,7 @@ class _MapPageState extends State<MapPage> {
                                       FaIcon(FontAwesomeIcons.pause);
                                 });
                                 _stateTick = Timer.periodic(
-                                    Duration(seconds: 15), (Timer t) async {
+                                    Duration(seconds: 3), (Timer t) async {
                                   //Ugly and repeating code, but was the only fix for the tracking bug
                                   await controller.enableTracking();
                                   await controller.currentLocation();

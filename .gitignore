@@ -294,6 +294,7 @@ fabric.properties
 .pub-cache/
 .pub/
 /build/
+/android/.gradle
 /ios/build/
 /ios/Podfile
 /ios/Podfile.lock
