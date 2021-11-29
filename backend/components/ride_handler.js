@@ -52,6 +52,7 @@ app.post('/record', (req, res) => {
     }
 });
 
+// GET /getAllByUser
 app.get('/getAllByUserId', (req, res) => {
     console.log('Received record GET request:');
     console.log(req);
