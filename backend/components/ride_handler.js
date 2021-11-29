@@ -35,7 +35,7 @@ app.post('/record', (req, res) => {
     ride.name = req.body.name
     ride.duration_in_seconds = req.body.duration_in_seconds
     ride.total_km = req.body.total_km
-    ride.pace =  req.body.total_km/req.body.duration_in_seconds
+    ride.pace =  req.body.total_km/(req.body.duration_in_seconds/3600)
     ride.date = req.body.date
     ride.elevation_gain = req.body.elevation_gain
     if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })){
