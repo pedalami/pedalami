@@ -39,7 +39,12 @@ app.post('/record', (req, res) => {
     if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })){
     ride.save().then(() => {
         //chiama gamification controller
-        res.sendStatus(200).send("Ride correctly recorded");
+        res.sendStatus(200).json({
+            'message': 'Ride saved successfully',
+            'points': ride.points,
+            'pace' : ride.pace,
+            'id' : ride._id
+            });
     }).catch((err) => {
         console.log(err);
         res.sendStatus(500).send("Cannot save the ride in the DB");
