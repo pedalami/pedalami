@@ -2,10 +2,29 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+class RideData {
+  double? duration;
+  double? length;
+  String? user_id;
+  double? elevation = 5.0;
+  String? ride_name = "Bike Ride";
+  String? date = "2021/11/29:21.15";
+
+  RideData(double duration, double length, User user, double elevation, String ride_name, String date) {
+    this.duration = duration;
+    this.length = length;
+    this.user_id = user.uid;
+    this.elevation = elevation;
+    this.ride_name = ride_name;
+    this.date = date;
+  }
+}
 
 class CustomController extends MapController {
   CustomController({
