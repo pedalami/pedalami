@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
-app.use('/ride', rideRouter);
+app.use('/rides', rideRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
