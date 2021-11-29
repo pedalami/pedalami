@@ -4,9 +4,8 @@ app.use(express.json());
 const mongoose = require('mongoose');
 const Double = mongoose.Schema.Types.Number;
 const Schema = mongoose.Schema;
-const ObjectId = require('mongodb').ObjectId;
 const UserSchema = Schema.UserSchema;
-const TeamSchema = Schema.TeamSchema;
+
 
 // Schema
 const RideSchema = new Schema({
@@ -21,7 +20,6 @@ const RideSchema = new Schema({
   });
 
 // Model
-const Team = mongoose.model('Team', TeamSchema);
 const User = mongoose.model('User', UserSchema);
 const Ride = mongoose.model('Ride', RideSchema);
 
