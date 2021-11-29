@@ -313,3 +313,6 @@ app.*.map.json
 /android/app/release
 .env
 /android/.gradle/
+
+#Node stuff
+package-lock.json
