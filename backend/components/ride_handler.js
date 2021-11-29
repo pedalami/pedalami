@@ -28,7 +28,6 @@ app.post('/record', (req, res) => {
     console.log('Received record POST request:');
     console.log(req.body);
     var ride = new Ride();
-    console.log(req.body.user_uid);
     ride.user_uid = req.body.user_uid;
     ride.name = req.body.name
     ride.duration_in_seconds = req.body.duration_in_seconds
@@ -39,7 +38,7 @@ app.post('/record', (req, res) => {
     if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })){
     ride.save().then(() => {
         //chiama gamification controller
-        res.sendStatus(200).json({
+        res.json({
             'message': 'Ride saved successfully',
             'points': ride.points,
             'pace' : ride.pace,
