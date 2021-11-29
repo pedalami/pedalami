@@ -59,20 +59,19 @@ app.post('/record', (req, res) => {
 
 // GET /getAllByUser
 app.get('/getAllByUserId', (req, res) => {
-    console.log('Received record GET request:');
-    console.log(req);
-    console.log(req.body);
-    console.log(req.user_uid);
+    console.log('Received getAllByUserId GET request:');
+    console.log("User:", req.query.user_uid);
     
-    if(req.user_uid){
-    Ride.find({ user_uid: req.user_uid }, (error, rides) => {
-        if (error) {
-          console.log('Error finding the rides of the specified user_uid.\n'+error);
-          res.status(500).send('Error finding the rides!');
-        } else {
-          res.status(200).send(rides);
-        }
-      });
+    if(req.query.user_uid){
+        // I return an array of rides without the fields _id and __v
+        Ride.find({ user_uid: req.query.user_uid },'-_id -__v', (error, rides) => {
+            if (error) {
+            console.log('Error finding the rides of the specified user_uid.\n'+error);
+            res.status(500).send('Error finding the rides!');
+            } else {
+            res.status(200).send(rides);
+            }
+        });
     } else {
       console.log('Error: Missing the user_uid parameter.');
       res.status(400).send('Error: Missing the user_uid parameter.');
