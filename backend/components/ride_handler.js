@@ -38,13 +38,18 @@ app.post('/record', (req, res) => {
     ride.elevation_gain = req.body.elevation_gain
     // We cannot do User.findById since the uid is not the _id
     if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })){
-        ride.save().then(() => {
-            //chiama gamification controller
-            res.sendStatus(200).send("Ride correctly recorded");
-        }).catch((err) => {
-            console.log(err);
-            res.sendStatus(500).send("Cannot save the ride in the DB");
-        });
+    ride.save().then(() => {
+        //chiama gamification controller
+        res.sendStatus(200).json({
+            'message': 'Ride saved successfully',
+            'points': ride.points,
+            'pace' : ride.pace,
+            'id' : ride._id
+            });
+    }).catch((err) => {
+        console.log(err);
+        res.sendStatus(500).send("Cannot save the ride in the DB");
+    });
     }
     else {
         console.log('Cannot find the user specified!\n');
