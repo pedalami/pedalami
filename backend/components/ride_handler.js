@@ -36,18 +36,40 @@ app.post('/record', (req, res) => {
     ride.pace =  req.body.total_km/(req.body.duration_in_seconds/3600)
     ride.date = req.body.date
     ride.elevation_gain = req.body.elevation_gain
+    // We cannot do User.findById since the uid is not the _id
     if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })){
-    ride.save().then(() => {
-        //chiama gamification controller
-        res.sendStatus(200).send("Ride correctly recorded");
-    }).catch((err) => {
-        console.log(err);
-        res.sendStatus(500).send("Cannot save the ride in the DB");
-    });
+        ride.save().then(() => {
+            //chiama gamification controller
+            res.sendStatus(200).send("Ride correctly recorded");
+        }).catch((err) => {
+            console.log(err);
+            res.sendStatus(500).send("Cannot save the ride in the DB");
+        });
     }
     else {
         console.log('Cannot find the user specified!\n');
         res.status(500).send('Cannot find the user specified!');
+    }
+});
+
+app.get('/getAllByUserId', (req, res) => {
+    console.log('Received record GET request:');
+    console.log(req);
+    console.log(req.body);
+    console.log(req.user_uid);
+    
+    if(req.user_uid){
+    Ride.find({ user_uid: req.user_uid }, (error, rides) => {
+        if (error) {
+          console.log('Error finding the rides of the specified user_uid.\n'+error);
+          res.status(500).send('Error finding the rides!');
+        } else {
+          res.status(200).send(rides);
+        }
+      });
+    } else {
+      console.log('Error: Missing the user_uid parameter.');
+      res.status(400).send('Error: Missing the user_uid parameter.');
     }
 });
 
