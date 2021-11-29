@@ -220,7 +220,7 @@ class _MapPageState extends State<MapPage> {
                                     path.add(latestLocation);
                                   }
                                   if (path.length > 2) {
-                                    var roadInfo = controller.drawRoad(path.first, path.last,
+                                    _roadInfo = await controller.drawRoad(path.first, path.last,
                                         intersectPoint:
                                             path.sublist(1, path.length - 1),
                                         roadType: RoadType.bike,
