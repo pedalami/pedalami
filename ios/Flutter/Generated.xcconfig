@@ -1,8 +1,8 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=/Users/vi/Documents/flutter
-FLUTTER_APPLICATION_PATH=/Users/vi/StudioProjects/pedalami
+FLUTTER_ROOT=/Users/Combii/Developer/flutter
+FLUTTER_APPLICATION_PATH=/Users/Combii/Desktop/PedalaMi/PedalaMi
 COCOAPODS_PARALLEL_CODE_SIGN=true
-FLUTTER_TARGET=/Users/vi/StudioProjects/pedalami/lib/main.dart
+FLUTTER_TARGET=/Users/Combii/Desktop/PedalaMi/PedalaMi/lib/main.dart
 FLUTTER_BUILD_DIR=build
 FLUTTER_BUILD_NAME=1.0.0
 FLUTTER_BUILD_NUMBER=1
@@ -11,4 +11,4 @@ DART_DEFINES=Zmx1dHRlci5pbnNwZWN0b3Iuc3RydWN0dXJlZEVycm9ycz10cnVl,RkxVVFRFUl9XRU
 DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
-PACKAGE_CONFIG=/Users/vi/StudioProjects/pedalami/.dart_tool/package_config.json
+PACKAGE_CONFIG=/Users/Combii/Desktop/PedalaMi/PedalaMi/.dart_tool/package_config.json
