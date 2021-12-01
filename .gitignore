@@ -290,7 +290,10 @@ fabric.properties
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/Flutter/Generated.xcconfig
 .packages
+pubspec.lock
 .pub-cache/
 .pub/
 /build/
