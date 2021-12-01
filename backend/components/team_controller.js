@@ -4,6 +4,7 @@ app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const UserSchema = Schema.UserSchema;
+const ObjectId = mongoose.Types.ObjectId
 
 // Schema
 const TeamSchema = new Schema({
@@ -29,7 +30,7 @@ app.post('/create', (req, res) => {
     newTeam.name = req.body.name;
     newTeam.description = req.body.description;
     newTeam.members = [req.body.admin_uid];
-    const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
+    var admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
@@ -40,9 +41,10 @@ app.post('/create', (req, res) => {
       } 
       else {
         //newTeam.members.push(req.body.admin_uid);
-        newTeam.save((error, team) => {
-          if (error || !team) {
-            console.log('Error while saving the team!\n'+error);
+        admin.teams.push(newTeam._id)
+        Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
+          if (!admin || !team) {
+            console.log('Error while creating the team!\n');
             res.status(400).send('Error while creating the team!');
           } else {
             console.log("Team with id: "+team._id+" added successfully");
@@ -99,7 +101,7 @@ app.post('/join', (req, res) => {
           user.teams = [];
         }
         user.teams.push(req.body.team_id);
-        team.members.push(req.body.uid);
+        team.members.push(ObjectId(req.body.uid));
         Promise.all([
           team.save(),
           user.save()
