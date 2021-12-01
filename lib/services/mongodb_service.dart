@@ -65,7 +65,7 @@ class MongoDB {
 
   //Returns the recorded ride if everything went fine
   //Returns null in case of error
-  Future<List<String>?> recordRide(String userID, String name, int durationInSeconds, double total_km, Date date, double elevation_gain) async {
+  Future<List<String>?> recordRide(String userID, String name, int durationInSeconds, double total_km, DateTime date, double elevation_gain) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
     var response = await _serverClient.post(url,
         headers: _headers,
@@ -78,7 +78,7 @@ class MongoDB {
           "elevation_gain": elevation_gain})
           );
     if (response.statusCode == 200) {
-      var decodedBody = json.decode(response.body) as List;
+      var decodedBody = json.decode(response.body) as List<String>;
       return decodedBody; //here, after implementing the ride class, we can return the ride object updated with the values in the serponse
       /*
       The response body has this structure:
