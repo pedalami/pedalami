@@ -8,7 +8,7 @@ const Schema = mongoose.Schema;
 const UserSchema = new Schema({
   uid: {type: String, required: true},
   points: {type: Number, required: true, default: 0},
-  teams: { type: Array, required: false, default: null }
+  teams: [{ type: mongoose.Schema.ObjectId, required: false, default: null }]
 });
 
 // Model
@@ -76,6 +76,46 @@ app.get('/removePoints', (req, res) => {
         );
       }
     }).catch(err => res.status(500).send({ error: err.message }));
+  }
+});
+
+
+
+// GET /getTeams?user_id=user_id
+app.get('/getTeams', (req, res) => {
+  const user_id = req.query.user_id;
+  console.log('Received getTeams GET request with param id='+user_id);
+  if (user_id) {
+    User
+    .aggregate([
+      {
+        $match: {
+          uid: user_id
+        }
+      },
+      { 
+        $unwind: "$teams" 
+      },
+      { 
+        $lookup: {
+          from: "teams", // collection name in db
+          localField: "teams", // field of User to make the lookup on (the foreign key)
+          foreignField: "_id", // the referred field in teams
+          as: "teams" // name that the field of the join will have in the result/JSON
+        } 
+      }
+    ])
+    .exec((error, user) => {
+      if (error) {
+        console.log('Error finding the user.\n'+error);
+        res.status(500).send('Error finding the user!');
+      } else {
+        res.status(200).send(user);
+      }
+    });
+  } else {
+    console.log('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
   }
 });
 

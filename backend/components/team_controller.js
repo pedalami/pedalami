@@ -3,7 +3,6 @@ var app = express.Router();
 app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const ObjectId = require('mongodb').ObjectId;
 const UserSchema = Schema.UserSchema;
 
 // Schema
@@ -11,7 +10,7 @@ const TeamSchema = new Schema({
   admin_uid: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: false },
-  members: { type: Array, required: true }, // At least the admin
+  members: [{ type: String, required: true }], // Array of Users' UIDs. Contains at least the admin. 
   active_events: { type: Array, required: false }, // IDs of active events
   event_requests: { type: Array, required: false }, // To better define once requests are defined
 });
@@ -61,7 +60,6 @@ app.post('/create', (req, res) => {
   }
 });
 
-
 // GET /search?name=start_of_name
 app.get('/search', (req, res) => {
   const to_search = req.query.name;
@@ -81,7 +79,6 @@ app.get('/search', (req, res) => {
     res.status(400).send('Error: Missing parameters.');
   }
 });
-
 
 // POST /join
 app.post('/join', (req, res) => {
@@ -129,5 +126,8 @@ app.post('/join', (req, res) => {
     res.status(400).send('Error: Missing parameters.');
   }
 });
+
+//GET /members?team_
+
 
 module.exports = app;
