@@ -66,7 +66,7 @@ class MongoDB {
   //Returns the recorded ride if everything went fine
   //Returns null in case of error
   Future<List<String>?> recordRide(String userID, String name, int durationInSeconds, double total_km, Date date, double elevation_gain) async {
-    var url = Uri.parse('https://pedalami.herokuapp.com/rides/record')
+    var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({
