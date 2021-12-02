@@ -56,8 +56,8 @@ class _TeamMembersState extends State<TeamMembers> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
+    return Container(
+      child: Stack(
         clipBehavior: Clip.none,
         children: <Widget>[
           Container(
