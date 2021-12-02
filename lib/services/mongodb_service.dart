@@ -63,13 +63,17 @@ class MongoDB {
     return response.statusCode == 200 ? true : false;
   }
 
-  Future<bool> getAllRidesFromUser(String userID) async {
-    var url = Uri.parse('https://pedalami.herokuapp.com/rides/getAllByUserId');
-    var response = await _serverClient.post(url,
-        headers: _headers,
-        body: json.encode({'uid': userID})
-    );
-    return response.statusCode == 200 ? true : false;
+  Future<String> getAllRidesFromUser(String userID) async {
+
+    final queryParameters = {
+      'uid': userID,
+    };
+    final uri = Uri.http('https://pedalami.herokuapp.com/', '/rides/getAllByUserId', queryParameters);
+
+
+    final response = await http.get(uri, headers: _headers);
+
+    return response.body;
   }
 
 }
