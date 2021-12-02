@@ -61,11 +61,11 @@ app.post('/record', (req, res) => {
 // GET /getAllByUser
 app.get('/getAllByUserId', (req, res) => {
     console.log('Received getAllByUserId GET request:');
-    console.log("User:", req.body.uid);
+    console.log("User:", req.query.uid);
 
-    if (req.body.uid) {
+    if (req.query.uid) {
         // I return an array of rides without the fields _id and __v
-        Ride.find({ uid: req.body.uid }, '-_id -__v', (error, rides) => {
+        Ride.find({ uid: req.query.uid }, '-_id -__v', (error, rides) => {
             if (error) {
                 console.log('Error finding the rides of the specified uid.\n' + error);
                 res.status(500).send('Error finding the rides!');
