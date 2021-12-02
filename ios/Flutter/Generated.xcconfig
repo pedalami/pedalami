@@ -12,4 +12,3 @@ DART_OBFUSCATION=false
 TRACK_WIDGET_CREATION=true
 TREE_SHAKE_ICONS=false
 PACKAGE_CONFIG=/Users/Combii/Desktop/PedalaMi/PedalaMi/.dart_tool/package_config.json
-

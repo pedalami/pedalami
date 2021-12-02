@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/models/ride.dart';
 
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
@@ -62,18 +63,21 @@ class MongoDB {
     );
     return response.statusCode == 200 ? true : false;
   }
+  
+  Future<List<Ride>?> getAllRidesFromUser(String userID) async {
+    var url = Uri.parse('https://pedalami.herokuapp.com/rides/getAllByUserId').replace(queryParameters: {
+      'uid': userID
+    });
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
 
-  Future<String> getAllRidesFromUser(String userID) async {
+      var decodedBody = json.decode(response.body) as List;
+      List<Ride> ridesList = decodedBody.map((ride) => Ride.fromJson(ride)).toList();
 
-    final queryParameters = {
-      'uid': userID,
-    };
-    final uri = Uri.http('https://pedalami.herokuapp.com/', '/rides/getAllByUserId', queryParameters);
-
-
-    final response = await http.get(uri, headers: _headers);
-
-    return response.body;
+      return ridesList;
+    } else
+      return null;
   }
+
 
 }
