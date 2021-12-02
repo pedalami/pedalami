@@ -3,7 +3,7 @@ var app = express.Router();
 app.use(express.json());
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const ObjectId = require('mongodb').ObjectId;
+const ObjectId = mongoose.Types.ObjectId
 const UserSchema = Schema.UserSchema;
 
 // Schema
@@ -11,9 +11,9 @@ const TeamSchema = new Schema({
   admin_uid: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: false },
-  members: { type: Array, required: true }, // At least the admin
-  active_events: { type: Array, required: false }, // IDs of active events
-  event_requests: { type: Array, required: false }, // To better define once requests are defined
+  members: [{ type: String, required: true, default: null }], // At least the admin
+  active_events: [{ type: ObjectId, required: false, default: null }], // IDs of active events
+  event_requests: [{ type: ObjectId, required: false, default: null }] // To better define once requests are defined
 });
 
 // Model
@@ -30,7 +30,7 @@ app.post('/create', (req, res) => {
     newTeam.name = req.body.name;
     newTeam.description = req.body.description;
     newTeam.members = [req.body.admin_uid];
-    const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
+    User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
@@ -41,9 +41,10 @@ app.post('/create', (req, res) => {
       } 
       else {
         //newTeam.members.push(req.body.admin_uid);
-        newTeam.save((error, team) => {
-          if (error || !team) {
-            console.log('Error while saving the team!\n'+error);
+        admin.teams.push(newTeam._id)
+        Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
+          if (!admin || !team) {
+            console.log('Error while creating the team!\n');
             res.status(400).send('Error while creating the team!');
           } else {
             console.log("Team with id: "+team._id+" added successfully");
