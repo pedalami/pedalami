@@ -319,3 +319,5 @@ app.*.map.json
 
 #Node stuff
 package-lock.json
+lib/generated_plugin_registrant.dart
+ios/Runner/GeneratedPluginRegistrant.m
