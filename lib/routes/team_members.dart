@@ -18,11 +18,13 @@ class _TeamMembersState extends State<TeamMembers> {
   final usernameController = TextEditingController();
   MiUser _miUser = new MiUser("", "", "", "");
 
+  // TODO : Make Dynamic read from users enrolled to team
   List<String> names = [
     "Panos", "Giancarlo", "Vincenzo", "Massimiliano", "David", "Emanuele", "Marcus", "Lorenzo", "Dimitra",
     "Michaelangelo", "Thaleia", "Raffaela", "Alessio", "Luke", "Jade", "Sarah", "Abrar", "Elsa", "Ferzeneh", "Gezim", "Gabriel", "Riccardo"
   ];
 
+  // TODO : Make Dynamic read from teams joined to
   List<String> teams = [
     "Polimi", "FER", "MDH", "TUDublin", "Random team", " \"For The Win\" team"
   ];
