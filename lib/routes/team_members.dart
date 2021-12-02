@@ -89,6 +89,17 @@ class _TeamMembersState extends State<TeamMembers> {
                           SizedBox(
                             height: 1 * SizeConfig.heightMultiplier!,
                           ),
+                          Container(
+                            height: 11 * SizeConfig.heightMultiplier!,
+                            width: 22 * SizeConfig.widthMultiplier!,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image:
+                                  NetworkImage(_miUser.image),
+                                )),
+                          ),
                           Row(
                             children: <Widget>[
                               Row(
