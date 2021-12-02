@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 
 var usersRouter = require('./backend/components/profile_controller');
 var teamsRouter = require('./backend/components/team_controller');
+var rideRouter = require('./backend/components/ride_handler');
 
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./backend/swagger.json');
@@ -39,6 +40,7 @@ app.get('/', (req, res) => {
 
 app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
+app.use('/rides', rideRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

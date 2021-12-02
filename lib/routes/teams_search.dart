@@ -2,8 +2,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
-import 'package:flutter/material.dart';
+import 'package:pedala_mi/widget/teams_search_button.dart';
 
 
 
@@ -14,109 +16,143 @@ class TeamsSearchPage extends StatefulWidget {
 }
 
 class _TeamsSearchPageState extends State<TeamsSearchPage> {
-  User? user = FirebaseAuth.instance.currentUser;
+  User? user;
+  List<Team>? foundTeams;
+  late bool hasSearched, loading;
+  final teamSearchController = TextEditingController();
+
+  @override
+  void initState() {
+    user = FirebaseAuth.instance.currentUser;
+    hasSearched=false;
+    loading=false;
+    super.initState();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(
-          clipBehavior: Clip.none,
-          children: <Widget>[
-            Container(
-              color: Colors.green[600],
-              height: 45 * SizeConfig.heightMultiplier!,
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: 30.0,
-                    right: 30.0,
-                    top: 10 * SizeConfig.heightMultiplier!),
-                child: Column(
-                  children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
-                        child: Column(
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.only(
-                                  left: 20.0,
-                                  top: 10 * SizeConfig.heightMultiplier!,
-                                  right: 20),
-                              child: TextField(
-                                cursorColor: CustomColors.green,
-                                decoration: InputDecoration(
-                                    counterStyle: TextStyle(
-                                      color: CustomColors.silver,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
-                                      borderSide:
-                                      BorderSide(color: CustomColors.silver),
-                                    ),
-                                    focusedBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
-                                      borderSide:
-                                      BorderSide(color: CustomColors.green),
-                                    ),
-                                    hintText: "Search for team",
-                                    hintStyle:
-                                    TextStyle(color: CustomColors.silver)),
-                                //controller: usernameController,
-                                //maxLength: 20,
-                                //style: TextStyle(color: Colors.black),
+        body: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(
+                color: Colors.green[600],
+                height: 45 * SizeConfig.heightMultiplier!,
+                child: Padding(
+                  padding: EdgeInsets.only(
+                      left: 30.0,
+                      right: 30.0,
+                      top: 10 * SizeConfig.heightMultiplier!),
+                  child: Column(
+                    children: <Widget>[
+                        Padding(
+                          padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
+                          child: Column(
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 20.0,
+                                    top: 10 * SizeConfig.heightMultiplier!,
+                                    right: 20),
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  cursorColor: CustomColors.green,
+                                  decoration: InputDecoration(
+                                      counterStyle: TextStyle(
+                                        color: CustomColors.silver,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
+                                        borderSide:
+                                        BorderSide(color: CustomColors.silver),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
+                                        borderSide:
+                                        BorderSide(color: CustomColors.green),
+                                      ),
+                                      hintText: "Search for team",
+                                      hintStyle:
+                                      TextStyle(color: CustomColors.silver)),
+                                  controller: teamSearchController,
+                                  onSubmitted: (value)async{
+                                    hasSearched=true;
+                                    loading=true;
+                                    setState(() {
+
+                                    });
+                                    foundTeams=await MongoDB.instance.searchTeam(teamSearchController.text);
+                                    loading=false;
+                                    setState(() {
+
+                                    });
+                                  },
+                                ),
                               ),
+                              SizedBox(
+                                height: 3 * SizeConfig.heightMultiplier!,
+                              ),
+                            ],
                             ),
-                            SizedBox(
-                              height: 3 * SizeConfig.heightMultiplier!,
-                            ),
-                          ],
-                          ),
-                      ),
-                  ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Container(
-              child: Padding(
-                padding: EdgeInsets.only(
-                    left: 30.0,
-                    right: 30.0,
-                    top: 50 * SizeConfig.heightMultiplier!),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
+              !hasSearched?
+              Container(
+                child: SingleChildScrollView(
+                  child: Column(
                     children: [
-                      Align(alignment: Alignment.center),
-                      ElevatedButton(
-                          onPressed: () {
-                            Navigator.pushNamed(context, "/create_team");
-                            },
-                          child: Text("Create New Team"),
-                          style: ButtonStyle(
-                              fixedSize: MaterialStateProperty.all(
-                                  Size(200, 35)),
-                              backgroundColor: MaterialStateProperty.all(
-                                  Colors.lightGreen),
-                              shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(18.0)))),
-                       ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, "/current_team");  //TODO: If user has no active team, show dialog window with message to join the team
-                        },
-                        child: Text("Your Current Team"),
-                        style: ButtonStyle(
-                            fixedSize: MaterialStateProperty.all(
-                                Size(200, 35)),
-                            backgroundColor: MaterialStateProperty.all(
-                                Colors.lightGreen),
-                            shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0)))),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0,
+                            right: 30.0,),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Align(alignment: Alignment.center),
+                              ElevatedButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(context, "/create_team");
+                                    },
+                                  child: Text("Create New Team"),
+                                  style: ButtonStyle(
+                                      fixedSize: MaterialStateProperty.all(
+                                          Size(200, 35)),
+                                      backgroundColor: MaterialStateProperty.all(
+                                          Colors.lightGreen),
+                                      shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(18.0)))),
+                               ),
+                              ElevatedButton(
+                                onPressed: () {
+                                  Navigator.pushNamed(context, "/current_team");  //TODO: If user has no active team, show dialog window with message to join the team
+                                },
+                                child: Text("Your Current Team"),
+                                style: ButtonStyle(
+                                    fixedSize: MaterialStateProperty.all(
+                                        Size(200, 35)),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.lightGreen),
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(18.0)))),
+                              ),
+                            ],
+                        ),
                       ),
                     ],
+                  ),
                 ),
-              ),
-            ),
-          ],
+              ):loading?Text("Loading..."):(foundTeams!.length==0?Text("No teams found"):TeamSearchButton(teamsFound: foundTeams!)),
+              //TODO: better ui loading or no results
+            ],
+          ),
         ),
     );
   }
+
+
 }
 
