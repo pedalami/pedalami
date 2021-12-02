@@ -59,7 +59,7 @@ app.post('/record', (req, res) => {
 });
 
 // GET /getAllByUser
-app.post('/getAllByUserId', (req, res) => {
+app.get('/getAllByUserId', (req, res) => {
     console.log('Received getAllByUserId GET request:');
     console.log("User:", req.body.uid);
 
