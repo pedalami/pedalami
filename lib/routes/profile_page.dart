@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
@@ -65,10 +66,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image:
-                                  NetworkImage(_miUser.image),
+                              NetworkImage(_miUser.image),
                             )),
                       ),
-                      onTap: () async{
+                      onTap: () async {
                         await Authentication.signOut(context: context);
                         Navigator.of(context).pushAndRemoveUntil(
                             _routeToSignInScreen(),
@@ -158,7 +159,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, "/edit");
+                        pushNewScreen(context, screen: ProfileEditing(),
+                            pageTransitionAnimation: PageTransitionAnimation
+                                .cupertino);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -185,7 +188,10 @@ class _ProfilePageState extends State<ProfilePage> {
         Padding(
             padding: EdgeInsets.only(top: 35 * SizeConfig.heightMultiplier!),
             child: Container(
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
               decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -235,14 +241,15 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: 7.0 * SizeConfig.widthMultiplier!,
                           ),
-                            Container(
+                          Container(
                             width: 32.0 * SizeConfig.widthMultiplier!,
                             child: ElevatedButton.icon(
                               onPressed: () {
                                 pushNewScreen(
                                   context,
                                   screen: TeamProfile(),
-                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                  pageTransitionAnimation: PageTransitionAnimation
+                                      .cupertino,
 
                                 );
                               },
@@ -254,11 +261,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                   shape: MaterialStateProperty.all(
                                       RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(18.0),
+                                          BorderRadius.circular(18.0),
                                           side: BorderSide(
                                               color: Colors.green)))),
-                                ),
-                            )
+                            ),
+                          )
                         ],
                       ),
                       Divider(
@@ -314,9 +321,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                               fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
                           ),
                         ),
+                      ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
@@ -389,12 +396,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Positioned.fill(
                 child: Align(
-              child: Text(
-                "Badge info here",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              alignment: Alignment.bottomCenter,
-            )),
+                  child: Text(
+                    "Badge info here",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  alignment: Alignment.bottomCenter,
+                )),
           ],
         ),
       ),
