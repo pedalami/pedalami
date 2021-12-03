@@ -362,6 +362,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                       // TODO: end of Statistics section <----------------------------------------------------
+                      SizedBox(
+                        height: 3 * SizeConfig.heightMultiplier!,
+                      ),
                     ],
                   ),
                 ),
