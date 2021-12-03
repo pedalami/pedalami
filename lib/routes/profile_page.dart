@@ -2,11 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedala_mi/models/user.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
+import 'package:pedala_mi/routes/teams_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -238,7 +239,12 @@ class _ProfilePageState extends State<ProfilePage> {
                             width: 32.0 * SizeConfig.widthMultiplier!,
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                Navigator.pushNamed(context, "/current_team");
+                                pushNewScreen(
+                                  context,
+                                  screen: TeamProfile(),
+                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+
+                                );
                               },
                               label: Text("Info"),
                               icon: FaIcon(FontAwesomeIcons.userCog),

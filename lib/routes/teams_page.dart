@@ -6,8 +6,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/routes/events_page.dart';
+import 'package:pedala_mi/routes/team_members.dart';
+import 'package:pedala_mi/routes/teams_search.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class TeamProfile extends StatefulWidget {
   TeamProfile({Key? key}) : super(key: key);
@@ -156,7 +160,12 @@ class _TeamProfileState extends State<TeamProfile> {
                                     top: 5 * SizeConfig.heightMultiplier!),),
                                  ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, "/events");
+                                    pushNewScreen(
+                                      context,
+                                      screen: EventsPage(),
+                                      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+
+                                    );
                                   },
                                   child: Text("Events", textAlign: TextAlign.center,),
                                   style: ButtonStyle(
@@ -177,7 +186,12 @@ class _TeamProfileState extends State<TeamProfile> {
                                       right: 10),
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          Navigator.pushNamed(context, "/team_members");
+                                          pushNewScreen(
+                                            context,
+                                            screen: TeamMembers(),
+                                            pageTransitionAnimation: PageTransitionAnimation.cupertino,
+
+                                          );
                                         },
                                         child: Text("Team Members"),
                                         style: ButtonStyle(
@@ -199,7 +213,12 @@ class _TeamProfileState extends State<TeamProfile> {
                                           right: 10),
                                       child: ElevatedButton(
                                         onPressed: () {
-                                          Navigator.pushNamed(context, "/search_team");
+                                          pushNewScreen(
+                                            context,
+                                            screen: TeamsSearchPage(),
+                                            pageTransitionAnimation: PageTransitionAnimation.cupertino,
+
+                                          );
                                         },
                                         child: Text("Leave current team", style: TextStyle(color: Colors.grey[800]),),
                                         style: ButtonStyle(

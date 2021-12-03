@@ -3,9 +3,12 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/routes/create_team.dart';
+import 'package:pedala_mi/routes/teams_page.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/widget/teams_search_button.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 
 
@@ -113,7 +116,12 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                               Align(alignment: Alignment.center),
                               ElevatedButton(
                                   onPressed: () {
-                                    Navigator.pushNamed(context, "/create_team");
+                                    pushNewScreen(
+                                      context,
+                                      screen: TeamCreation(),
+                                      pageTransitionAnimation: PageTransitionAnimation.cupertino,
+
+                                    );
                                     },
                                   child: Text("Create New Team"),
                                   style: ButtonStyle(
@@ -127,7 +135,12 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                ),
                               ElevatedButton(
                                 onPressed: () {
-                                  Navigator.pushNamed(context, "/current_team");  //TODO: If user has no active team, show dialog window with message to join the team
+                                  pushNewScreen(
+                                    context,
+                                    screen: TeamProfile(),
+                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
+
+                                  );  //TODO: If user has no active team, show dialog window with message to join the team
                                 },
                                 child: Text("Your Current Team"),
                                 style: ButtonStyle(
