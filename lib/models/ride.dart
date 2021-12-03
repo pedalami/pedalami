@@ -3,6 +3,7 @@ import 'package:pedala_mi/models/ride.dart';
 class Ride {
   String uid;
   String name;
+  String? rideId;
   num? durationInSeconds;
   num? totalKm;
   num? pace;
@@ -26,6 +27,6 @@ class Ride {
 
   @override
   String toString() {
-    return 'Ride{uid: $uid, name: $name, durationInSeconds: $durationInSeconds, totalKm: $totalKm, pace: $pace, date: $date, elevation_gain: $elevation_gain}';
+    return 'Ride{ rideId: $rideId, uid: $uid, name: $name, durationInSeconds: $durationInSeconds, totalKm: $totalKm, pace: $pace, date: $date, elevation_gain: $elevation_gain, earnedPoints: $points}';
   }
 }

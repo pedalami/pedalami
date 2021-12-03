@@ -79,5 +79,27 @@ class MongoDB {
       return null;
   }
 
+  Future<Ride?> recordRide(Ride toRecord) async {
+    var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({
+          "uid": toRecord.uid,
+          "name": toRecord.name,
+          "duration_in_seconds": toRecord.durationInSeconds,
+          "total_km": toRecord.totalKm,
+          "date": toRecord.date,
+          "elevation_gain": toRecord.elevation_gain})
+    );
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      toRecord.pace = decodedBody["pace"];
+      toRecord.points = decodedBody["points"];
+      toRecord.rideId = decodedBody["id"];
+      return toRecord;
+    } else
+      return null;
+  }
+
 
 }
