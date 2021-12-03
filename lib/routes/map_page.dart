@@ -307,33 +307,32 @@ class _MapPageState extends State<MapPage> {
     //TODO: FIX THIS
     //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
 
-
     pushNewScreen(context, screen: RideCompletePage());
-
-
   }
 
   showAlertDialog(BuildContext context) {
     final snackBar = SnackBar(
-      elevation: 20.0,
+        elevation: 20.0,
         content: Column(
           mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          "No movement detect since ride started",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 10,),
-        Text(
-          "Unable to save the ride",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-          ),
-        )
-      ],
-    ));
+          children: [
+            Text(
+              "No movement detect since ride started",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Text(
+              "Unable to save the ride",
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+              ),
+            )
+          ],
+        ));
     print("HEJ");
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
