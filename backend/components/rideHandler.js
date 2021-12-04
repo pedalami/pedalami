@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const Double = mongoose.Schema.Types.Number;
 const Schema = mongoose.Schema;
 const UserSchema = Schema.UserSchema;
-const gamification_controller = require("./gamification_controller.js");
-const profile_controller = require("./profile_controller.js");
+const gamification_controller = require("./gamificationController.js");
+const profile_controller = require("./profileController.js");
 
 // Schema
 const RideSchema = new Schema({
