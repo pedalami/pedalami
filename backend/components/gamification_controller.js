@@ -36,4 +36,4 @@ async function assignPoints(ride) {
     });
 }
 
-module.exports = { assign_points };
+module.exports = { assignPoints };
