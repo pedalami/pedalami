@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const Double = mongoose.Schema.Types.Number;
 const Schema = mongoose.Schema;
 const UserSchema = Schema.UserSchema;
-const gamification_controller = require("./gamificationController.js");
-const profile_controller = require("./profileController.js");
+const gamificationController = require("./gamificationController.js");
+const profileController = require("./profileController.js");
 
 // Schema
 const RideSchema = new Schema({
@@ -34,9 +34,9 @@ app.post("/record", async (req, res) => {
 
   // We cannot do User.findById since the userId is not the _id
   if (req.body.userId && (await User.findOne({ userId: req.body.userId }))) {
-    gamification_controller.assignPoints(ride)
+    gamificationController.assignPoints(ride)
       .then(() => {
-        profile_controller.updateUserStatistics(ride)
+        profileController.updateUserStatistics(ride)
           .then(() => {
             res.json({
               message: "Ride saved successfully, user statistics updated successfully",
