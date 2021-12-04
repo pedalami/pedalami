@@ -5,16 +5,16 @@ class Team {
   String adminId;
   String name;
   String? description;
-  List<MiUser>? members;
+  List<dynamic> members;
 
 
   Team(this.uid, this.adminId, this.name, this.description, this.members);
 
   factory Team.fromJson(dynamic json) {
-    return Team(json['_id'] as String, json['admin_uid'] as String, json['name'] as String, json['description'] as String?, null);
+    return Team(json['_id'] as String, json['admin_uid'] as String, json['name'] as String, json['description'] as String?, json['members']);
   }
 
-  void setMembers(List<MiUser> members) {
+  void setMembers(List<String> members) {
     this.members = members;
   }
 

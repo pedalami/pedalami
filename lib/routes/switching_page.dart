@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pedala_mi/routes/create_team.dart';
+import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'map_page.dart';
 import 'profile_page.dart';
@@ -14,6 +17,7 @@ class SwitchPage extends StatefulWidget {
 }
 
 class _SwitchPageState extends State<SwitchPage> {
+  final _navigatorKey = GlobalKey<NavigatorState>();
   List<Widget> pages = [MapPage(), ProfilePage(), TeamsSearchPage()];
   int _selectedIndex = 0;
 
@@ -25,21 +29,32 @@ class _SwitchPageState extends State<SwitchPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: [
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.map), label: 'Map'),
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.user), label: 'Profile'),
-          BottomNavigationBarItem(
-              icon: FaIcon(FontAwesomeIcons.peopleArrows), label: 'Teams'),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.green[800],
-        onTap: _onItemTapped,
+    return PersistentTabView(
+      context,
+      navBarStyle: NavBarStyle.style9,
+      resizeToAvoidBottomInset: true,
+      hideNavigationBarWhenKeyboardShows: true,
+      decoration: NavBarDecoration(
+        borderRadius: BorderRadius.circular(10.0),
+        colorBehindNavBar: Colors.white
       ),
-      body: pages[_selectedIndex],
+      screens: [
+        MapPage(),
+        ProfilePage(),
+        TeamsSearchPage(),
+      ],
+      items: [
+        PersistentBottomNavBarItem(
+          activeColorPrimary: Colors.green,
+            icon: FaIcon(FontAwesomeIcons.map), title: 'Map'),
+        PersistentBottomNavBarItem(
+            activeColorPrimary: Colors.green,
+            icon: FaIcon(FontAwesomeIcons.user), title: 'Profile'),
+        PersistentBottomNavBarItem(
+            activeColorPrimary: Colors.green,
+            activeColorSecondary: Colors.red,
+            icon: FaIcon(FontAwesomeIcons.peopleArrows), title: 'Teams'),
+      ],
     );
   }
 }

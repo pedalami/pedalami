@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/models/ride.dart';
 
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
@@ -62,6 +63,44 @@ class MongoDB {
     );
     return response.statusCode == 200 ? true : false;
   }
+  
+  Future<List<Ride>?> getAllRidesFromUser(String userID) async {
+    var url = Uri.parse('https://pedalami.herokuapp.com/rides/getAllByUserId').replace(queryParameters: {
+      'uid': userID
+    });
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+
+      var decodedBody = json.decode(response.body) as List;
+      List<Ride> ridesList = decodedBody.map((ride) => Ride.fromJson(ride)).toList();
+
+      return ridesList;
+    } else
+      return null;
+  }
+
+  Future<Ride?> recordRide(Ride toRecord) async {
+    var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({
+          "uid": toRecord.uid,
+          "name": toRecord.name,
+          "duration_in_seconds": toRecord.durationInSeconds,
+          "total_km": toRecord.totalKm,
+          "date": toRecord.date,
+          "elevation_gain": toRecord.elevation_gain})
+    );
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      toRecord.pace = decodedBody["pace"];
+      toRecord.points = decodedBody["points"];
+      toRecord.rideId = decodedBody["id"];
+      return toRecord;
+    } else
+      return null;
+  }
+
 
   //Returns the recorded ride if everything went fine
   //Returns null in case of error

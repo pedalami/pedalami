@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
+import 'package:pedala_mi/routes/teams_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
@@ -64,10 +66,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             image: DecorationImage(
                               fit: BoxFit.cover,
                               image:
-                                  NetworkImage(_miUser.image),
+                              NetworkImage(_miUser.image),
                             )),
                       ),
-                      onTap: () async{
+                      onTap: () async {
                         await Authentication.signOut(context: context);
                         Navigator.of(context).pushAndRemoveUntil(
                             _routeToSignInScreen(),
@@ -157,7 +159,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        Navigator.pushNamed(context, "/edit");
+                        pushNewScreen(context, screen: ProfileEditing(),
+                            pageTransitionAnimation: PageTransitionAnimation
+                                .cupertino);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -184,7 +188,10 @@ class _ProfilePageState extends State<ProfilePage> {
         Padding(
             padding: EdgeInsets.only(top: 35 * SizeConfig.heightMultiplier!),
             child: Container(
-              width: MediaQuery.of(context).size.width,
+              width: MediaQuery
+                  .of(context)
+                  .size
+                  .width,
               decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -199,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: EdgeInsets.only(
                             left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
-                          "Current Team",
+                          "Joined Teams",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -234,11 +241,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(
                             width: 7.0 * SizeConfig.widthMultiplier!,
                           ),
-                            Container(
+                          Container(
                             width: 32.0 * SizeConfig.widthMultiplier!,
                             child: ElevatedButton.icon(
                               onPressed: () {
-                                Navigator.pushNamed(context, "/current_team");
+                                pushNewScreen(
+                                  context,
+                                  screen: TeamProfile(),
+                                  pageTransitionAnimation: PageTransitionAnimation
+                                      .cupertino,
+
+                                );
                               },
                               label: Text("Info"),
                               icon: FaIcon(FontAwesomeIcons.userCog),
@@ -248,11 +261,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                   shape: MaterialStateProperty.all(
                                       RoundedRectangleBorder(
                                           borderRadius:
-                                              BorderRadius.circular(18.0),
+                                          BorderRadius.circular(18.0),
                                           side: BorderSide(
                                               color: Colors.green)))),
-                                ),
-                            )
+                            ),
+                          )
                         ],
                       ),
                       Divider(
@@ -287,7 +300,78 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       Divider(
                         color: Colors.grey,
-                      )
+                      ),
+                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Statistics",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2.5 * SizeConfig.textMultiplier!),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Distance: 95km",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Duration: 30 minutes",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Speed: 15km/h",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Elevation: 20",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Pace: 8",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      // TODO: end of Statistics section <----------------------------------------------------
+                      SizedBox(
+                        height: 3 * SizeConfig.heightMultiplier!,
+                      ),
                     ],
                   ),
                 ),
@@ -312,12 +396,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Positioned.fill(
                 child: Align(
-              child: Text(
-                "Badge info here",
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              alignment: Alignment.bottomCenter,
-            )),
+                  child: Text(
+                    "Badge info here",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  alignment: Alignment.bottomCenter,
+                )),
           ],
         ),
       ),

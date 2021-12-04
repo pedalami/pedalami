@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>215517273270-1gjsc0kvhv516s7vuo5oe4gv7959a6bk.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.215517273270-1gjsc0kvhv516s7vuo5oe4gv7959a6bk</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>215517273270-0dn7pivubm6c6se1rma3fdgqgluhuatt.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyBFYOWzupSsBJEhwtpYN2VRo5z8OIHTycY</string>
+	<key>GCM_SENDER_ID</key>
+	<string>215517273270</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.pedala_mi</string>
+	<key>PROJECT_ID</key>
+	<string>pedala-mi</string>
+	<key>STORAGE_BUCKET</key>
+	<string>pedala-mi.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true/>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true/>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:215517273270:ios:30463d92625a8e3e329a17</string>
+</dict>
+</plist>

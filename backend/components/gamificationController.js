@@ -11,7 +11,7 @@ async function assignPoints(ride) {
     //Calculate points
     var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
     ride.points = points;
-    await User.findOne({ uid: ride.userId }).then((user) => {
+    await User.findOne({ userId: ride.userId }).then((user) => {
         if (user) {
             console.log(user);
             if (user.points) {

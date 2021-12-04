@@ -20,6 +20,18 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
     super.initState();
   }
 
+  bool checkUserInTeam(List<String>? users)
+  {
+    for(int i=0;i<users!.length;i++)
+      {
+        if(users[i]==FirebaseAuth.instance.currentUser!.uid)
+          {
+            return true;
+          }
+      }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -80,7 +92,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                           color: Colors.white),
                                     ))),
                           ),
-                          Padding(padding: const EdgeInsets.all(12),
+                          !checkUserInTeam(teamsFound[i].members.cast<String>() )?Padding(padding: const EdgeInsets.all(12),
                           child: Align(
                             alignment: Alignment.bottomRight,
                             child: FittedBox(
@@ -96,6 +108,10 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                         content: Text(
                                           "Joined "+teamsFound[i].name+" successfully!",),
                                       ));
+                                      teamsFound[i].members.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
+                                      setState(() {
+
+                                      });
                                     }
                                   else
                                     {
@@ -117,7 +133,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                           ),
                               
                             ),
-                          ),)
+                          ),):SizedBox()
                         ],
                       )
                     ],
@@ -128,4 +144,6 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
           );
         });
   }
+
+
 }
