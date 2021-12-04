@@ -10,13 +10,13 @@ const gamification_controller = require('./gamification_controller.js');
 
 // Schema
 const RideSchema = new Schema({
-    uid: { type: String, required: true },
+    userId: { type: String, required: true },
     name: { type: String, required: true },
-    duration_in_seconds: { type: Double, required: true },
-    total_km: { type: Double, required: true },
+    durationInSseconds: { type: Double, required: true },
+    totalKm: { type: Double, required: true },
     pace: { type: Double, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
-    elevation_gain: { type: Double, required: true },
+    elevationGain: { type: Double, required: true },
     points: { type: Double, required: false },
 });
 
@@ -29,10 +29,10 @@ app.post('/record', (req, res) => {
     console.log('Received record POST request:');
     console.log(req.body);
     var ride = new Ride(req.body);
-    ride.pace = ride.total_km / (ride.duration_in_seconds / 3600)
+    ride.pace = ride.totalKm / (ride.durationInSeconds / 3600)
    
     // We cannot do User.findById since the uid is not the _id
-    if (req.body.uid && User.findOne({ uid: req.body.uid })) {
+    if (req.body.userId && User.findOne({ uid: req.body.userId })) {
         Promise.all([
             gamification_controller.assign_points(ride)
         ]).then(() => {
@@ -44,7 +44,7 @@ app.post('/record', (req, res) => {
             });
         }).catch((err) => {
             console.log(err);
-            res.sendStatus(500).send("Cannot save the ride in the DB");
+            res.sendStatus(500).send("Cannot save the ride in the database");
         });
     }
     else {
@@ -56,21 +56,21 @@ app.post('/record', (req, res) => {
 // GET /getAllByUser
 app.get('/getAllByUserId', (req, res) => {
     console.log('Received getAllByUserId GET request:');
-    console.log("User:", req.query.user_id);
+    console.log("User:", req.query.userId);
 
-    if (req.query.user_id) {
+    if (req.query.userId) {
         // I return an array of rides without the fields _id and __v
-        Ride.find({ user_id: req.query.user_id }, '-_id -__v', (error, rides) => {
+        Ride.find({ userId: req.query.user_id }, '-_id -__v', (error, rides) => {
             if (error) {
-                console.log('Error finding the rides of the specified user_id.\n' + error);
+                console.log('Error finding the rides of the specified userId.\n' + error);
                 res.status(500).send('Error finding the rides!');
             } else {
                 res.status(200).send(rides);
             }
         });
     } else {
-        console.log('Error: Missing the user_id parameter.');
-        res.status(400).send('Error: Missing the user_id parameter.');
+        console.log('Error: Missing the userId parameter.');
+        res.status(400).send('Error: Missing the userId parameter.');
     }
 });
 
