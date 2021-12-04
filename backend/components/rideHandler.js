@@ -37,20 +37,18 @@ app.post("/record", async (req, res) => {
     gamificationController.assignPoints(ride)
       .then(() => {
         profileController.updateUserStatistics(ride)
-          .then(() => {
-            res.json({
-              message: "Ride saved successfully, user statistics updated successfully",
-              points: ride.points,
-              pace: ride.pace,
-              id: ride._id,
-            });
-          })
           .catch((err) => {
             console.error(err);
             res.status(500).send(
               "Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure"
             );
           });
+        res.json({
+          message: "Ride saved successfully, user statistics updated successfully",
+          points: ride.points,
+          pace: ride.pace,
+          id: ride._id,
+        });
       })
       .catch((err) => {
         console.error(err);
