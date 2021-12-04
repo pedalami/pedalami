@@ -316,3 +316,4 @@ app.*.map.json
 
 #Node stuff
 package-lock.json
+android/debug.keystore
