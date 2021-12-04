@@ -25,7 +25,7 @@ const User = mongoose.model('User', UserSchema);
 const Ride = mongoose.model('Ride', RideSchema);
 
 // POST /record
-app.post('/record', (req, res) => {
+app.post('/record', async (req, res) => {
     console.log('Received record POST request:');
     console.log(req.body);
     var ride = new Ride();
@@ -37,23 +37,21 @@ app.post('/record', (req, res) => {
     ride.date = req.body.date
     ride.elevation_gain = req.body.elevation_gain
     // We cannot do User.findById since the uid is not the _id
-    if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })) {
-        Promise.all([
-            gamification_controller.assign_points(ride)
-        ]).then(() => {
-            res.json({
-                'message': 'Ride saved successfully',
-                'points': ride.points,
-                'pace': ride.pace,
-                'id': ride._id
-            });
-        }).catch((err) => {
-            console.log(err);
-            res.sendStatus(500).send("Cannot save the ride in the DB");
+    if (req.body.uid && await User.findOne({ uid: req.body.uid })) {
+        gamification_controller.assign_points(ride).then(() => {
+                res.json({
+                    'message': 'Ride saved successfully',
+                    'points': ride.points,
+                    'pace': ride.pace,
+                    'id': ride._id
+                });
+            }).catch((err) => {
+            console.error(err);
+            res.status(500).send("Cannot save the ride in the DB");
         });
     }
     else {
-        console.log('Cannot find the user specified!\n');
+        console.error('Cannot find the user specified!\n');
         res.status(500).send('Cannot find the user specified!');
     }
 });

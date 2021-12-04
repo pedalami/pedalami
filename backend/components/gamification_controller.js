@@ -11,10 +11,9 @@ async function assign_points(ride) {
     //Calculate points
     var points = (ride.total_km * 100) + (ride.elevation_gain * 10); //add bonus if raining later on
     ride.points = points;
-    User.findOne({ uid: ride.user_uid }).then((user) => {
+    await User.findOne({ uid: ride.uid }).then((user) => {
         if (user) {
             console.log(user);
-
             if (user.points) {
                 user.points += points;
             } else {
@@ -32,6 +31,8 @@ async function assign_points(ride) {
         else {
             throw ('Gamification controller could not find the user specified in the ride!');
         }
+    }).catch(err => {
+        throw (err);
     });
 }
 
