@@ -131,4 +131,44 @@ app.post('/join', (req, res) => {
   }
 });
 
+
+// GET /getTeam?teamID=teamID
+app.get('/getTeam', (req, res) => {
+  const teamID = req.query.teamID;
+  console.log('Received getTeam GET request with param id=' + teamID);
+  if (teamID) {
+    Team
+      .aggregate([
+        {
+          $match: {
+            _id: ObjectId(teamID)
+          }
+        },
+        {
+          $lookup: {
+            from: "users", // collection name in db
+            localField: "members", // field of User to make the lookup on (the foreign key)
+            foreignField: "userID", // the referred field in teams ///DA CAMBIARE ///TODO
+            as: "members" // name that the field of the join will have in the result/JSON
+          }
+        }, 
+        {
+          $unset: ["members.teams", "members._id", "members.__v", "__v"]
+        }
+      ])
+      .exec((error, team) => {
+        if (error) {
+          console.log('Error finding the user.\n' + error);
+          res.status(500).send('Error finding the team!');
+        } else {
+          res.status(200).send(team);
+        }
+      });
+  } else {
+    console.log('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
+  }
+});
+
+
 module.exports = app;
