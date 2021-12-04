@@ -16,12 +16,13 @@ const RideSchema = new Schema({
     totalKm: { type: Double, required: true },
     pace: { type: Double, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
+    // The elevationGain of a ride is always postiive
     elevationGain: { type: Double, required: true },
     points: { type: Double, required: false },
 });
 
 // Model
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User2', UserSchema);
 const Ride = mongoose.model('Ride', RideSchema);
 
 // POST /record
@@ -42,7 +43,7 @@ app.post('/record', async (req, res) => {
                 });
             }).catch((err) => {
             console.error(err);
-            res.status(500).send("Cannot save the ride in the DB");
+            res.status(500).send("Cannot save the ride in the database");
         });
     }
     else {

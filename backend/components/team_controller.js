@@ -18,7 +18,7 @@ const TeamSchema = new Schema({
 
 // Model
 const Team = mongoose.model('Team', TeamSchema);
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User2', UserSchema);
 
 // POST /create
 app.post('/create', (req, res) => {

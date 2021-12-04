@@ -4,7 +4,7 @@ const UserSchema = Schema.UserSchema;
 
 
 // Model
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User2', UserSchema);
 
 
 async function assign_points(ride) {

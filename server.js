@@ -18,7 +18,6 @@ const connectionParams={
     useNewUrlParser: true,
     useUnifiedTopology: true 
 }
-
 mongoose.connect(MONGO_URI,connectionParams)
     .then( () => {
         console.log('Connected to database!')

@@ -6,22 +6,32 @@ const Schema = mongoose.Schema;
 
 // Schema
 const UserSchema = new Schema({
-  userId: {type: String, required: true},
-  points: {type: Number, required: true, default: 0},
-  teams: { type: Array, required: false, default: null }
+  userId: { type: String, required: true },
+  points: { type: Number, required: true, default: 0 },
+  teams: { type: Array, required: false, default: null },
+  statistics: {
+    numberOfRides: { type: Number, required: true, default: 0 },
+    totalDuration: { type: Number, required: true, default: 0 },
+    totalKm: { type: Number, required: true, default: 0 },
+    // The elevationGain of a ride is always postiive
+    totalElevationGain: { type: Number, required: true, default: 0 },
+    averageDurationPerRide: { type: Number, required: true, default: 0 },
+    averageSpeed: { type: Number, required: true, default: 0 },
+    averageElevationGain: { type: Number, required: true, default: 0 }
+  }
 });
 
 // Model
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User2', UserSchema);
 
 app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
-  if (req.body.uid) {
-    const newUser = new User(req.body.userId);
+  if (req.body.userId) {
+    const newUser = new User(req.body);
     newUser.save((error) => {
       if (error) {
-        console.log('Error saving the user.');
+        console.log('Error saving the user.' + error);
         res.status(500).send('Error saving the user!');
       } else {
         console.log('The user has been saved.');
@@ -81,14 +91,14 @@ app.get('/removePoints', (req, res) => {
 
 // GET /getTeams?user_id=user_id
 app.get('/getTeams', (req, res) => {
-  const user_id = req.query.user_id;
-  console.log('Received getTeams GET request with param id=' + user_id);
-  if (user_id) {
+  const userId = req.query.userId;
+  console.log('Received getTeams GET request with param id=' + userId);
+  if (userId) {
     User
       .aggregate([
         {
           $match: {
-            uid: user_id
+            uid: userId
           }
         },
         {
@@ -113,5 +123,45 @@ app.get('/getTeams', (req, res) => {
     res.status(400).send('Error: Missing parameters.');
   }
 });
+
+async function updateUserStatistics(ride) {
+  //Calculate points
+  //var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
+  //ride.points = points;
+  await User.findOne({ uid: ride.userId }).then((user) => {
+      if (user) {
+          console.log(user);
+          user.statistics.numberOfRides++;
+          user.statistics.totalDuration += ride.duration;
+          user.statistics.totalKm += ride.totalKm;
+          user.statistics.totalElevationGain += ride.elevationGain;
+          user.statistics.averageDurationPerRide = user.statistics.totalDuration / user.statistics.numberOfRides;
+          user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
+          user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
+          user.save()
+            .catch(err => {
+            console.log(err);
+            throw (err);
+          });
+          return ride;
+      }
+      else {
+          throw ('Gamification controller could not find the user specified in the ride!');
+      }
+  }).catch(err => {
+      throw (err);
+  });
+}
+
+/*
+statistics: {
+    numberOfRides: { type: Number, required: true, default: 0 },
+    totalDuration: { type: Number, required: true, default: 0 },
+    totalKm: { type: Number, required: true, default: 0 },
+    averageDurationPerRide: { type: Number, required: true, default: 0 },
+    averageSpeed: { type: Number, required: true, default: 0 },
+    averageElevationGain: { type: Number, required: true, default: 0 }
+  }
+*/
 
 module.exports = app;
