@@ -55,7 +55,6 @@ app.get('/addPoints', (req, res) => {
 });
 
 app.get('/removePoints', (req, res) => {
-
   if (req.body.points <= 0) {
     res.send('Points to subtract cannot be negative!');
   } else {
@@ -108,6 +107,25 @@ app.get('/getTeams', (req, res) => {
           res.status(200).send(user);
         }
       });
+  } else {
+    console.log('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
+  }
+});
+
+// USELESS
+// GET /getStatistics?userId=userId
+app.get('/getStatistics', (req, res) => {
+  console.log('Received search GET request with param userId='+req.query.userId);
+  if (req.query.userId) {
+    User.findOne({ userId: req.query.userId }, (error, user) => {
+      if (error) {
+        console.log('Error finding the specified user.\n'+error);
+        res.status(500).send('Error finding the specified user!');
+      } else {
+        res.status(200).send(user);
+      }
+    });
   } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
