@@ -3,7 +3,7 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 
-var usersRouter = require('./backend/components/profile_controller');
+var usersRouter = require('./backend/components/profile_controller').router;
 var teamsRouter = require('./backend/components/team_controller');
 var rideRouter = require('./backend/components/ride_handler');
 

@@ -7,7 +7,7 @@ const UserSchema = Schema.UserSchema;
 const User = mongoose.model('User2', UserSchema);
 
 
-async function assign_points(ride) {
+async function assignPoints(ride) {
     //Calculate points
     var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
     ride.points = points;

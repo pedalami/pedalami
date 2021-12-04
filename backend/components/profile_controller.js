@@ -132,7 +132,7 @@ async function updateUserStatistics(ride) {
       if (user) {
           console.log(user);
           user.statistics.numberOfRides++;
-          user.statistics.totalDuration += ride.duration;
+          user.statistics.totalDuration += ride.durationInSeconds;
           user.statistics.totalKm += ride.totalKm;
           user.statistics.totalElevationGain += ride.elevationGain;
           user.statistics.averageDurationPerRide = user.statistics.totalDuration / user.statistics.numberOfRides;
@@ -143,25 +143,16 @@ async function updateUserStatistics(ride) {
             console.log(err);
             throw (err);
           });
-          return ride;
-      }
-      else {
-          throw ('Gamification controller could not find the user specified in the ride!');
+      } else {
+          throw ('The profile controller cannot update the statistics of the user specified!');
       }
   }).catch(err => {
       throw (err);
   });
 }
 
-/*
-statistics: {
-    numberOfRides: { type: Number, required: true, default: 0 },
-    totalDuration: { type: Number, required: true, default: 0 },
-    totalKm: { type: Number, required: true, default: 0 },
-    averageDurationPerRide: { type: Number, required: true, default: 0 },
-    averageSpeed: { type: Number, required: true, default: 0 },
-    averageElevationGain: { type: Number, required: true, default: 0 }
-  }
-*/
 
-module.exports = app;
+module.exports = {
+  router: app,
+  updateUserStatistics: updateUserStatistics
+}
