@@ -8,12 +8,12 @@ const UserSchema = Schema.UserSchema;
 
 // Schema
 const TeamSchema = new Schema({
-  admin_uid: { type: String, required: true },
+  adminId: { type: String, required: true },
   name: { type: String, required: true },
   description: { type: String, required: false },
   members: { type: Array, required: true }, // At least the admin
-  active_events: { type: Array, required: false }, // IDs of active events
-  event_requests: { type: Array, required: false }, // To better define once requests are defined
+  activeEvents: { type: Array, required: false }, // IDs of active events
+  eventRequests: { type: Array, required: false }, // To better define once requests are defined
 });
 
 // Model
@@ -27,7 +27,7 @@ app.post('/create', (req, res) => {
   if (req.body.name) {
     newTeam = new Team(req.body);
 
-    const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
+    const admin = User.findOne({ uid: req.body.adminId }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
@@ -37,7 +37,7 @@ app.post('/create', (req, res) => {
         res.status(500).send('Error while creating the team: the team admin specified does not exist!');
       } 
       else {
-        //newTeam.members.push(req.body.admin_uid);
+        //newTeam.members.push(req.body.adminId);
         newTeam.save((error, team) => {
           if (error || !team) {
             console.log('Error while saving the team!\n'+error);
@@ -64,7 +64,7 @@ app.get('/search', (req, res) => {
   const to_search = req.query.name;
   console.log('Received search GET request with param name='+to_search);
   if (to_search) {
-    //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
+    //Team.find({ name: {$regex: to_search} }, 'teamId name', (error, teams) => { //returns only team_id and name fields
     Team.find({ name: {$regex: to_search} }, (error, teams) => {
       if (error) {
         console.log('Error finding the teams.\n'+error);
@@ -84,22 +84,22 @@ app.get('/search', (req, res) => {
 app.post('/join', (req, res) => {
   console.log('Received join POST request:');
   console.log(req.body);
-  if (req.body.team_id && req.body.uid) {
+  if (req.body.teamId && req.body.userId) {
     Promise.all([
-      User.findOne({ uid: req.body.uid }),
-      Team.findOne({ _id: req.body.team_id })
+      User.findOne({ userId: req.body.userId }),
+      Team.findOne({ _id: req.body.teamId })
     ]).then(([user, team]) => {
       console.log(team);
       console.log(user);
-      if (team.members.includes(req.body.uid)) {
+      if (team.members.includes(req.body.userId)) {
         console.log('Error: User already in team.');
         res.status(500).send('Error: User already in team.');
       } else {
         if (user.teams == null) {
           user.teams = [];
         }
-        user.teams.push(req.body.team_id);
-        team.members.push(req.body.uid);
+        user.teams.push(req.body.teamId);
+        team.members.push(req.body.userId);
         Promise.all([
           team.save(),
           user.save()

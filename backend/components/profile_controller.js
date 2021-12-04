@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 
 // Schema
 const UserSchema = new Schema({
-  uid: {type: String, required: true},
+  userId: {type: String, required: true},
   points: {type: Number, required: true, default: 0},
   teams: { type: Array, required: false, default: null }
 });
@@ -18,7 +18,7 @@ app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
   if (req.body.uid) {
-    const newUser = new User(req.body.uid);
+    const newUser = new User(req.body.userId);
     newUser.save((error) => {
       if (error) {
         console.log('Error saving the user.');
