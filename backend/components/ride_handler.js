@@ -12,13 +12,20 @@ const gamification_controller = require('./gamification_controller.js');
 const RideSchema = new Schema({
     userId: { type: String, required: true },
     name: { type: String, required: true },
-    durationInSseconds: { type: Double, required: true },
+    durationInSeconds: { type: Double, required: true },
     totalKm: { type: Double, required: true },
     pace: { type: Double, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
     elevationGain: { type: Double, required: true },
     points: { type: Double, required: false },
+    path: [{
+        latitude: Double,
+        longitude: Double,
+        height: Double
+    }]
 });
+
+
 
 // Model
 const User = mongoose.model('User', UserSchema);
@@ -34,13 +41,13 @@ app.post('/record', async (req, res) => {
     // We cannot do User.findById since the uid is not the _id
     if (req.body.uid && await User.findOne({ uid: req.body.uid })) {
         gamification_controller.assign_points(ride).then(() => {
-                res.json({
-                    'message': 'Ride saved successfully',
-                    'points': ride.points,
-                    'pace': ride.pace,
-                    'id': ride._id
-                });
-            }).catch((err) => {
+            res.json({
+                'message': 'Ride saved successfully',
+                'points': ride.points,
+                'pace': ride.pace,
+                'id': ride._id
+            });
+        }).catch((err) => {
             console.error(err);
             res.status(500).send("Cannot save the ride in the DB");
         });
