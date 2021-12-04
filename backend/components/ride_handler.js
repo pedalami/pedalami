@@ -28,6 +28,7 @@ const Ride = mongoose.model('Ride', RideSchema);
 app.post('/record', (req, res) => {
     console.log('Received record POST request:');
     console.log(req.body);
+<<<<<<< Updated upstream
     var ride = new Ride();
     ride.user_uid = req.body.user_uid;
     ride.name = req.body.name
@@ -36,6 +37,11 @@ app.post('/record', (req, res) => {
     ride.pace = req.body.total_km / (req.body.duration_in_seconds / 3600)
     ride.date = req.body.date
     ride.elevation_gain = req.body.elevation_gain
+=======
+    var ride = new Ride(req.body);
+    ride.pace = ride.total_km / (ride.duration_in_seconds / 3600)
+   
+>>>>>>> Stashed changes
     // We cannot do User.findById since the uid is not the _id
     if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })) {
         Promise.all([
