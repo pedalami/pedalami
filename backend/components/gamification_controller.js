@@ -9,9 +9,9 @@ const User = mongoose.model('User', UserSchema);
 
 async function assign_points(ride) {
     //Calculate points
-    var points = (ride.total_km * 100) + (ride.elevation_gain * 10); //add bonus if raining later on
+    var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
     ride.points = points;
-    await User.findOne({ uid: ride.uid }).then((user) => {
+    await User.findOne({ uid: ride.userId }).then((user) => {
         if (user) {
             console.log(user);
             if (user.points) {
