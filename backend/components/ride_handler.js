@@ -10,7 +10,7 @@ const gamification_controller = require('./gamification_controller.js');
 
 // Schema
 const RideSchema = new Schema({
-    user_uid: { type: String, required: true },
+    uid: { type: String, required: true },
     name: { type: String, required: true },
     duration_in_seconds: { type: Double, required: true },
     total_km: { type: Double, required: true },
@@ -28,22 +28,11 @@ const Ride = mongoose.model('Ride', RideSchema);
 app.post('/record', (req, res) => {
     console.log('Received record POST request:');
     console.log(req.body);
-<<<<<<< Updated upstream
-    var ride = new Ride();
-    ride.user_uid = req.body.user_uid;
-    ride.name = req.body.name
-    ride.duration_in_seconds = req.body.duration_in_seconds
-    ride.total_km = req.body.total_km
-    ride.pace = req.body.total_km / (req.body.duration_in_seconds / 3600)
-    ride.date = req.body.date
-    ride.elevation_gain = req.body.elevation_gain
-=======
     var ride = new Ride(req.body);
     ride.pace = ride.total_km / (ride.duration_in_seconds / 3600)
    
->>>>>>> Stashed changes
     // We cannot do User.findById since the uid is not the _id
-    if (req.body.user_uid && User.findOne({ uid: req.body.user_uid })) {
+    if (req.body.uid && User.findOne({ uid: req.body.uid })) {
         Promise.all([
             gamification_controller.assign_points(ride)
         ]).then(() => {
@@ -67,21 +56,21 @@ app.post('/record', (req, res) => {
 // GET /getAllByUser
 app.get('/getAllByUserId', (req, res) => {
     console.log('Received getAllByUserId GET request:');
-    console.log("User:", req.query.user_uid);
+    console.log("User:", req.query.user_id);
 
-    if (req.query.user_uid) {
+    if (req.query.user_id) {
         // I return an array of rides without the fields _id and __v
-        Ride.find({ user_uid: req.query.user_uid }, '-_id -__v', (error, rides) => {
+        Ride.find({ user_id: req.query.user_id }, '-_id -__v', (error, rides) => {
             if (error) {
-                console.log('Error finding the rides of the specified user_uid.\n' + error);
+                console.log('Error finding the rides of the specified user_id.\n' + error);
                 res.status(500).send('Error finding the rides!');
             } else {
                 res.status(200).send(rides);
             }
         });
     } else {
-        console.log('Error: Missing the user_uid parameter.');
-        res.status(400).send('Error: Missing the user_uid parameter.');
+        console.log('Error: Missing the user_id parameter.');
+        res.status(400).send('Error: Missing the user_id parameter.');
     }
 });
 

@@ -25,11 +25,8 @@ app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
   if (req.body.name) {
-    newTeam = new Team();
-    newTeam.admin_uid = req.body.admin_uid;
-    newTeam.name = req.body.name;
-    newTeam.description = req.body.description;
-    newTeam.members = [req.body.admin_uid];
+    newTeam = new Team(req.body);
+
     const admin = User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
