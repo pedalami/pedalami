@@ -1,29 +1,12 @@
 var express = require("express");
 var app = express.Router();
 app.use(express.json());
-const mongoose = require("mongoose");
-const Double = mongoose.Schema.Types.Number;
-const Schema = mongoose.Schema;
-const UserSchema = Schema.UserSchema;
 const gamificationController = require("./gamificationController.js");
 const profileController = require("./profileController.js");
+const models = require('../schemas.js');
+const Ride = models.Ride;
+const User = models.User;
 
-// Schema
-const RideSchema = new Schema({
-  userId: { type: String, required: true },
-  name: { type: String, required: true },
-  durationInSeconds: { type: Double, required: true },
-  totalKm: { type: Double, required: true },
-  pace: { type: Double, required: true }, //Average speed in km/h
-  date: { type: Date, required: true },
-  // The elevationGain of a ride is always postiive
-  elevationGain: { type: Double, required: true },
-  points: { type: Double, required: false },
-});
-
-// Model
-const User = mongoose.model("User2", UserSchema);
-const Ride = mongoose.model("Ride", RideSchema);
 
 // POST /record
 app.post("/record", async (req, res) => {
@@ -39,9 +22,7 @@ app.post("/record", async (req, res) => {
         profileController.updateUserStatistics(ride)
           .catch((err) => {
             console.error(err);
-            res.status(500).send(
-              "Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure"
-            );
+            res.status(500).send("Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure");
           });
         res.json({
           message: "Ride saved successfully, user statistics updated successfully",
@@ -52,11 +33,7 @@ app.post("/record", async (req, res) => {
       })
       .catch((err) => {
         console.error(err);
-        res
-          .status(500)
-          .send(
-            "Cannot save the ride in the database due to a gamification controller failure"
-          );
+        res.status(500).send("Cannot save the ride in the database due to a gamification controller failure");
       });
   } else {
     console.error("Cannot find the user specified!\n");

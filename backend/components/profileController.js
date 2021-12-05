@@ -1,28 +1,7 @@
 var express = require('express');
 var app = express.Router();
 app.use(express.json());
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-
-// Schema
-const UserSchema = new Schema({
-  userId: { type: String, required: true },
-  points: { type: Number, required: true, default: 0 },
-  teams: { type: Array, required: false, default: null },
-  statistics: {
-    numberOfRides: { type: Number, required: true, default: 0 },
-    totalDuration: { type: Number, required: true, default: 0 },
-    totalKm: { type: Number, required: true, default: 0 },
-    // The elevationGain of a ride is always postiive
-    totalElevationGain: { type: Number, required: true, default: 0 },
-    averageDurationPerRide: { type: Number, required: true, default: 0 },
-    averageSpeed: { type: Number, required: true, default: 0 },
-    averageElevationGain: { type: Number, required: true, default: 0 }
-  }
-});
-
-// Model
-const User = mongoose.model('User2', UserSchema);
+const User = require('../schemas.js').User;
 
 app.post('/create', (req, res) => {
   console.log('Received create POST request:');
@@ -88,7 +67,7 @@ app.get('/removePoints', (req, res) => {
   }
 });
 
-// GET /getTeams?user_id=user_id
+// GET /getTeams?userId=userId
 app.get('/getTeams', (req, res) => {
   const userId = req.query.userId;
   console.log('Received getTeams GET request with param id=' + userId);

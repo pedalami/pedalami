@@ -1,24 +1,10 @@
 var express = require('express');
 var app = express.Router();
 app.use(express.json());
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const ObjectId = mongoose.Types.ObjectId
-const UserSchema = Schema.UserSchema;
-
-// Schema
-const TeamSchema = new Schema({
-  adminId: { type: String, required: true },
-  name: { type: String, required: true },
-  description: { type: String, required: false },
-  members: [{ type: String, required: true, default: null }], // At least the admin
-  active_events: [{ type: ObjectId, required: false, default: null }], // IDs of active events
-  event_requests: [{ type: ObjectId, required: false, default: null }] // To better define once requests are defined
-});
-
-// Model
-const Team = mongoose.model('Team', TeamSchema);
-const User = mongoose.model('User2', UserSchema);
+const models = require('../schemas.js');
+const Team = models.Team;
+const User = models.User;
+const ObjectId = models.ObjectId;
 
 // POST /create
 app.post('/create', (req, res) => {
@@ -26,7 +12,7 @@ app.post('/create', (req, res) => {
   console.log(req.body);
   if (req.body.name) {
     newTeam = new Team(req.body);
-    const admin = User.findOne({ uid: req.body.adminId }, (error, admin) => {
+    User.findOne({ userId: req.body.adminId }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n' + error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
@@ -37,7 +23,7 @@ app.post('/create', (req, res) => {
       }
       else {
         //newTeam.members.push(req.body.admin_uid);
-        admin.teams.push(newTeam._id)
+        admin.teams.push(newTeam._id);
         Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
           if (!admin || !team) {
             console.log('Error while creating the team!\n');

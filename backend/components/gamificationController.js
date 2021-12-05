@@ -1,11 +1,4 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const UserSchema = Schema.UserSchema;
-
-
-// Model
-const User = mongoose.model('User2', UserSchema);
-
+const User = require('../schemas.js').User;
 
 async function assignPoints(ride) {
     //Calculate points
