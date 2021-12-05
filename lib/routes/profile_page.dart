@@ -29,6 +29,9 @@ class _ProfilePageState extends State<ProfilePage> {
         .where("Mail", isEqualTo: user!.email)
         .get()
         .then((QuerySnapshot querySnapshot) async {
+
+          //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
+
       setState(() {
         _miUser = new MiUser(
             querySnapshot.docs[0].id,

@@ -2,15 +2,20 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:pedala_mi/models/ride.dart';
+import 'package:pedala_mi/models/user.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
+import 'package:location/location.dart' as loc;
 
 class RideData {
   double? duration;
@@ -21,12 +26,12 @@ class RideData {
   String? date = "2021/11/29:21.15";
 
   RideData(double duration, double length, User user, double elevation,
-      String ride_name, String date) {
+      String rideName, String date) {
     this.duration = duration;
     this.length = length;
     this.user_id = user.uid;
     this.elevation = elevation;
-    this.ride_name = ride_name;
+    this.ride_name = rideName;
     this.date = date;
   }
 }
@@ -69,6 +74,7 @@ class _MapPageState extends State<MapPage> {
   ValueNotifier<GeoPoint?> lastGeoPoint = ValueNotifier(null);
   Timer? timer;
   Timer? _stateTick;
+  double totalElevation = 0;
   int elapsedTime = 0;
   bool _isRecording = false;
   Color _currentButtonColor = Colors.green[400]!;
@@ -77,6 +83,11 @@ class _MapPageState extends State<MapPage> {
   double _rideDistance = 0;
   List<GeoPoint> path = [];
   RoadInfo? _roadInfo;
+  User? user = FirebaseAuth.instance.currentUser;
+  MiUser _miUser = new MiUser("", "", "", "");
+  List<double>? elevations;
+  late loc.Location location;
+  late loc.LocationData _locationData;
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
@@ -88,7 +99,32 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
+
+    bool _serviceEnabled;
+    PermissionStatus _permissionGranted;
+    elevations = [];
+
+
+    location = loc.Location();
+
+
+    //TODO: Refactor this, shouldn't write this both in map page and profile page /Marcus
+    firestore.CollectionReference usersCollection =
+        firestore.FirebaseFirestore.instance.collection("Users");
+    usersCollection
+        .where("Mail", isEqualTo: user!.email)
+        .get()
+        .then((firestore.QuerySnapshot querySnapshot) async {
+      //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
+
+      _miUser = new MiUser(
+          querySnapshot.docs[0].id,
+          querySnapshot.docs[0].get("Image"),
+          querySnapshot.docs[0].get("Mail"),
+          querySnapshot.docs[0].get("Username"));
+    });
     super.initState();
+
     getLocationPermission();
     controller = CustomController(initMapWithUserPosition: true);
   }
@@ -209,6 +245,8 @@ class _MapPageState extends State<MapPage> {
                                 await controller.enableTracking();
                                 await controller.currentLocation();
                                 if (_isRecording == false) {
+                                  _locationData = await location.getLocation();
+                                  elevations!.add(_locationData.altitude!);
                                   _isRecording = true;
                                   path.add(await controller.myLocation());
                                   controller.addMarker(path.last,
@@ -238,6 +276,16 @@ class _MapPageState extends State<MapPage> {
                                             latestLocation.latitude) {
                                       print("No progress to save");
                                     } else {
+                                      _locationData = await location.getLocation();
+                                      double newAltitude = _locationData.altitude!;
+                                      if(elevations!.last < newAltitude){
+                                        print("Only downhill, don't save");
+                                      }
+                                      else{
+                                        elevations!.add(newAltitude);
+                                        totalElevation = (totalElevation + (newAltitude - elevations!.last));
+                                      }
+
                                       path.add(latestLocation);
                                     }
                                     if (path.length > 2) {
@@ -264,8 +312,21 @@ class _MapPageState extends State<MapPage> {
                                   if (path.length < 3) {
                                     showAlertDialog(context);
                                   } else {
+                                    Ride finishedRide = Ride(
+                                      nStringToNNString(_miUser.id),
+                                      nStringToNNString(_miUser.username),
+                                      _roadInfo!.duration,
+                                      _roadInfo!.distance,
+                                      15.0,
+                                      "test date",
+                                      20.0,
+                                      500,
+                                    );
+                                    var response = MongoDB.instance.recordRide(finishedRide);
+                                    print(response);
+
                                     showRideCompleteDialog(
-                                        context, size, _roadInfo!);
+                                        context, size, _roadInfo!, 15.0, totalElevation, 500);
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
@@ -303,11 +364,11 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  showRideCompleteDialog(BuildContext context, Size size, RoadInfo roadInfo) {
+  showRideCompleteDialog(BuildContext context, Size size, RoadInfo roadInfo, double pace, double elevation, int points) {
     //TODO: FIX THIS
     //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
 
-    pushNewScreen(context, screen: RideCompletePage());
+    pushNewScreen(context, screen: RideCompletePage(pace: pace, elevation: elevation, points: points, rideInfo: roadInfo,));
   }
 
   showAlertDialog(BuildContext context) {
@@ -333,7 +394,10 @@ class _MapPageState extends State<MapPage> {
             )
           ],
         ));
-    print("HEJ");
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  String nStringToNNString(String? str) {
+    return str ?? "";
   }
 }
