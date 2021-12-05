@@ -22,7 +22,7 @@ app.post('/create', (req, res) => {
         res.status(500).send('Error while creating the team: the team admin specified does not exist!');
       }
       else {
-        //newTeam.members.push(req.body.admin_uid);
+        newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
         Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
           if (!admin || !team) {
@@ -31,7 +31,7 @@ app.post('/create', (req, res) => {
           } else {
             console.log("Team with id: " + team._id + " added successfully");
             res.status(200).json({
-              team_id: team._id
+              teamId: team._id
             });
           }
         }

@@ -6,7 +6,7 @@ const ObjectId = mongoose.Types.ObjectId;
 const UserSchema = new Schema({
     userId: { type: String, required: true },
     points: { type: Number, required: true, default: 0 },
-    teams: { type: Array, required: false, default: null },
+    teams: [{ type: ObjectId, required: false, default: null }],
     statistics: {
         numberOfRides: { type: Number, required: true, default: 0 },
         totalDuration: { type: Number, required: true, default: 0 },
