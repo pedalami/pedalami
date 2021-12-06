@@ -5,29 +5,27 @@ class Team {
   String adminId;
   String name;
   String? description;
-  List<dynamic> members;
+  List<String> membersId;
+  List<MongoUser>? members;
 
-  Team(this.id, this.adminId, this.name, this.description, this.members);
+  Team(this.id, this.adminId, this.name, this.description, this.membersId, this.members);
 
   factory Team.fromJson(dynamic json) {
     var membersList = json['members'] as List;
     try {
-      List<dynamic> userMembersList = membersList.map((member) => MongoUser.fromJson(member)).toList();
-      return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String, json['description'] as String?, userMembersList);
+      List<MongoUser> userMembersList = membersList.map((member) => MongoUser.fromJson(member)).toList();
+      return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String,
+          json['description'] as String?, userMembersList.map((team) => team.userId).toList(), userMembersList);
     } catch (ex) {
-      try {
-        List<String> membersIdList = membersList as List<String>;
-        return Team(json['_id'] as String, json['adminId'] as String,
-            json['name'] as String, json['description'] as String?,
-            membersIdList);
-      } catch (ex) {
-        throw Exception("Impossible to decode Team JSON");
-      }
+      List<String> membersIdList = membersList.map((id) => id.toString()).toList();
+      return Team(json['_id'] as String, json['adminId'] as String,
+          json['name'] as String, json['description'] as String?,
+          membersIdList, null);
     }
   }
 
   void setMembers(List<String> members) {
-    this.members = members;
+    this.membersId = members;
   }
 
   @override

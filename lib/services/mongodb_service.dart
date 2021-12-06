@@ -72,8 +72,10 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
+      print(decodedBody);
       List<Team> teamList =
           decodedBody.map((team) => Team.fromJson(team)).toList();
+      print(teamList);
       return teamList;
     } else
       return null;
@@ -88,6 +90,7 @@ class MongoDB {
     return response.statusCode == 200 ? true : false;
   }
 
+  //To get the history of rides of a user
   Future<List<Ride>?> getAllRidesFromUser(String userID) async {
     var url = Uri.parse(baseUri + '/rides/getAllByUserId')
         .replace(queryParameters: {'userId': userID});
@@ -124,6 +127,7 @@ class MongoDB {
       return null;
   }
 
+  //Given the id of a Team, it returns the entire team
   Future<Team?> getTeam(String teamId) async {
     var url = Uri.parse(baseUri + '/teams/getTeam')
         .replace(queryParameters: {'teamId': teamId});

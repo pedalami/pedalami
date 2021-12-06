@@ -91,7 +91,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                           color: Colors.white),
                                     ))),
                           ),
-                          !checkUserInTeam(teamsFound[i].members.cast<String>() )?Padding(padding: const EdgeInsets.all(12),
+                          !checkUserInTeam(teamsFound[i].membersId.cast<String>() )?Padding(padding: const EdgeInsets.all(12),
                           child: Align(
                             alignment: Alignment.bottomRight,
                             child: FittedBox(
@@ -107,7 +107,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                         content: Text(
                                           "Joined "+teamsFound[i].name+" successfully!",),
                                       ));
-                                      teamsFound[i].members.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
+                                      teamsFound[i].membersId.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
                                       setState(() {
 
                                       });
