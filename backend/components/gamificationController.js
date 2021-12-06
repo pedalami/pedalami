@@ -1,20 +1,12 @@
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const UserSchema = Schema.UserSchema;
+const User = require('../schemas.js').User;
 
-
-// Model
-const User = mongoose.model('User', UserSchema);
-
-
-async function assign_points(ride) {
+async function assignPoints(ride) {
     //Calculate points
-    var points = (ride.total_km * 100) + (ride.elevation_gain * 10); //add bonus if raining later on
+    var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
     ride.points = points;
-    User.findOne({ uid: ride.uid }).then((user) => {
+    await User.findOne({ userId: ride.userId }).then((user) => {
         if (user) {
             console.log(user);
-
             if (user.points) {
                 user.points += points;
             } else {
@@ -32,7 +24,9 @@ async function assign_points(ride) {
         else {
             throw ('Gamification controller could not find the user specified in the ride!');
         }
+    }).catch(err => {
+        throw (err);
     });
 }
 
-module.exports = { assign_points };
+module.exports = { assignPoints };

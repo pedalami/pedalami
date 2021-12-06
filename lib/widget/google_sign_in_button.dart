@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/routes/username_insert_page.dart';
-
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
@@ -42,8 +41,8 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   _isSigningIn = false;
                 });
                 if (user != null) {
-                  CollectionReference usersCollection =
-                      FirebaseFirestore.instance.collection("Users");
+                  await MongoDB.instance.initUser(user.uid);
+                  CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
                   usersCollection
                       .where("Mail", isEqualTo: user.email)
                       .get()

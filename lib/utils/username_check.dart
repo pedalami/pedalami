@@ -40,7 +40,6 @@ Future<void> checkUsername(String newUsername, BuildContext context,
           },
         );
       } else {
-        await MongoDB.instance.initUser(actualUser.uid);
         var uuid = Uuid().v4();
         Map<String, Object> user = new HashMap();
         user["Mail"] = actualUser.email!;
