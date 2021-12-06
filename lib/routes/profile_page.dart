@@ -243,7 +243,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Ride Duration: 30 minutes",
+                        child: Text("Total Ride Duration: 30min",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
