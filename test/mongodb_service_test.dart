@@ -9,7 +9,7 @@ void main() {
 
     Ride? ride = new Ride("15MkgTwMyOST77sinqjCzBhaPyE3", "first_test_ride", 20, 0.1, null,
         "2021-12-03", 0.4, null);
-    ride = await MongoDB.instance.recordRide(ride);
+    ride = await MongoDB.instance.recordRide(ride, [], 0.0);
     if (ride != null){
       print(ride.toString());
     }

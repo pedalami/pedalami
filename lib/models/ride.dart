@@ -17,8 +17,8 @@ class Ride {
   factory Ride.fromJson(dynamic json) {
     return Ride(json['uid'] as String,
         json['name'] as String,
-        json['duration_in_seconds'] as double?,
-        json['total_km'] as double?,
+        json['durationInSeconds'] as double?,
+        json['totalKm'] as double?,
         json['pace'] as double?,
         json['date'] as String,
         json['elevation_gain'] as double?,

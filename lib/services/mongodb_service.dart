@@ -80,8 +80,8 @@ class MongoDB {
       return null;
   }
 
-  Future<Ride?> recordRide(Ride toRecord, List<GeoPoint> path, double elevation) async {
-    var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
+  Future<Ride?> recordRide(Ride toRecord, List<GeoPoint> path, double elevationGain) async {
+    var url = Uri.parse(baseUri + '/rides/record');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({

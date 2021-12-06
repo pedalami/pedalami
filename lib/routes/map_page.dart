@@ -12,7 +12,6 @@ import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/user.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:location/location.dart' as loc;
