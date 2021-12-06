@@ -24,7 +24,7 @@ class _EventsPageState extends State<EventsPage> {
                 child: Padding(
                     padding: EdgeInsets.only(
                     left: 13 * SizeConfig.heightMultiplier!,
-                    top: 10 * SizeConfig.heightMultiplier!),
+                    top: 12 * SizeConfig.heightMultiplier!),
                         child: Text( "Active Events",
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
@@ -130,7 +130,8 @@ class _EventsPageState extends State<EventsPage> {
                         child: Padding(
                           padding: EdgeInsets.only(
                               left: 1 * SizeConfig.heightMultiplier!,
-                              top: 2 * SizeConfig.heightMultiplier!),
+                              top: 2 * SizeConfig.heightMultiplier!,
+                              bottom: 2 * SizeConfig.heightMultiplier!),
                           child: Text( "Available Events",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
