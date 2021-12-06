@@ -35,6 +35,10 @@ const RideSchema = new Schema({
     totalKm: { type: Number, required: true },
     pace: { type: Number, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
+    geoPoints: [{
+        latitude: { type: Number, required: true },
+        longitude: { type: Number, required: true },
+    }],
     // The elevationGain of a ride is always postiive
     elevationGain: { type: Number, required: true },
     points: { type: Number, required: false },
