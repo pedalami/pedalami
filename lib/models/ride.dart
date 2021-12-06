@@ -4,9 +4,9 @@ class Ride {
   String userId;
   String name;
   String? rideId;
-  num? durationInSeconds;
-  num? totalKm;
-  num? pace;
+  double? durationInSeconds;
+  double? totalKm;
+  double? pace;
   String date;
   num? elevationGain;
   num? points;
@@ -15,7 +15,8 @@ class Ride {
       this.date, this.elevationGain, this.points);
 
   factory Ride.fromJson(dynamic json) {
-    return Ride(json['userId'] as String,
+    return Ride(
+        json['userId'] as String,
         json['name'] as String,
         json['durationInSeconds'] as int?,
         json['totalKm'] as int?,

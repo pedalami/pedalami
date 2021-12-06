@@ -43,6 +43,7 @@ dependencies:
   flutter_osm_plugin: ^0.22.3+1
   geolocator: ^8.0.0
   persistent_bottom_nav_bar: ^4.0.2
+  location: ^4.2.0
 
 
 

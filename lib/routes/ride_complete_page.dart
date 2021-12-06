@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 
 class RideCompletePage extends StatelessWidget {
-  const RideCompletePage({Key? key}) : super(key: key);
+  
+  final double pace;
+  final double elevation;
+  final int points;
+  final RoadInfo rideInfo;
+  
+  const RideCompletePage({Key? key, required this.pace, required this.elevation, required this.points, required this.rideInfo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +43,7 @@ class RideCompletePage extends StatelessWidget {
                 ),
                 Container(
                   child: Text(
-                    "1.30 h",
+                    rideInfo.duration.toString(),
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -61,7 +68,7 @@ class RideCompletePage extends StatelessWidget {
                 ),
                 Container(
                   child: Text(
-                    "22.5 km",
+                    rideInfo.distance!.toStringAsFixed(3),
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -112,7 +119,7 @@ class RideCompletePage extends StatelessWidget {
 
                 Container(
                   child: Text(
-                    "0.5%",
+                    elevation.toString(),
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -153,7 +160,7 @@ class RideCompletePage extends StatelessWidget {
                   height: 10,
                 ),
                 Text(
-                  "500",
+                  points.toString(),
                   style: TextStyle(
                       fontSize: 60,
                       color: Colors.green,
