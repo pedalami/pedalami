@@ -44,7 +44,7 @@ const RideSchema = new Schema({
     points: { type: Number, required: false },
 });
 
-exports.User = mongoose.model("User2", UserSchema);
-exports.Ride = mongoose.model("Ride2", RideSchema);
-exports.Team = mongoose.model("Team2", TeamSchema);
+exports.User = mongoose.model("User", UserSchema);
+exports.Ride = mongoose.model("Ride", RideSchema);
+exports.Team = mongoose.model("Team", TeamSchema);
 exports.ObjectId = ObjectId;
