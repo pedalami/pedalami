@@ -3,23 +3,31 @@ var app = express.Router();
 app.use(express.json());
 const User = require('../schemas.js').User;
 
-app.post('/create', (req, res) => {
-  console.log('Received create POST request:');
+app.post('/initUser', (req, res) => {
+  console.log('Received initUser POST request:');
   console.log(req.body);
   if (req.body.userId) {
-    const newUser = new User(req.body);
-    newUser.save((error) => {
-      if (error) {
-        console.log('Error saving the user.' + error);
-        res.status(500).send('Error saving the user!');
-      } else {
-        console.log('The user has been saved.');
-        res.status(200).send('User saved correctly!');
+    User.findOne({userId: req.body.userId}, function(err, user) {
+      if (err) {
+        console.log('Error checking the User existence.');
+        res.status(500).send('Error finding the user.');
+      }
+      if (user) {
+        console.log('The user already exist.');
+        res.status(200).send('User already exist!');
+      } else { // user doesn't exist
+        const newUser = new User({ userId: req.body.userId });
+        newUser.save( (error) => {
+          if (error) {
+            console.log('Error saving the user.');
+            res.status(500).send('Error saving the user!');
+          } else {
+            console.log('The user has been saved.');
+            res.status(200).send('User saved correctly!');
+          }
+        });
       }
     });
-  } else {
-    console.log('Error: Missing parameters.');
-    res.status(400).send('Error: Missing parameters.');
   }
 });
 

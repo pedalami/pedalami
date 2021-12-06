@@ -44,5 +44,3 @@ exports.User = mongoose.model("User2", UserSchema);
 exports.Ride = mongoose.model("Ride2", RideSchema);
 exports.Team = mongoose.model("Team2", TeamSchema);
 exports.ObjectId = ObjectId;
-
-//import {Ride, User} from "../schemas.js";
