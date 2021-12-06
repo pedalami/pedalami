@@ -274,6 +274,88 @@ class _ProfilePageState extends State<ProfilePage> {
                       Divider(
                         color: Colors.black,
                       ),
+                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Your Statistics",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2.5 * SizeConfig.textMultiplier!),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Distance: 95km",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Speed: 15km/h",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Ride Duration: 30 minutes",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Km Distance: 45",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Elevation Gain: 20",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Pace: 8",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      // TODO: end of Statistics section <----------------------------------------------------
+                      Divider(
+                        color: Colors.black,
+                      ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
@@ -304,74 +386,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       Divider(
                         color: Colors.grey,
                       ),
-                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Statistics",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2.5 * SizeConfig.textMultiplier!),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Distance: 95km",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Duration: 30 minutes",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Speed: 15km/h",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Elevation: 20",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Pace: 8",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      // TODO: end of Statistics section <----------------------------------------------------
                       SizedBox(
                         height: 3 * SizeConfig.heightMultiplier!,
                       ),
