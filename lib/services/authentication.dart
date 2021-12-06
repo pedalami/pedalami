@@ -15,8 +15,7 @@ class Authentication {
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       if (!user.isAnonymous) {
-        CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection("Users");
+        CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
         usersCollection
             .where("Mail", isEqualTo: user.email)
             .get()
@@ -45,7 +44,6 @@ class Authentication {
     } else {
       Navigator.pushNamedAndRemoveUntil(context, '/sign_in_page', (route) => false);
     }
-
     return user;
   }
 
@@ -68,8 +66,7 @@ class Authentication {
     final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
     if (googleSignInAccount != null) {
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount.authentication;
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
@@ -77,9 +74,7 @@ class Authentication {
       );
 
       try {
-        final UserCredential userCredential =
-        await auth.signInWithCredential(credential);
-
+        final UserCredential userCredential = await auth.signInWithCredential(credential);
         user = userCredential.user!;
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {

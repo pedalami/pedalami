@@ -3,9 +3,9 @@ const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
 
-var usersRouter = require('./backend/components/profile_controller');
-var teamsRouter = require('./backend/components/team_controller');
-var rideRouter = require('./backend/components/ride_handler');
+var usersRouter = require('./backend/components/profileController').router;
+var teamsRouter = require('./backend/components/teamController');
+var rideRouter = require('./backend/components/rideHandler');
 
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./backend/swagger.json');
@@ -18,7 +18,6 @@ const connectionParams={
     useNewUrlParser: true,
     useUnifiedTopology: true 
 }
-
 mongoose.connect(MONGO_URI,connectionParams)
     .then( () => {
         console.log('Connected to database!')

@@ -2,7 +2,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
+MongoDB instance = MongoDB.instance;
+
 void main() {
+  test('initUser testing', () async {
+    instance.localDebug();
+    assert(await instance.initUser("myid") == true);
+  });
+
+
   test('MongoDB interface testing', () async {
     var res = await MongoDB.instance.createTeam("15MkgTwMyOST77sinqjCzBhaPyE3","superprova", null);
     print(res);
@@ -17,7 +25,5 @@ void main() {
       print("Error while saving the ride");
     }
   });
-
-
 }
 

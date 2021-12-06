@@ -1,36 +1,18 @@
 var express = require('express');
 var app = express.Router();
 app.use(express.json());
-const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
-const ObjectId = mongoose.Types.ObjectId
-const UserSchema = Schema.UserSchema;
-
-// Schema
-const TeamSchema = new Schema({
-  admin_uid: { type: String, required: true },
-  name: { type: String, required: true },
-  description: { type: String, required: false },
-  members: [{ type: String, required: true, default: null }], // At least the admin
-  active_events: [{ type: ObjectId, required: false, default: null }], // IDs of active events
-  event_requests: [{ type: ObjectId, required: false, default: null }] // To better define once requests are defined
-});
-
-// Model
-const Team = mongoose.model('Team', TeamSchema);
-const User = mongoose.model('User', UserSchema);
+const models = require('../schemas.js');
+const Team = models.Team;
+const User = models.User;
+const ObjectId = models.ObjectId;
 
 // POST /create
 app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
   if (req.body.name) {
-    newTeam = new Team();
-    newTeam.admin_uid = req.body.admin_uid;
-    newTeam.name = req.body.name;
-    newTeam.description = req.body.description;
-    newTeam.members = [req.body.admin_uid];
-    User.findOne({ uid: req.body.admin_uid }, (error, admin) => {
+    newTeam = new Team(req.body);
+    User.findOne({ userId: req.body.adminId }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
@@ -40,8 +22,8 @@ app.post('/create', (req, res) => {
         res.status(500).send('Error while creating the team: the team admin specified does not exist!');
       } 
       else {
-        //newTeam.members.push(req.body.admin_uid);
-        admin.teams.push(newTeam._id)
+        newTeam.members.push(req.body.adminId);
+        admin.teams.push(newTeam._id);
         Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
           if (!admin || !team) {
             console.log('Error while creating the team!\n');
@@ -49,7 +31,7 @@ app.post('/create', (req, res) => {
           } else {
             console.log("Team with id: "+team._id+" added successfully");
             res.status(200).json({
-              team_id: team._id
+              teamId: team._id
             });
           }
         }
@@ -88,22 +70,22 @@ app.get('/search', (req, res) => {
 app.post('/join', (req, res) => {
   console.log('Received join POST request:');
   console.log(req.body);
-  if (req.body.team_id && req.body.uid) {
+  if (req.body.teamId && req.body.userId) {
     Promise.all([
-      User.findOne({ uid: req.body.uid }),
-      Team.findOne({ _id: req.body.team_id })
+      User.findOne({ userId: req.body.userId }),
+      Team.findOne({ _id: req.body.teamId })
     ]).then(([user, team]) => {
       console.log(team);
       console.log(user);
-      if (team.members.includes(req.body.uid)) {
+      if (team.members.includes(req.body.userId)) {
         console.log('Error: User already in team.');
         res.status(500).send('Error: User already in team.');
       } else {
         if (user.teams == null) {
           user.teams = [];
         }
-        user.teams.push(req.body.team_id);
-        team.members.push(req.body.uid);
+        user.teams.push(req.body.teamId);
+        team.members.push(req.body.userId);
         Promise.all([
           team.save(),
           user.save()
