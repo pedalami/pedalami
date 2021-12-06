@@ -1,5 +1,3 @@
-import 'package:pedala_mi/models/ride.dart';
-
 class Ride {
   String userId;
   String name;

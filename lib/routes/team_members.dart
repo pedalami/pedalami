@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import "dart:math";
@@ -13,10 +13,10 @@ class TeamMembers extends StatefulWidget {
 }
 
 class _TeamMembersState extends State<TeamMembers> {
-  User? user = FirebaseAuth.instance.currentUser;
+  //User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
-  MiUser _miUser = new MiUser("", "", "", "");
+  LoggedUser _miUser = LoggedUser.instance!;
 
   // TODO : Make Dynamic read from users enrolled to team
   List<String> names = [
@@ -33,6 +33,8 @@ class _TeamMembersState extends State<TeamMembers> {
 
   @override
   void initState() {
+    /*
+    OLD. See the above new declaration of _miUser LoggedUser for reference.
     CollectionReference usersCollection =
     FirebaseFirestore.instance.collection("Users");
     usersCollection
@@ -40,17 +42,21 @@ class _TeamMembersState extends State<TeamMembers> {
         .get()
         .then((QuerySnapshot querySnapshot) async {
       setState(() {
-        _miUser = new MiUser(
+        _miUser = new LoggedUser(
             querySnapshot.docs[0].id,
             querySnapshot.docs[0].get("Image"),
             querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"));
+            querySnapshot.docs[0].get("Username"), 0.0);
         usernameController.value =
             usernameController.value.copyWith(text: _miUser.username);
         //emailController.value =
         //   emailController.value.copyWith(text: _miUser.mail);
+        //TODO - Comment added by Vincenzo:
+        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
+        //My suggestion is to have a single shared MiUser to use in the whole application.
       });
     });
+     */
     super.initState();
   }
 
@@ -80,7 +86,7 @@ class _TeamMembersState extends State<TeamMembers> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            nStringToNNString(user!.displayName),
+                            nStringToNNString(_miUser.username),
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 3 * SizeConfig.textMultiplier!,
@@ -96,8 +102,7 @@ class _TeamMembersState extends State<TeamMembers> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image:
-                                  NetworkImage(_miUser.image),
+                                  image: _miUser.image,
                                 )),
                           ),
                           Row(
@@ -106,7 +111,7 @@ class _TeamMembersState extends State<TeamMembers> {
                                 children: <Widget>[
                                   Text(
                                     nStringToNNString(
-                                        nStringToNNString(user!.email)),
+                                        nStringToNNString(_miUser.mail)),
                                     style: TextStyle(
                                       color: Colors.white60,
                                       fontSize:

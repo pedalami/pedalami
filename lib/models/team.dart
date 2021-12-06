@@ -1,17 +1,29 @@
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/mongoUser.dart';
 
 class Team {
-  String uid;
+  String id;
   String adminId;
   String name;
   String? description;
   List<dynamic> members;
 
-
-  Team(this.uid, this.adminId, this.name, this.description, this.members);
+  Team(this.id, this.adminId, this.name, this.description, this.members);
 
   factory Team.fromJson(dynamic json) {
-    return Team(json['_id'] as String, json['admin_uid'] as String, json['name'] as String, json['description'] as String?, json['members']);
+    var membersList = json['members'] as List;
+    try {
+      List<dynamic> userMembersList = membersList.map((member) => MongoUser.fromJson(member)).toList();
+      return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String, json['description'] as String?, userMembersList);
+    } catch (ex) {
+      try {
+        List<String> membersIdList = membersList as List<String>;
+        return Team(json['_id'] as String, json['adminId'] as String,
+            json['name'] as String, json['description'] as String?,
+            membersIdList);
+      } catch (ex) {
+        throw Exception("Impossible to decode Team JSON");
+      }
+    }
   }
 
   void setMembers(List<String> members) {
@@ -20,6 +32,6 @@ class Team {
 
   @override
   String toString() {
-    return '{ Team ${this.name}, with id: ${this.uid}. AdminID: ${this.adminId} }';
+    return '{ Team ${this.name}, with id: ${this.id}. AdminId: ${this.adminId} }';
   }
 }

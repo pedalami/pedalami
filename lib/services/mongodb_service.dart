@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
@@ -28,7 +30,22 @@ class MongoDB {
     var url = Uri.parse(baseUri + '/users/initUser');
     var response = await _serverClient.post(url,
         headers: _headers, body: json.encode({'userId': userId}));
-    return response.statusCode == 200 ? true : false;
+    if (response.statusCode == 200) {
+      try {
+        var decodedBody = json.decode(response.body);
+        var points = decodedBody["points"] as double;
+        Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
+        //TODO when the join on the backend is ready
+        List<Team> teamList = []; //decodedBody.map((team) => Team.fromJson(team)).toList();
+        LoggedUser.completeInstance(points, teamList, stats);
+      } catch (ex) {
+        print("An exception occurred in the initUser.\n");
+        print(ex);
+        return false;
+      }
+      return true;
+    } else
+      return false;
   }
 
   //Returns the team_id if everything went fine
@@ -78,7 +95,7 @@ class MongoDB {
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Ride> ridesList =
-          decodedBody.map((ride) => Ride.fromJson(ride)).toList();
+          decodedBody.map((ride) => Ride.fromJson(ride)).toList(); //TODO to integrate with the GeoPoints
       return ridesList;
     } else
       return null;
@@ -103,6 +120,17 @@ class MongoDB {
       toRecord.points = decodedBody["points"];
       toRecord.rideId = decodedBody["id"];
       return toRecord;
+    } else
+      return null;
+  }
+
+  Future<Team?> getTeam(String teamId) async {
+    var url = Uri.parse(baseUri + '/teams/getTeam')
+        .replace(queryParameters: {'teamId': teamId});
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      return Team.fromJson(decodedBody);
     } else
       return null;
   }

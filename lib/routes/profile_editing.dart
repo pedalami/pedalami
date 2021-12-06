@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/utils/get_image.dart';
@@ -23,31 +23,39 @@ class _ProfileEditingState extends State<ProfileEditing> {
   User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
-  //final emailController = TextEditingController();
-  MiUser _miUser = new MiUser("", "", "", "");
+  String username = LoggedUser.instance!.username;
+  String imageUrl = LoggedUser.instance!.image.url;
   bool imgInserted = false;
   File? f;
 
   @override
   void initState() {
-    CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection("Users");
+    setState(() {
+      usernameController.value = usernameController.value.copyWith(text: username);
+    });
+    /*
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
     usersCollection
         .where("Mail", isEqualTo: user!.email)
         .get()
         .then((QuerySnapshot querySnapshot) async {
+          querySnapshot.docs[0].get("Image");
       setState(() {
-        _miUser = new MiUser(
+        _miUser = new LoggedUser(
             querySnapshot.docs[0].id,
             querySnapshot.docs[0].get("Image"),
             querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"));
+            querySnapshot.docs[0].get("Username"), 0.0);
         usernameController.value =
             usernameController.value.copyWith(text: _miUser.username);
         //emailController.value =
         //   emailController.value.copyWith(text: _miUser.mail);
+        //TODO - Comment added by Vincenzo:
+        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
+        //My suggestion is to have a single shared MiUser to use in the whole application.
       });
     });
+     */
     super.initState();
   }
 
@@ -77,8 +85,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
                                   fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      nStringToNNString(_miUser.image)),
+                                  image: NetworkImage(imageUrl),
                                 )),
                           ),
                           onTap: () async {
@@ -96,7 +103,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Text(
-                            nStringToNNString(_miUser.username),
+                            username,
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 3 * SizeConfig.textMultiplier!,
@@ -110,8 +117,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                               Row(
                                 children: <Widget>[
                                   Text(
-                                    nStringToNNString(
-                                        nStringToNNString(user!.email)),
+                                    LoggedUser.instance!.mail,
                                     style: TextStyle(
                                       color: Colors.white60,
                                       fontSize:
@@ -250,7 +256,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
     setState(() {
       check = true;
     });
-    await updateUsername(usernameController.text, context, _miUser);
+    await updateUsername(usernameController.text, context);
     setState(() {
       check = false;
     });
@@ -346,23 +352,24 @@ class _ProfileEditingState extends State<ProfileEditing> {
         });
   }
 
-  void loadImageToFirebase(File image) async {
+  void loadImageToFirebase(File? image) async {
     var uuid = Uuid().v4();
     if (image != null) {
       FirebaseStorage storage = FirebaseStorage.instance;
       Reference storageRef = storage.ref();
       Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
       await imageRef.putFile(image);
-      await imageRef.getDownloadURL().then((url) async {
+      await imageRef.getDownloadURL().then( (url) async {
         await FirebaseFirestore.instance
-            .collection("Users")
-            .doc(_miUser.id)
-            .update({"Image": url}).then((value) {
-          FirebaseStorage.instance.refFromURL(_miUser.image).delete();
-          setState(() {
-            _miUser.image = url;
+          .collection("Users")
+          .doc(LoggedUser.instance!.userId)
+          .update({"Image": url})
+          .then( (value) {
+            FirebaseStorage.instance.refFromURL(imageUrl).delete();
+            setState(() {
+              LoggedUser.instance!.image = NetworkImage(url);
+            });
           });
-        });
       });
     }
   }
