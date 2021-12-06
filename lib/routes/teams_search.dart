@@ -79,16 +79,14 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                       hintStyle:
                                       TextStyle(color: CustomColors.silver)),
                                   controller: teamSearchController,
-                                  onSubmitted: (value)async{
-                                    hasSearched=true;
-                                    loading=true;
+                                  onSubmitted: (value) async {
                                     setState(() {
-
+                                      hasSearched=true;
+                                      loading=true;
                                     });
-                                    foundTeams=await MongoDB.instance.searchTeam(teamSearchController.text);
-                                    loading=false;
+                                    foundTeams = await MongoDB.instance.searchTeam(teamSearchController.text);
                                     setState(() {
-
+                                      loading=false;
                                     });
                                   },
                                 ),
@@ -229,7 +227,14 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                     ],
                   ),
                 ),
-              ):loading?Text("Loading..."):(foundTeams!.length==0?Text("No teams found"):TeamSearchButton(teamsFound: foundTeams!)),
+              ) :
+              loading ?
+              Text("Loading...") :
+              (
+                  foundTeams != null && foundTeams!.length>0 ?
+                  TeamSearchButton(teamsFound: foundTeams!) :
+                  Text("No teams found")
+              ),
               //TODO: better ui loading or no results
             ],
           ),
