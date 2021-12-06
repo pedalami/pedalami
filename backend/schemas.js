@@ -44,9 +44,19 @@ const RideSchema = new Schema({
     points: { type: Number, required: false },
 });
 
+const BadgeSchema = new Schema({
+    // Criteria can be totalKm, totalElevationGain, totalDuration, numberOfRides
+    criteria: { type: String, required: true },
+    // The criteria value can be, depending on the criteria, a number like 10, 100, 1000, etc
+    criteriaValue: { type: Number, required: true },
+    // The badge image is dependent both on the criteria and the criteriaValue
+    image: { type: String, required: true },
+});
+
 exports.User = mongoose.model("User2", UserSchema);
 exports.Ride = mongoose.model("Ride2", RideSchema);
 exports.Team = mongoose.model("Team2", TeamSchema);
+exports.Badge = mongoose.model("Badge2", BadgeSchema);
 exports.ObjectId = ObjectId;
 
 //import {Ride, User} from "../schemas.js";
