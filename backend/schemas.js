@@ -16,7 +16,8 @@ const UserSchema = new Schema({
         averageDurationPerRide: { type: Number, required: true, default: 0 },
         averageSpeed: { type: Number, required: true, default: 0 },
         averageElevationGain: { type: Number, required: true, default: 0 }
-    }
+    },
+    badges: [{ type: ObjectId, required: false, default: null }],
 });
 
 const TeamSchema = new Schema({

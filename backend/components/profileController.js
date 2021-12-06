@@ -122,9 +122,7 @@ app.get('/getStatistics', (req, res) => {
 });
 
 async function updateUserStatistics(ride) {
-  //Calculate points
-  //var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
-  //ride.points = points;
+
   await User.findOne({ uid: ride.userId }).then((user) => {
       if (user) {
           console.log(user);
@@ -148,6 +146,18 @@ async function updateUserStatistics(ride) {
   });
 }
 
+async function checkNewBadgesAfterRide(ride) {
+  User.findOne({ userId: ride.userId }, (error, user) => {
+    if (error) {
+      console.log('Error while trying to update user\'s statistics: cannot find the user inside the userId field of the ride\n' + error);
+    } else {
+      console.log(user);
+      if (user.statistics.numberOfRides == 1) {
+          // Add the _id of the badge schema to the user's badges array, if not already present
+      }
+    }
+  });
+}
 module.exports = {
   router: app,
   updateUserStatistics: updateUserStatistics
