@@ -72,10 +72,8 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      print(decodedBody);
       List<Team> teamList =
           decodedBody.map((team) => Team.fromJson(team)).toList();
-      print(teamList);
       return teamList;
     } else
       return null;
@@ -104,8 +102,7 @@ class MongoDB {
       return null;
   }
 
-  Future<Ride?> recordRide(
-      Ride toRecord, List<GeoPoint> path, double elevationGain) async {
+  Future<Ride?> recordRide(Ride toRecord) async {
     var url = Uri.parse(baseUri + '/rides/record');
     var response = await _serverClient.post(url,
         headers: _headers,
@@ -115,12 +112,13 @@ class MongoDB {
           "durationInSeconds": toRecord.durationInSeconds,
           "totalKm": toRecord.totalKm,
           "date": toRecord.date,
-          "elevationGain": toRecord.elevationGain
+          "elevationGain": toRecord.elevationGain,
+          "path": toRecord.path?.map((e) => {"latitude":e.latitude, "longitude":e.longitude}).toList()
         }));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);
-      toRecord.pace = decodedBody["pace"];
-      toRecord.points = decodedBody["points"];
+      toRecord.pace = double.parse(decodedBody["pace"].toString());
+      toRecord.points = double.parse(decodedBody["points"].toString());
       toRecord.rideId = decodedBody["id"];
       return toRecord;
     } else

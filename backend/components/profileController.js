@@ -134,9 +134,8 @@ async function updateUserStatistics(ride) {
   //Calculate points
   //var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
   //ride.points = points;
-  await User.findOne({ uid: ride.userId }).then((user) => {
+  await User.findOne({ userId: ride.userId }).then((user) => {
       if (user) {
-          console.log(user);
           user.statistics.numberOfRides++;
           user.statistics.totalDuration += ride.durationInSeconds;
           user.statistics.totalKm += ride.totalKm;
@@ -146,10 +145,11 @@ async function updateUserStatistics(ride) {
           user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
           user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
           user.save()
+            .then(() => {console.log("Stats of "+user.userId+" updated")})
             .catch(err => {
-            console.log(err);
-            throw (err);
-          });
+              console.log(err);
+              throw (err);
+            });
       } else {
           throw ('The profile controller cannot update the statistics of the user specified!');
       }

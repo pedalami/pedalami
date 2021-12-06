@@ -21,6 +21,7 @@ app.post("/record", async (req, res) => {
       .then(() => {
         profileController.updateUserStatistics(ride)
           .catch((err) => {
+            console.error("An error occurred:");
             console.error(err);
             // res.status(500).send("Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure");
           });

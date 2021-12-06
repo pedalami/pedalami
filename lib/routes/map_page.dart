@@ -325,8 +325,9 @@ class _MapPageState extends State<MapPage> {
                                       "test date",
                                       20.0,
                                       500,
+                                      null
                                     );
-                                    var response = MongoDB.instance.recordRide(finishedRide, path, totalElevation);
+                                    var response = MongoDB.instance.recordRide(finishedRide);
                                     print(response);
 
                                     showRideCompleteDialog(

@@ -6,7 +6,7 @@ async function assignPoints(ride) {
     ride.points = points;
     await User.findOne({ userId: ride.userId }).then((user) => {
         if (user) {
-            console.log(user);
+            console.log("Assigning "+points+" points to "+user.userId);
             if (user.points) {
                 user.points += points;
             } else {
