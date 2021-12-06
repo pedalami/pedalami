@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
+import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
@@ -79,7 +80,7 @@ class MongoDB {
       return null;
   }
 
-  Future<Ride?> recordRide(Ride toRecord) async {
+  Future<Ride?> recordRide(Ride toRecord, List<GeoPoint> path, double elevation) async {
     var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
     var response = await _serverClient.post(url,
         headers: _headers,

@@ -88,6 +88,10 @@ class _MapPageState extends State<MapPage> {
   List<double>? elevations;
   late loc.Location location;
   late loc.LocationData _locationData;
+  var currentRide = <List, String>{
+    [] : 'geopoints',
+    [] : 'elevation',
+  };
 
   void getLocationPermission() async {
     await Permission.locationAlways.request();
@@ -278,14 +282,15 @@ class _MapPageState extends State<MapPage> {
                                     } else {
                                       _locationData = await location.getLocation();
                                       double newAltitude = _locationData.altitude!;
-                                      if(elevations!.last < newAltitude){
-                                        print("Only downhill, don't save");
-                                      }
-                                      else{
-                                        elevations!.add(newAltitude);
-                                        totalElevation = (totalElevation + (newAltitude - elevations!.last));
-                                      }
 
+                                      if(elevations!.last < newAltitude){
+                                        print("Only downhill or no change in altitude, don't save");
+                                      }
+                                      else {
+                                        elevations!.add(newAltitude);
+                                        totalElevation = (totalElevation +
+                                            (newAltitude - elevations!.last));
+                                      }
                                       path.add(latestLocation);
                                     }
                                     if (path.length > 2) {
@@ -322,7 +327,7 @@ class _MapPageState extends State<MapPage> {
                                       20.0,
                                       500,
                                     );
-                                    var response = MongoDB.instance.recordRide(finishedRide);
+                                    var response = MongoDB.instance.recordRide(finishedRide, path, totalElevation);
                                     print(response);
 
                                     showRideCompleteDialog(
