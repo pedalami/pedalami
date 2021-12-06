@@ -205,75 +205,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Joined Teams",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2.5 * SizeConfig.textMultiplier!),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.network(
-                                    "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                                    height: 20.0 * SizeConfig.heightMultiplier!,
-                                    width: 50.0 * SizeConfig.widthMultiplier!,
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                  child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        "Team Awesome",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      )))
-                            ],
-                          ),
-                          SizedBox(
-                            width: 7.0 * SizeConfig.widthMultiplier!,
-                          ),
-                          Container(
-                            width: 32.0 * SizeConfig.widthMultiplier!,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                pushNewScreen(
-                                  context,
-                                  screen: TeamProfile(),
-                                  pageTransitionAnimation: PageTransitionAnimation
-                                      .cupertino,
 
-                                );
-                              },
-                              label: Text("Info"),
-                              icon: FaIcon(FontAwesomeIcons.userCog),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.green[400]),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(18.0),
-                                          side: BorderSide(
-                                              color: Colors.green)))),
-                            ),
-                          )
-                        ],
-                      ),
-                      Divider(
-                        color: Colors.black,
-                      ),
                       // TODO: Read Ride data from MongoDB <----------------------------------------------------------
                       Padding(
                         padding: EdgeInsets.only(
@@ -322,7 +254,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Km Distance: 45",
+                        child: Text("Average Distance: 45km",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
@@ -344,7 +276,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Pace: 8",
+                        child: Text("Average Duration/Ride: 15min",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
