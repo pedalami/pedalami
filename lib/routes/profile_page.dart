@@ -209,72 +209,86 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+
+                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
-                          "Joined Teams",
+                          "Your Statistics",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                               fontSize: 2.5 * SizeConfig.textMultiplier!),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.network(
-                                    "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                                    height: 20.0 * SizeConfig.heightMultiplier!,
-                                    width: 50.0 * SizeConfig.widthMultiplier!,
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                  child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        "Team Awesome",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      )))
-                            ],
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Distance: 95km",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
                           ),
-                          SizedBox(
-                            width: 7.0 * SizeConfig.widthMultiplier!,
-                          ),
-                          Container(
-                            width: 32.0 * SizeConfig.widthMultiplier!,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                pushNewScreen(
-                                  context,
-                                  screen: TeamProfile(),
-                                  pageTransitionAnimation: PageTransitionAnimation
-                                      .cupertino,
-
-                                );
-                              },
-                              label: Text("Info"),
-                              icon: FaIcon(FontAwesomeIcons.userCog),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.green[400]),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(18.0),
-                                          side: BorderSide(
-                                              color: Colors.green)))),
-                            ),
-                          )
-                        ],
+                        ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Speed: 15km/h",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Ride Duration: 30min",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Distance: 45km",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Elevation Gain: 20",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Duration/Ride: 15min",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      // TODO: end of Statistics section <----------------------------------------------------
                       Divider(
                         color: Colors.black,
                       ),
@@ -308,74 +322,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       Divider(
                         color: Colors.grey,
                       ),
-                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Statistics",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2.5 * SizeConfig.textMultiplier!),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Distance: 95km",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Duration: 30 minutes",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Speed: 15km/h",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Elevation: 20",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Pace: 8",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      // TODO: end of Statistics section <----------------------------------------------------
                       SizedBox(
                         height: 3 * SizeConfig.heightMultiplier!,
                       ),

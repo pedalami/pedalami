@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:pedala_mi/routes/create_team.dart';
 import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
@@ -8,6 +7,7 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'map_page.dart';
 import 'profile_page.dart';
 import 'teams_search.dart';
+import 'events_page.dart';
 
 class SwitchPage extends StatefulWidget {
   const SwitchPage({Key? key}) : super(key: key);
@@ -18,7 +18,7 @@ class SwitchPage extends StatefulWidget {
 
 class _SwitchPageState extends State<SwitchPage> {
   final _navigatorKey = GlobalKey<NavigatorState>();
-  List<Widget> pages = [MapPage(), ProfilePage(), TeamsSearchPage()];
+  List<Widget> pages = [MapPage(), ProfilePage(), TeamsSearchPage(), EventsPage()];
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -42,6 +42,7 @@ class _SwitchPageState extends State<SwitchPage> {
         MapPage(),
         ProfilePage(),
         TeamsSearchPage(),
+        EventsPage(),
       ],
       items: [
         PersistentBottomNavBarItem(
@@ -54,6 +55,10 @@ class _SwitchPageState extends State<SwitchPage> {
             activeColorPrimary: Colors.green,
             activeColorSecondary: Colors.red,
             icon: FaIcon(FontAwesomeIcons.peopleArrows), title: 'Teams'),
+        PersistentBottomNavBarItem(
+            activeColorPrimary: Colors.green,
+            activeColorSecondary: Colors.red,
+            icon: FaIcon(FontAwesomeIcons.star), title: 'Events'),
       ],
     );
   }
