@@ -5,6 +5,7 @@ const models = require('../schemas.js');
 const Team = models.Team;
 const User = models.User;
 const ObjectId = models.ObjectId;
+const connection = models.connection;
 
 // POST /create
 app.post('/create', (req, res) => {
@@ -24,16 +25,19 @@ app.post('/create', (req, res) => {
       else {
         newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
-        Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
-          if (!admin || !team) {
-            console.log('Error while creating the team!\n');
-            res.status(400).send('Error while creating the team!');
-          } else {
-            console.log("Team with id: "+team._id+" added successfully");
+        connection.transaction( (session) => {
+          return Promise.all([
+            newTeam.save({session}), 
+            admin.save({session})
+          ])})
+        .then(() => {
             res.status(200).json({
-              teamId: team._id
+              teamId: newTeam._id
             });
-          }
+          })
+        .catch(error => {
+          console.log('Error while creating the team!\n'+error);
+          res.status(500).send('Error while creating the team!\n'+error);
         }
         );
       }
