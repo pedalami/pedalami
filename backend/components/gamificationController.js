@@ -1,6 +1,6 @@
 const User = require('../schemas.js').User;
 
-async function assignPoints(user, ride) {
+function assignPoints(user, ride) {
     //Calculate points
     var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
     ride.points = points;
