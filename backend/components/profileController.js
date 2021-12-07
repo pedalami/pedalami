@@ -127,7 +127,6 @@ async function updateUserStatistics(ride) {
 
   await User.findOne({ uid: ride.userId }).then((user) => {
       if (user) {
-          console.log(user);
           user.statistics.numberOfRides++;
           user.statistics.totalDuration += ride.durationInSeconds;
           user.statistics.totalKm += ride.totalKm;
@@ -140,6 +139,7 @@ async function updateUserStatistics(ride) {
             console.log(err);
             throw (err);
           });
+          console.log(user);
       } else {
           throw ('The profile controller cannot update the statistics of the user specified!');
       }
@@ -154,8 +154,8 @@ async function checkNewBadgesAfterRide(ride) {
       console.log('Error while trying to update user\'s badges: cannot find the user inside the userId field of the ride\n' + error);
       throw ('The profile controller cannot update the badges of the user specified!');
     } else {
-      console.log(user);
-      console.log("PROVA");
+      //console.log(user);
+      //console.log("PROVA");
       const badgeList = await Badge.find({});
       badgeList.forEach(badge => {
         if (!user.badges.includes(badge._id)){
