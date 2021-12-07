@@ -2,6 +2,8 @@ var express = require('express');
 var app = express.Router();
 app.use(express.json());
 const User = require('../schemas.js').User;
+const Badge = require('../schemas.js').Badge;
+const Ride = require('../schemas.js').Ride;
 
 app.post('/create', (req, res) => {
   console.log('Received create POST request:');
@@ -152,13 +154,51 @@ async function checkNewBadgesAfterRide(ride) {
       console.log('Error while trying to update user\'s statistics: cannot find the user inside the userId field of the ride\n' + error);
     } else {
       console.log(user);
-      if (user.statistics.numberOfRides == 1) {
-          // Add the _id of the badge schema to the user's badges array, if not already present
-      }
+      badgeList = await Badge.find({}, (error) =>{
+        if (error){
+          console.log('Error trying to catch the badges')
+          //TODO: finish to manage the error
+        }
+      }).toArray();
+      badgeList.forEach(badge => {
+        if (!user.badges.includes(badge)){
+          if (badge.type == "userStat"){
+            user.statistics[badge.criteria] > badge.criteriaValue ? user.badges.push(badge) : null;
+          }
+          if (badge.type == "ride") {
+            ride[badge.criteria] > badge.criteriaValue ? user.badges.push(badge) : null;
+          }
+        }
+      });
     }
   });
 }
+
+
+app.post("/check_badge", (req, res) => {
+  console.log('Received create POST request:');
+  console.log(req.body);
+  await User.findOne({}.then(user) => {
+    if (user){
+      console.log('n. badges before:');
+      console.log(user.badges.length);
+      ride = new Ride(req.body);
+      checkNewBadgesAfterRide(ride)
+      .then(function(){
+        console.log('n. badges after:');
+        console.log(user.badges.length);
+        res.status(200, "Badges are checked!")
+      })
+    } else {
+      console.log('Error finding a User');
+      res.status(500, "An error occurs!")
+    }
+  })
+
+})
+
 module.exports = {
   router: app,
-  updateUserStatistics: updateUserStatistics
+  updateUserStatistics: updateUserStatistics,
+  checkNewBadgesAfterRide: checkNewBadgesAfterRide
 }
