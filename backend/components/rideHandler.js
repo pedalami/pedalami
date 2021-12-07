@@ -19,13 +19,18 @@ app.post("/record", async (req, res) => {
   if (req.body.userId && (await User.findOne({ userId: req.body.userId }))) {
     gamificationController.assignPoints(ride)
       .then(() => {
-        profileController.updateUserStatistics(ride)
+        profileController.updateUserStatistics(ride).then(() => {
+          profileController.checkNewBadgesAfterRide(ride).catch(err => {
+            console.log(err);
+            res.status(500).send("Cannot save the ride in the database due to a profile controller's checkNewBadgesAfterRide method failure: " + err);
+          })
+        })
           .catch((err) => {
             console.error(err);
-            // res.status(500).send("Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure");
+            res.status(500).send("Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure: " + err);
           });
         res.json({
-          message: "Ride saved successfully, user statistics updated successfully",
+          message: "Ride saved successfully, user statistics and badges updated successfully",
           points: ride.points,
           pace: ride.pace,
           id: ride._id,
@@ -33,7 +38,7 @@ app.post("/record", async (req, res) => {
       })
       .catch((err) => {
         console.error(err);
-        res.status(500).send("Cannot save the ride in the database due to a gamification controller failure");
+        res.status(500).send("Cannot save the ride in the database due to a gamification controller failure: "+err);
       });
   } else {
     console.error("Cannot find the user specified!\n");
