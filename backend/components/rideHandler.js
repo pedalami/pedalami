@@ -23,6 +23,7 @@ app.post("/record", async (req, res) => {
     if (user) {
       gamificationController.assignPoints(user, ride);
       profileController.updateUserStatistics(user, ride);
+      await gamificationController.checkNewBadgesAfterRide(user, ride);
       connection.transaction( (session) => {
         return Promise.all([
           user.save({session}),
@@ -31,7 +32,7 @@ app.post("/record", async (req, res) => {
       })
       .then(() => {
         res.json({
-          message: "Ride saved successfully, user statistics updated successfully",
+          message: "Ride saved successfully, user statistics and badges updated successfully",
           points: ride.points,
           pace: ride.pace,
           id: ride._id,

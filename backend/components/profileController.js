@@ -2,7 +2,6 @@ var express = require('express');
 var app = express.Router();
 app.use(express.json());
 const User = require('../schemas.js').User;
-const ObjectId = require('../schemas.js').ObjectId;
 
 app.post('/initUser', (req, res) => {
   console.log('Received initUser POST request:');
@@ -73,7 +72,7 @@ app.get('/getTeams', (req, res) => {
 app.get('/getStatistics', (req, res) => {
   console.log('Received search GET request with param userId='+req.query.userId);
   if (req.query.userId) {
-    User.findOne({ userId: req.query.userId }, (error, user) => {
+    User.findOne({ userId: req.query.userId }, (user, error) => {
       if (error) {
         console.log('Error finding the specified user.\n'+error);
         res.status(500).send('Error finding the specified user!');

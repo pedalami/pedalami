@@ -17,7 +17,8 @@ const UserSchema = new Schema({
         averageDuration: { type: Number, required: true, default: 0 },
         averageKm: { type: Number, required: true, default: 0 },
         averageElevationGain: { type: Number, required: true, default: 0 }
-    }
+    },
+    badges: [{ type: ObjectId, required: false, default: null }],
 });
 
 const TeamSchema = new Schema({
@@ -44,8 +45,22 @@ const RideSchema = new Schema({
     points: { type: Number, required: true },
 });
 
+const BadgeSchema = new Schema({
+    // Criteria can be totalKm, totalElevationGain, totalDuration, numberOfRides
+    criteria: { type: String, required: true },
+    // The criteria value can be, depending on the criteria, a number like 10, 100, 1000, etc
+    criteriaValue: { type: Number, required: true },
+    // The badge image is dependent both on the criteria and the criteriaValue
+    image: { type: String, required: true },
+    // The type is the context where the badge is checked
+    type: { type: String, required: true },
+    description: { type: String, required: false }
+});
+
 exports.User = mongoose.model("User", UserSchema);
 exports.Ride = mongoose.model("Ride", RideSchema);
 exports.Team = mongoose.model("Team", TeamSchema);
+exports.Badge = mongoose.model("Badge", BadgeSchema);
+
 exports.connection = mongoose.connection;
 exports.ObjectId = ObjectId;
