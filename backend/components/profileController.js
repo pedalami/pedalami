@@ -2,6 +2,7 @@ var express = require('express');
 var app = express.Router();
 app.use(express.json());
 const User = require('../schemas.js').User;
+const ObjectId = require('../schemas.js').ObjectId;
 
 app.post('/initUser', (req, res) => {
   console.log('Received initUser POST request:');
@@ -86,33 +87,35 @@ app.get('/getStatistics', (req, res) => {
   }
 });
 
-async function updateUserStatistics(ride) {
+async function updateUserStatistics(user, ride) {
   //Calculate points
   //var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
   //ride.points = points;
-  await User.findOne({ userId: ride.userId }).then((user) => {
-      if (user) {
-          user.statistics.numberOfRides++;
-          user.statistics.totalDuration += ride.durationInSeconds;
-          user.statistics.totalKm += ride.totalKm;
-          user.statistics.totalElevationGain += ride.elevationGain;
-          user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
-          user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
-          user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
-          user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
-          user.save()
-            .then(() => {console.log("Stats of "+user.userId+" updated")})
-            .catch(err => {
-              console.log(err);
-              throw (err);
-            });
-      } else {
-          throw ('The profile controller cannot update the statistics of the user specified!');
-      }
-  }).catch(err => {
-      throw (err);
-  });
+    if (user) {
+        user.statistics.numberOfRides++;
+        user.statistics.totalDuration += ride.durationInSeconds;
+        user.statistics.totalKm += ride.totalKm;
+        user.statistics.totalElevationGain += ride.elevationGain;
+        user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
+        user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
+        user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
+        user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
+        user._id = ObjectId("61ae97a91e413045b1c7ad3b");
+        //return user.save({session});
+        // user.save()
+        //   .then(() => {console.log("Stats of "+user.userId+" updated")})
+        //   .catch(err => {
+        //     console.log(err);
+        //     throw (err);
+        //   });
+    } else {
+        throw ('The profile controller cannot update the statistics of the user specified!');
+    }
 }
+  // .catch(err => {
+  //     throw (err);
+  // });
+
 
 module.exports = {
   router: app,
