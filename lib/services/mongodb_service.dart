@@ -72,8 +72,7 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      List<Team> teamList =
-          decodedBody.map((team) => Team.fromJson(team)).toList();
+      List<Team> teamList = decodedBody.map((team) => Team.fromJson(team)).toList();
       return teamList;
     } else
       return null;
