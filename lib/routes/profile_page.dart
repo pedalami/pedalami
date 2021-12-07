@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
@@ -18,11 +18,13 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User? user = FirebaseAuth.instance.currentUser;
-  MiUser _miUser = new MiUser("", "", "", "");
+  //User? user = FirebaseAuth.instance.currentUser;
+  LoggedUser _miUser = LoggedUser.instance!;
 
   @override
   void initState() {
+    /*
+    OLD. See the above new declaration of _miUser LoggedUser for reference.
     CollectionReference usersCollection =
     FirebaseFirestore.instance.collection("Users");
     usersCollection
@@ -33,13 +35,17 @@ class _ProfilePageState extends State<ProfilePage> {
           //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
 
       setState(() {
-        _miUser = new MiUser(
+        _miUser = new LoggedUser(
             querySnapshot.docs[0].id,
             querySnapshot.docs[0].get("Image"),
             querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"));
+            querySnapshot.docs[0].get("Username"), 0.0);
       });
+      //TODO - Comment added by Vincenzo:
+      //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
+      //My suggestion is to have a single shared MiUser to use in the whole application.
     });
+     */
     super.initState();
   }
 
@@ -68,8 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             shape: BoxShape.circle,
                             image: DecorationImage(
                               fit: BoxFit.cover,
-                              image:
-                              NetworkImage(_miUser.image),
+                              image: _miUser.image,
                             )),
                       ),
                       onTap: () async {
@@ -100,8 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Row(
                               children: <Widget>[
                                 Text(
-                                  nStringToNNString(
-                                      nStringToNNString(user!.email)),
+                                  nStringToNNString(_miUser.mail),
                                   style: TextStyle(
                                     color: Colors.white60,
                                     fontSize: 1.5 * SizeConfig.textMultiplier!,

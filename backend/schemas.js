@@ -13,8 +13,9 @@ const UserSchema = new Schema({
         totalKm: { type: Number, required: true, default: 0 },
         // The elevationGain of a ride is always postiive
         totalElevationGain: { type: Number, required: true, default: 0 },
-        averageDurationPerRide: { type: Number, required: true, default: 0 },
         averageSpeed: { type: Number, required: true, default: 0 },
+        averageDuration: { type: Number, required: true, default: 0 },
+        averageKm: { type: Number, required: true, default: 0 },
         averageElevationGain: { type: Number, required: true, default: 0 }
     }
 });
@@ -35,7 +36,7 @@ const RideSchema = new Schema({
     totalKm: { type: Number, required: true },
     pace: { type: Number, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
-    geoPoints: [{
+    path: [{
         latitude: { type: Number, required: true },
         longitude: { type: Number, required: true },
     }],

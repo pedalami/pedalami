@@ -6,7 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/widget/custom_alert_dialog.dart';
 import 'package:uuid/uuid.dart';
@@ -62,7 +62,7 @@ Future<void> checkUsername(String newUsername, BuildContext context,
 
 }
 
-Future<void>updateUsername(String newUsername, BuildContext context, MiUser miUser) async{
+Future<void>updateUsername(String newUsername, BuildContext context) async {
   if (newUsername.trim().length < 5) {
     return showDialog<void>(
       context: context,
@@ -92,9 +92,9 @@ Future<void>updateUsername(String newUsername, BuildContext context, MiUser miUs
       } else {
         FirebaseFirestore.instance
             .collection("Users")
-            .doc(miUser.id)
+            .doc(LoggedUser.instance!.userId)
             .update({'Username': trimmedUsername}).then((value) async {
-          miUser.username = trimmedUsername;
+          LoggedUser.instance!.username = trimmedUsername;
           Navigator.pop(context);
           return showDialog<void>(
               context: context,

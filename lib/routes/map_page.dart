@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/models/ride.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
@@ -19,18 +19,18 @@ import 'package:location/location.dart' as loc;
 class RideData {
   double? duration;
   double? length;
-  String? user_id;
+  String? userId;
   double? elevation = 5.0;
-  String? ride_name = "Bike Ride";
+  String? rideName = "Bike Ride";
   String? date = "2021/11/29:21.15";
 
-  RideData(double duration, double length, User user, double elevation,
+  RideData(double duration, double length, String userId, double elevation,
       String rideName, String date) {
     this.duration = duration;
     this.length = length;
-    this.user_id = user.uid;
+    this.userId = userId;
     this.elevation = elevation;
-    this.ride_name = rideName;
+    this.rideName = rideName;
     this.date = date;
   }
 }
@@ -83,7 +83,7 @@ class _MapPageState extends State<MapPage> {
   List<GeoPoint> path = [];
   RoadInfo? _roadInfo;
   User? user = FirebaseAuth.instance.currentUser;
-  MiUser _miUser = new MiUser("", "", "", "");
+  LoggedUser _miUser = LoggedUser.instance!;
   List<double>? elevations;
   late loc.Location location;
   late loc.LocationData _locationData;
@@ -96,21 +96,16 @@ class _MapPageState extends State<MapPage> {
     await Permission.locationAlways.request();
   }
 
-  void onUpd(GeoPoint newLoc) {
-    print("Heyyy");
-  }
-
   @override
   void initState() {
 
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
     elevations = [];
-
-
     location = loc.Location();
 
-
+    /*
+    OLD. See the above new declaration of _miUser LoggedUser for reference.
     //TODO: Refactor this, shouldn't write this both in map page and profile page /Marcus
     firestore.CollectionReference usersCollection =
         firestore.FirebaseFirestore.instance.collection("Users");
@@ -120,12 +115,17 @@ class _MapPageState extends State<MapPage> {
         .then((firestore.QuerySnapshot querySnapshot) async {
       //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
 
-      _miUser = new MiUser(
+      _miUser = new LoggedUser(
           querySnapshot.docs[0].id,
           querySnapshot.docs[0].get("Image"),
           querySnapshot.docs[0].get("Mail"),
-          querySnapshot.docs[0].get("Username"));
+          querySnapshot.docs[0].get("Username"),
+      0.0); //Added because now the logged user should include the points
+      //TODO - Comment added by Vincenzo:
+      //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
+      //My suggestion is to have a single shared MiUser to use in the whole application.
     });
+     */
     super.initState();
 
     getLocationPermission();
@@ -317,7 +317,7 @@ class _MapPageState extends State<MapPage> {
                                     showAlertDialog(context);
                                   } else {
                                     Ride finishedRide = Ride(
-                                      nStringToNNString(_miUser.id),
+                                      nStringToNNString(_miUser.userId),
                                       nStringToNNString(_miUser.username),
                                       _roadInfo!.duration,
                                       _roadInfo!.distance,
@@ -325,8 +325,9 @@ class _MapPageState extends State<MapPage> {
                                       "test date",
                                       20.0,
                                       500,
+                                      null
                                     );
-                                    var response = MongoDB.instance.recordRide(finishedRide, path, totalElevation);
+                                    var response = MongoDB.instance.recordRide(finishedRide);
                                     print(response);
 
                                     showRideCompleteDialog(

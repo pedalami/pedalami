@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/team_members.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
@@ -21,10 +21,9 @@ class TeamProfile extends StatefulWidget {
 }
 
 class _TeamProfileState extends State<TeamProfile> {
-  User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
-  MiUser _miUser = new MiUser("", "", "", "");
+  LoggedUser _miUser = LoggedUser.instance!;
   File? f;
 
   String teamName = "Team Awesome";  //TODO: Make dynamic, read data from mongoDB
@@ -33,6 +32,8 @@ class _TeamProfileState extends State<TeamProfile> {
 
   @override
   void initState() {
+    /*
+    OLD. See the above new declaration of _miUser LoggedUser for reference.
     CollectionReference usersCollection =
     FirebaseFirestore.instance.collection("Users");
     usersCollection
@@ -40,15 +41,19 @@ class _TeamProfileState extends State<TeamProfile> {
         .get()
         .then((QuerySnapshot querySnapshot) async {
       setState(() {
-        _miUser = new MiUser(
+        _miUser = new LoggedUser(
             querySnapshot.docs[0].id,
             querySnapshot.docs[0].get("Image"),
             querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"));
+            querySnapshot.docs[0].get("Username"), 0.0);
         usernameController.value =
             usernameController.value.copyWith(text: _miUser.username);
+        //TODO - Comment added by Vincenzo:
+        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
+        //My suggestion is to have a single shared MiUser to use in the whole application.
       });
     });
+     */
     super.initState();
   }
 

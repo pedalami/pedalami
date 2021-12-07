@@ -13,8 +13,9 @@ app.post('/initUser', (req, res) => {
         res.status(500).send('Error finding the user.');
       }
       if (user) {
-        console.log('The user already exist.');
-        res.status(200).send('User already exist!');
+        console.log('The user already exist. Returning it');
+        //TODO fai la join con i team e ritornali
+        res.status(200).send(user);
       } else { // user doesn't exist
         const newUser = new User({ userId: req.body.userId });
         newUser.save( (error) => {
@@ -23,7 +24,7 @@ app.post('/initUser', (req, res) => {
             res.status(500).send('Error saving the user!');
           } else {
             console.log('The user has been saved.');
-            res.status(200).send('User saved correctly!');
+            res.status(200).send(newUser);
           }
         });
       }
@@ -133,21 +134,22 @@ async function updateUserStatistics(ride) {
   //Calculate points
   //var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
   //ride.points = points;
-  await User.findOne({ uid: ride.userId }).then((user) => {
+  await User.findOne({ userId: ride.userId }).then((user) => {
       if (user) {
-          console.log(user);
           user.statistics.numberOfRides++;
           user.statistics.totalDuration += ride.durationInSeconds;
           user.statistics.totalKm += ride.totalKm;
           user.statistics.totalElevationGain += ride.elevationGain;
-          user.statistics.averageDurationPerRide = user.statistics.totalDuration / user.statistics.numberOfRides;
           user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
+          user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
+          user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
           user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
           user.save()
+            .then(() => {console.log("Stats of "+user.userId+" updated")})
             .catch(err => {
-            console.log(err);
-            throw (err);
-          });
+              console.log(err);
+              throw (err);
+            });
       } else {
           throw ('The profile controller cannot update the statistics of the user specified!');
       }

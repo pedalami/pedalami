@@ -1,25 +1,35 @@
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/mongoUser.dart';
 
 class Team {
-  String uid;
+  String id;
   String adminId;
   String name;
   String? description;
-  List<dynamic> members;
+  List<String> membersId;
+  List<MongoUser>? members;
 
-
-  Team(this.uid, this.adminId, this.name, this.description, this.members);
+  Team(this.id, this.adminId, this.name, this.description, this.membersId, this.members);
 
   factory Team.fromJson(dynamic json) {
-    return Team(json['_id'] as String, json['admin_uid'] as String, json['name'] as String, json['description'] as String?, json['members']);
+    var membersList = json['members'] as List;
+    try {
+      List<MongoUser> userMembersList = membersList.map((member) => MongoUser.fromJson(member)).toList();
+      return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String,
+          json['description'] as String?, userMembersList.map((team) => team.userId).toList(), userMembersList);
+    } catch (ex) {
+      List<String> membersIdList = membersList.map((id) => id.toString()).toList();
+      return Team(json['_id'] as String, json['adminId'] as String,
+          json['name'] as String, json['description'] as String?,
+          membersIdList, null);
+    }
   }
 
   void setMembers(List<String> members) {
-    this.members = members;
+    this.membersId = members;
   }
 
   @override
   String toString() {
-    return '{ Team ${this.name}, with id: ${this.uid}. AdminID: ${this.adminId} }';
+    return '{ Team ${this.name}, with id: ${this.id}. AdminId: ${this.adminId} }';
   }
 }
