@@ -6,7 +6,8 @@ const profileController = require("./profileController.js");
 const models = require('../schemas.js');
 const Ride = models.Ride;
 const User = models.User;
-const transaction = models.transaction;
+const connection = models.connection;
+
 
 
 
@@ -22,7 +23,7 @@ app.post("/record", async (req, res) => {
     if (user) {
       gamificationController.assignPoints(user, ride);
       profileController.updateUserStatistics(user, ride);
-      transaction( (session) => {
+      connection.transaction( (session) => {
         return Promise.all([
           user.save({session}),
           ride.save({session})
