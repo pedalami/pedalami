@@ -40,12 +40,12 @@ const RideSchema = new Schema({
         latitude: { type: Number, required: true },
         longitude: { type: Number, required: true },
     }],
-    // The elevationGain of a ride is always postiive
     elevationGain: { type: Number, required: true },
-    points: { type: Number, required: false },
+    points: { type: Number, required: true },
 });
 
 exports.User = mongoose.model("User", UserSchema);
 exports.Ride = mongoose.model("Ride", RideSchema);
 exports.Team = mongoose.model("Team", TeamSchema);
+exports.transaction = mongoose.connection.transaction;
 exports.ObjectId = ObjectId;

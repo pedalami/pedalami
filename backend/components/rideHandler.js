@@ -1,12 +1,12 @@
 var express = require("express");
 var app = express.Router();
 app.use(express.json());
-const mongoose = require("mongoose");
 const gamificationController = require("./gamificationController.js");
 const profileController = require("./profileController.js");
 const models = require('../schemas.js');
 const Ride = models.Ride;
 const User = models.User;
+const transaction = models.transaction;
 
 
 
@@ -20,23 +20,25 @@ app.post("/record", async (req, res) => {
   if (req.body.userId) {
     const user = await User.findOne({ userId: req.body.userId });
     if (user) {
-      await gamificationController.assignPoints(user, ride);
-      await profileController.updateUserStatistics(user, ride);
-      mongoose.connection.transaction( (session) => {
-          return Promise.all([
-            user.save({session}),
-            ride.save({session})
-          ])
-      }).then(() => {
-          res.json({
-            message: "Ride saved successfully, user statistics updated successfully",
-            points: ride.points,
-            pace: ride.pace,
-            id: ride._id,
-          });
-      }).catch((err) => {
-          console.log("Errors:\n"+err);
-          res.status(500).send(err);
+      gamificationController.assignPoints(user, ride);
+      profileController.updateUserStatistics(user, ride);
+      transaction( (session) => {
+        return Promise.all([
+          user.save({session}),
+          ride.save({session})
+        ])
+      })
+      .then(() => {
+        res.json({
+          message: "Ride saved successfully, user statistics updated successfully",
+          points: ride.points,
+          pace: ride.pace,
+          id: ride._id,
+        });
+      })
+      .catch((err) => {
+        console.log("Errors found:\n"+err);
+        res.status(500).send(err);
       })
     } else {
       console.error("Cannot find the user specified!\n");

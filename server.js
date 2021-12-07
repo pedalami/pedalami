@@ -1,16 +1,14 @@
 require('dotenv').config();
 const express = require('express');
-const path = require('path');
 const mongoose = require('mongoose');
 
-
-const PORT = process.env.PORT || 8000
+const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI;
 
-const connectionParams={
+const connectionParams = {
     useNewUrlParser: true,
     useUnifiedTopology: true 
-}
+};
 mongoose.connect(MONGO_URI,connectionParams)
     .then( () => {
         console.log('Connected to database!')
@@ -21,7 +19,7 @@ mongoose.connect(MONGO_URI,connectionParams)
 mongoose.Promise = Promise;
 const app = express();
 app.use(express.json());
-var listener = app.listen(PORT, function(){
+var listener = app.listen(PORT, () => {
     console.log('Listening on port ' + listener.address().port);
 });
 
