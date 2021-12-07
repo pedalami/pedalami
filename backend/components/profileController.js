@@ -109,7 +109,7 @@ app.get('/getTeams', (req, res) => {
 app.get('/getStatistics', (req, res) => {
   console.log('Received search GET request with param userId='+req.query.userId);
   if (req.query.userId) {
-    User.findOne({ userId: req.query.userId }, (error, user) => {
+    User.findOne({ userId: req.query.userId }, (user, error) => {
       if (error) {
         console.log('Error finding the specified user.\n'+error);
         res.status(500).send('Error finding the specified user!');
@@ -149,12 +149,13 @@ async function updateUserStatistics(ride) {
 }
 
 async function checkNewBadgesAfterRide(ride) {
-  await User.findOne({ userId: ride.userId }, async (error, user) => {
+  await User.findOne({ userId: ride.userId }).then(async (user, error) => {
     if (error) {
       console.log('Error while trying to update user\'s badges: cannot find the user inside the userId field of the ride\n' + error);
       throw ('The profile controller cannot update the badges of the user specified!');
     } else {
       console.log(user);
+      console.log("PROVA");
       const badgeList = await Badge.find({});
       badgeList.forEach(badge => {
         if (!user.badges.includes(badge._id)){
@@ -173,8 +174,8 @@ async function checkNewBadgesAfterRide(ride) {
       });
     }
   }).catch(error => {
-      console.log(error)
-      throw (error);
+     console.log(error)
+     throw (error);
   });
 }
 
@@ -182,7 +183,7 @@ async function checkNewBadgesAfterRide(ride) {
 app.post("/check_badge", async (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
-  ride = new Ride(req.body);
+  var ride = new Ride(req.body);
   try {
     await checkNewBadgesAfterRide(ride);
     res.status(200).send("Checked successfully")
