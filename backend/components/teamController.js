@@ -5,6 +5,7 @@ const models = require('../schemas.js');
 const Team = models.Team;
 const User = models.User;
 const ObjectId = models.ObjectId;
+const connection = models.connection;
 
 // POST /create
 app.post('/create', (req, res) => {
@@ -24,16 +25,19 @@ app.post('/create', (req, res) => {
       else {
         newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
-        Promise.all([newTeam.save(), admin.save()]).then(([team, admin]) => {
-          if (!admin || !team) {
-            console.log('Error while creating the team!\n');
-            res.status(400).send('Error while creating the team!');
-          } else {
-            console.log("Team with id: "+team._id+" added successfully");
+        connection.transaction( (session) => {
+          return Promise.all([
+            newTeam.save({session}), 
+            admin.save({session})
+          ])})
+        .then(() => {
             res.status(200).json({
-              teamId: team._id
+              teamId: newTeam._id
             });
-          }
+          })
+        .catch(error => {
+          console.log('Error while creating the team!\n'+error);
+          res.status(500).send('Error while creating the team!\n'+error);
         }
         );
       }
@@ -72,11 +76,10 @@ app.post('/join', (req, res) => {
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
     Promise.all([
-      User.findOne({ userId: req.body.userId }),
-      Team.findOne({ _id: req.body.teamId })
-    ]).then(([user, team]) => {
-      console.log(team);
-      console.log(user);
+      User.findOne({ userId: req.body.userId }).exec(),
+      Team.findOne({ _id: req.body.teamId }).exec()
+    ])
+    .then(([user, team]) => {
       if (team.members.includes(req.body.userId)) {
         console.log('Error: User already in team.');
         res.status(500).send('Error: User already in team.');
@@ -86,26 +89,25 @@ app.post('/join', (req, res) => {
         }
         user.teams.push(req.body.teamId);
         team.members.push(req.body.userId);
-        Promise.all([
-          team.save(),
-          user.save()
-        ])
-        .then(([user, team]) => {
-          if (user != null && team != null) {
-            console.log('The user has been added to the team.');
-            res.status(200).send('The user has been added to the team.');
-          }
+        connection.transaction( (session) => {
+          return Promise.all([
+            team.save({session}),
+            user.save({session})
+          ])
         })
-        .catch((error2) => {
-          console.log('Error while joining the team\n' + error2);
+        .then(() => {
+          res.status(200).send('Team joined successfully');
+        })
+        .catch((err) => {
+          console.log('Error while joining the team\n' + err);
           res.status(500).send('Error while joining the team');
-        });
+        })
       }
-    }).catch((error) => {
+    })
+    .catch((error) => {
       console.log('Error finding the user or the team.\n' + error);
       res.status(500).send('Error finding the user or the team!');
     });
-    
   }
   else {
     console.log('Error: Missing parameters.');

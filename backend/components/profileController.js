@@ -2,6 +2,7 @@ var express = require('express');
 var app = express.Router();
 app.use(express.json());
 const User = require('../schemas.js').User;
+const ObjectId = require('../schemas.js').ObjectId;
 
 app.post('/initUser', (req, res) => {
   console.log('Received initUser POST request:');
@@ -29,50 +30,6 @@ app.post('/initUser', (req, res) => {
         });
       }
     });
-  }
-});
-
-app.get('/addPoints', (req, res) => {
-  if (req.body.points <= 0) {
-    res.status(500).send('Points to add cannot be negative!');
-  } else {
-    var query = { token: req.body.token };
-
-    User.findOne({ token: req.body.token }).then(function (oldUser) {
-      User.findOneAndUpdate(
-        query,
-        { points: +oldUser.points + +req.body.points },
-        { upsert: true },
-        function (err, doc) {
-          if (err) return res.send(500, { error: err });
-          return res.send('Succesfully added points.');
-        }
-      );
-    }).catch(err => res.status(500).send({ error: err.message }));
-  }
-});
-
-app.get('/removePoints', (req, res) => {
-  if (req.body.points <= 0) {
-    res.send('Points to subtract cannot be negative!');
-  } else {
-    var query = { token: req.body.token };
-
-    User.findOne({ token: req.body.token }).then(function (oldUser) {
-      if (0 > +oldUser.points - +req.body.points) {
-        res.send('User Points Result cannot be negative!');
-      } else {
-        User.findOneAndUpdate(
-          query,
-          { points: +oldUser.points - +req.body.points },
-          { upsert: true },
-          function (err, doc) {
-            if (err) return res.send(500, { error: err });
-            return res.send('Succesfully removed points.');
-          }
-        );
-      }
-    }).catch(err => res.status(500).send({ error: err.message }));
   }
 });
 
@@ -130,32 +87,15 @@ app.get('/getStatistics', (req, res) => {
   }
 });
 
-async function updateUserStatistics(ride) {
-  //Calculate points
-  //var points = (ride.totalKm * 100) + (ride.elevationGain * 10); //add bonus if raining later on
-  //ride.points = points;
-  await User.findOne({ userId: ride.userId }).then((user) => {
-      if (user) {
-          user.statistics.numberOfRides++;
-          user.statistics.totalDuration += ride.durationInSeconds;
-          user.statistics.totalKm += ride.totalKm;
-          user.statistics.totalElevationGain += ride.elevationGain;
-          user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
-          user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
-          user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
-          user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
-          user.save()
-            .then(() => {console.log("Stats of "+user.userId+" updated")})
-            .catch(err => {
-              console.log(err);
-              throw (err);
-            });
-      } else {
-          throw ('The profile controller cannot update the statistics of the user specified!');
-      }
-  }).catch(err => {
-      throw (err);
-  });
+function updateUserStatistics(user, ride) {
+  user.statistics.numberOfRides++;
+  user.statistics.totalDuration += ride.durationInSeconds;
+  user.statistics.totalKm += ride.totalKm;
+  user.statistics.totalElevationGain += ride.elevationGain;
+  user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
+  user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
+  user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
+  user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
 }
 
 module.exports = {
