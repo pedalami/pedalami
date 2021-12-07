@@ -2,8 +2,6 @@ var express = require('express');
 var app = express.Router();
 app.use(express.json());
 const User = require('../schemas.js').User;
-const Badge = require('../schemas.js').Badge;
-const Ride = require('../schemas.js').Ride;
 
 app.post('/initUser', (req, res) => {
   console.log('Received initUser POST request:');
@@ -99,52 +97,7 @@ function updateUserStatistics(user, ride) {
   user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
 }
 
-async function checkNewBadgesAfterRide(ride) {
-  await User.findOne({ userId: ride.userId }).then(async (user, error) => {
-    if (error) {
-      console.log('Error while trying to update user\'s badges: cannot find the user inside the userId field of the ride\n' + error);
-      throw ('The profile controller cannot update the badges of the user specified!');
-    } else {
-      //console.log(user);
-      //console.log("PROVA");
-      const badgeList = await Badge.find({});
-      badgeList.forEach(badge => {
-        if (!user.badges.includes(badge._id)){
-          if (badge.type == "userStat"){
-            user.statistics[badge.criteria] > badge.criteriaValue ? user.badges.push(badge) : null;
-          }
-          if (badge.type == "ride") {
-            ride[badge.criteria] > badge.criteriaValue ? user.badges.push(badge) : null;
-          }
-        }
-      });
-      user.save()
-        .catch(error => {
-          console.log(error)
-          throw (error);
-      });
-    }
-  }).catch(error => {
-     console.log(error)
-     throw (error);
-  });
-}
-
-
-app.post("/check_badge", async (req, res) => {
-  console.log('Received create POST request:');
-  console.log(req.body);
-  var ride = new Ride(req.body);
-  try {
-    await checkNewBadgesAfterRide(ride);
-    res.status(200).send("Checked successfully")
-  } catch(error) {
-    res.status(500).send(error);
-  }
-});
-
 module.exports = {
   router: app,
-  updateUserStatistics: updateUserStatistics,
-  checkNewBadgesAfterRide: checkNewBadgesAfterRide
+  updateUserStatistics: updateUserStatistics
 }

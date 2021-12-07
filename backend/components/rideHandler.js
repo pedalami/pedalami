@@ -23,6 +23,7 @@ app.post("/record", async (req, res) => {
     if (user) {
       gamificationController.assignPoints(user, ride);
       profileController.updateUserStatistics(user, ride);
+      await gamificationController.checkNewBadgesAfterRide(user, ride);
       connection.transaction( (session) => {
         return Promise.all([
           user.save({session}),
