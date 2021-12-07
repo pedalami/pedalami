@@ -149,19 +149,15 @@ async function updateUserStatistics(ride) {
 }
 
 async function checkNewBadgesAfterRide(ride) {
-  User.findOne({ userId: ride.userId }, (error, user) => {
+  await User.findOne({ userId: ride.userId }, async (error, user) => {
     if (error) {
-      console.log('Error while trying to update user\'s statistics: cannot find the user inside the userId field of the ride\n' + error);
+      console.log('Error while trying to update user\'s badges: cannot find the user inside the userId field of the ride\n' + error);
+      throw ('The profile controller cannot update the badges of the user specified!');
     } else {
       console.log(user);
-      badgeList = await Badge.find({}, (error) =>{
-        if (error){
-          console.log('Error trying to catch the badges')
-          //TODO: finish to manage the error
-        }
-      }).toArray();
+      const badgeList = await Badge.find({});
       badgeList.forEach(badge => {
-        if (!user.badges.includes(badge)){
+        if (!user.badges.includes(badge._id)){
           if (badge.type == "userStat"){
             user.statistics[badge.criteria] > badge.criteriaValue ? user.badges.push(badge) : null;
           }
@@ -170,32 +166,30 @@ async function checkNewBadgesAfterRide(ride) {
           }
         }
       });
+      user.save()
+        .catch(error => {
+          console.log(error)
+          throw (error);
+      });
     }
+  }).catch(error => {
+      console.log(error)
+      throw (error);
   });
 }
 
 
-app.post("/check_badge", (req, res) => {
+app.post("/check_badge", async (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
-  await User.findOne({}.then(user) => {
-    if (user){
-      console.log('n. badges before:');
-      console.log(user.badges.length);
-      ride = new Ride(req.body);
-      checkNewBadgesAfterRide(ride)
-      .then(function(){
-        console.log('n. badges after:');
-        console.log(user.badges.length);
-        res.status(200, "Badges are checked!")
-      })
-    } else {
-      console.log('Error finding a User');
-      res.status(500, "An error occurs!")
-    }
-  })
-
-})
+  ride = new Ride(req.body);
+  try {
+    await checkNewBadgesAfterRide(ride);
+    res.status(200).send("Checked successfully")
+  } catch(error) {
+    res.status(500).send(error);
+  }
+});
 
 module.exports = {
   router: app,

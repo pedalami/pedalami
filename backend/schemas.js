@@ -56,10 +56,10 @@ const BadgeSchema = new Schema({
     type: { type: String, required: true },
 });
 
-exports.User = mongoose.model("User2", UserSchema);
-exports.Ride = mongoose.model("Ride2", RideSchema);
-exports.Team = mongoose.model("Team2", TeamSchema);
-exports.Badge = mongoose.model("Badge2", BadgeSchema);
+exports.User = mongoose.model("Users", UserSchema);
+exports.Ride = mongoose.model("Rides", RideSchema);
+exports.Team = mongoose.model("Teams", TeamSchema);
+exports.Badge = mongoose.model("Badges", BadgeSchema);
 exports.ObjectId = ObjectId;
 
 //import {Ride, User} from "../schemas.js";
