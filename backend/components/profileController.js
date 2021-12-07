@@ -32,50 +32,6 @@ app.post('/initUser', (req, res) => {
   }
 });
 
-app.get('/addPoints', (req, res) => {
-  if (req.body.points <= 0) {
-    res.status(500).send('Points to add cannot be negative!');
-  } else {
-    var query = { token: req.body.token };
-
-    User.findOne({ token: req.body.token }).then(function (oldUser) {
-      User.findOneAndUpdate(
-        query,
-        { points: +oldUser.points + +req.body.points },
-        { upsert: true },
-        function (err, doc) {
-          if (err) return res.send(500, { error: err });
-          return res.send('Succesfully added points.');
-        }
-      );
-    }).catch(err => res.status(500).send({ error: err.message }));
-  }
-});
-
-app.get('/removePoints', (req, res) => {
-  if (req.body.points <= 0) {
-    res.send('Points to subtract cannot be negative!');
-  } else {
-    var query = { token: req.body.token };
-
-    User.findOne({ token: req.body.token }).then(function (oldUser) {
-      if (0 > +oldUser.points - +req.body.points) {
-        res.send('User Points Result cannot be negative!');
-      } else {
-        User.findOneAndUpdate(
-          query,
-          { points: +oldUser.points - +req.body.points },
-          { upsert: true },
-          function (err, doc) {
-            if (err) return res.send(500, { error: err });
-            return res.send('Succesfully removed points.');
-          }
-        );
-      }
-    }).catch(err => res.status(500).send({ error: err.message }));
-  }
-});
-
 // GET /getTeams?userId=userId
 app.get('/getTeams', (req, res) => {
   const userId = req.query.userId;
