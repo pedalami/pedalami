@@ -14,7 +14,12 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
+    initApp();
     super.initState();
+  }
+
+  void initApp() async {
+    await Authentication.initializeFirebase(context: context);
   }
 
   void navigationPage() {
@@ -25,7 +30,6 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Authentication.initializeFirebase(context: context);
     return Scaffold(
       backgroundColor: Colors.white,
       body: Stack(

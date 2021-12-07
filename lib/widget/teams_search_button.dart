@@ -20,15 +20,14 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
     super.initState();
   }
 
-  bool checkUserInTeam(List<String>? users)
-  {
-    for(int i=0;i<users!.length;i++)
-      {
-        if(users[i]==FirebaseAuth.instance.currentUser!.uid)
-          {
-            return true;
-          }
-      }
+  bool checkUserInTeam(List<String>? users) {
+    if (users == null)
+      return false;
+    String myId = FirebaseAuth.instance.currentUser!.uid;
+    for (int i=0; i < users.length; i++) {
+      if (users[i] == myId)
+          return true;
+    }
     return false;
   }
 
@@ -92,7 +91,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                           color: Colors.white),
                                     ))),
                           ),
-                          !checkUserInTeam(teamsFound[i].members.cast<String>() )?Padding(padding: const EdgeInsets.all(12),
+                          !checkUserInTeam(teamsFound[i].membersId.cast<String>() )?Padding(padding: const EdgeInsets.all(12),
                           child: Align(
                             alignment: Alignment.bottomRight,
                             child: FittedBox(
@@ -101,14 +100,14 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                               //TODO: check if user is already enrolled to this specific team. If so do not show the button but nothing (SizedBox())
                               ElevatedButton(
                                 onPressed: () async{
-                                  if(await MongoDB.instance.joinTeam(teamsFound[i].uid, FirebaseAuth.instance.currentUser!.uid))
+                                  if(await MongoDB.instance.joinTeam(teamsFound[i].id, FirebaseAuth.instance.currentUser!.uid))
                                     {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                         content: Text(
                                           "Joined "+teamsFound[i].name+" successfully!",),
                                       ));
-                                      teamsFound[i].members.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
+                                      teamsFound[i].membersId.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
                                       setState(() {
 
                                       });

@@ -1,32 +1,39 @@
-import 'package:pedala_mi/models/ride.dart';
+import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 
 class Ride {
-  String uid;
+  String userId;
   String name;
   String? rideId;
-  num? durationInSeconds;
-  num? totalKm;
-  num? pace;
+  double? durationInSeconds;
+  double? totalKm;
+  double? pace;
   String date;
-  num? elevation_gain;
-  num? points;
+  double? elevationGain;
+  double? points;
+  List<GeoPoint>? path;
 
-  Ride(this.uid, this.name, this.durationInSeconds, this.totalKm, this.pace,
-      this.date, this.elevation_gain, this.points);
+  Ride(this.userId, this.name, this.durationInSeconds, this.totalKm, this.pace,
+      this.date, this.elevationGain, this.points, this.path);
 
   factory Ride.fromJson(dynamic json) {
-    return Ride(json['uid'] as String,
-        json['name'] as String,
-        json['duration_in_seconds'] as int?,
-        json['total_km'] as int?,
-        json['pace'] as int?,
-        json['date'] as String,
-        json['elevation_gain'] as int?,
-        json['points'] as int?);
+    List<GeoPoint> pathList = json['path'].map((e) => new GeoPoint(latitude: e.latitude, longitude: e.longitude)).toList();
+    return Ride(
+      json['userId'] as String,
+      json['name'] as String,
+      json['durationInSeconds'] as double?,
+      json['totalKm'] as double?,
+      json['pace'] as double?,
+      json['date'] as String,
+      json['elevationGain'] as double?,
+      json['points'] as double?,
+      pathList
+    );
   }
+
+
 
   @override
   String toString() {
-    return 'Ride{ rideId: $rideId, uid: $uid, name: $name, durationInSeconds: $durationInSeconds, totalKm: $totalKm, pace: $pace, date: $date, elevation_gain: $elevation_gain, earnedPoints: $points}';
+    return 'Ride{ rideId: $rideId, userId: $userId, name: $name, durationInSeconds: $durationInSeconds, totalKm: $totalKm, pace: $pace, date: $date, elevationGain: $elevationGain, earnedPoints: $points}';
   }
 }

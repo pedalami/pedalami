@@ -4,33 +4,28 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/username_insert_page.dart';
+
+import 'mongodb_service.dart';
 
 
 class Authentication {
-  static Future initializeFirebase({
-    required BuildContext context,
-  }) async {
+  static Future initializeFirebase({ required BuildContext context }) async {
     await Firebase.initializeApp();
     User? user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       if (!user.isAnonymous) {
-        CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection("Users");
-        usersCollection
-            .where("Mail", isEqualTo: user.email)
-            .get()
-            .then((QuerySnapshot querySnapshot) {
-          if (querySnapshot.docs.isNotEmpty) {
-            if (querySnapshot.docs[0].get("Username") != null) {
-              Navigator.pushNamedAndRemoveUntil(context, '/switch_page', (route) => false);
-            } else {
-              Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          InsertUsernameScreen(user: user)));
-            }
+        CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+        QuerySnapshot querySnapshot = await usersCollection
+          .where("Mail", isEqualTo: user.email)
+          .get();
+        if (querySnapshot.docs.isNotEmpty) {
+          String? username = querySnapshot.docs[0].get("Username");
+          if (username != null) {
+            LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
+            await MongoDB.instance.initUser(user.uid);
+            Navigator.pushNamedAndRemoveUntil(context, '/switch_page', (route) => false);
           } else {
             Navigator.pushReplacement(
                 context,
@@ -38,14 +33,19 @@ class Authentication {
                     builder: (BuildContext context) =>
                         InsertUsernameScreen(user: user)));
           }
-        });
+        } else {
+          Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                  builder: (BuildContext context) =>
+                      InsertUsernameScreen(user: user)));
+        }
       } else {
         Navigator.pushNamedAndRemoveUntil(context, '/switch_page', (route) => false);
       }
     } else {
       Navigator.pushNamedAndRemoveUntil(context, '/sign_in_page', (route) => false);
     }
-
     return user;
   }
 
@@ -68,8 +68,7 @@ class Authentication {
     final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
 
     if (googleSignInAccount != null) {
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount.authentication;
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
 
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
@@ -77,9 +76,7 @@ class Authentication {
       );
 
       try {
-        final UserCredential userCredential =
-        await auth.signInWithCredential(credential);
-
+        final UserCredential userCredential = await auth.signInWithCredential(credential);
         user = userCredential.user!;
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {

@@ -2,8 +2,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/username_insert_page.dart';
-
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
@@ -42,18 +42,18 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   _isSigningIn = false;
                 });
                 if (user != null) {
-                  CollectionReference usersCollection =
-                      FirebaseFirestore.instance.collection("Users");
-                  usersCollection
+                  CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+                  QuerySnapshot querySnapshot = await usersCollection
                       .where("Mail", isEqualTo: user.email)
-                      .get()
-                      .then((QuerySnapshot querySnapshot)  {
-                    if (querySnapshot.docs.isNotEmpty) {
-                      if (querySnapshot.docs[0].get("Username") != null) {
+                      .get();
+                  if (querySnapshot.docs.isNotEmpty) {
+                    String? username = querySnapshot.docs[0].get("Username");
+                      if (username != null) {
+                        LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
+                        await MongoDB.instance.initUser(user.uid);
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/switch_page', (route) => false);
                       } else {
-
                         Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
@@ -67,7 +67,6 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                               builder: (BuildContext context) =>
                                   InsertUsernameScreen(user: user)));
                     }
-                  });
                 }
                 setState(() {
                   _isSigningIn = false;

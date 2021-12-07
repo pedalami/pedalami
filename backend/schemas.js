@@ -13,8 +13,9 @@ const UserSchema = new Schema({
         totalKm: { type: Number, required: true, default: 0 },
         // The elevationGain of a ride is always postiive
         totalElevationGain: { type: Number, required: true, default: 0 },
-        averageDurationPerRide: { type: Number, required: true, default: 0 },
         averageSpeed: { type: Number, required: true, default: 0 },
+        averageDuration: { type: Number, required: true, default: 0 },
+        averageKm: { type: Number, required: true, default: 0 },
         averageElevationGain: { type: Number, required: true, default: 0 }
     },
     badges: [{ type: ObjectId, required: false, default: null }],
@@ -36,13 +37,12 @@ const RideSchema = new Schema({
     totalKm: { type: Number, required: true },
     pace: { type: Number, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
-    geoPoints: [{
+    path: [{
         latitude: { type: Number, required: true },
         longitude: { type: Number, required: true },
     }],
-    // The elevationGain of a ride is always postiive
     elevationGain: { type: Number, required: true },
-    points: { type: Number, required: false },
+    points: { type: Number, required: true },
 });
 
 const BadgeSchema = new Schema({
@@ -56,10 +56,10 @@ const BadgeSchema = new Schema({
     type: { type: String, required: true },
 });
 
-exports.User = mongoose.model("Users", UserSchema);
-exports.Ride = mongoose.model("Rides", RideSchema);
-exports.Team = mongoose.model("Teams", TeamSchema);
-exports.Badge = mongoose.model("Badges", BadgeSchema);
-exports.ObjectId = ObjectId;
+exports.User = mongoose.model("User", UserSchema);
+exports.Ride = mongoose.model("Ride", RideSchema);
+exports.Team = mongoose.model("Team", TeamSchema);
+exports.Badge = mongoose.model("Badge", BadgeSchema);
 
-//import {Ride, User} from "../schemas.js";
+exports.connection = mongoose.connection;
+exports.ObjectId = ObjectId;

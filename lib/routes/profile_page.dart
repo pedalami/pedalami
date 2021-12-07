@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pedala_mi/models/user.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
@@ -18,25 +18,34 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  User? user = FirebaseAuth.instance.currentUser;
-  MiUser _miUser = new MiUser("", "", "", "");
+  //User? user = FirebaseAuth.instance.currentUser;
+  LoggedUser _miUser = LoggedUser.instance!;
 
   @override
   void initState() {
+    /*
+    OLD. See the above new declaration of _miUser LoggedUser for reference.
     CollectionReference usersCollection =
     FirebaseFirestore.instance.collection("Users");
     usersCollection
         .where("Mail", isEqualTo: user!.email)
         .get()
         .then((QuerySnapshot querySnapshot) async {
+
+          //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
+
       setState(() {
-        _miUser = new MiUser(
+        _miUser = new LoggedUser(
             querySnapshot.docs[0].id,
             querySnapshot.docs[0].get("Image"),
             querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"));
+            querySnapshot.docs[0].get("Username"), 0.0);
       });
+      //TODO - Comment added by Vincenzo:
+      //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
+      //My suggestion is to have a single shared MiUser to use in the whole application.
     });
+     */
     super.initState();
   }
 
@@ -65,8 +74,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             shape: BoxShape.circle,
                             image: DecorationImage(
                               fit: BoxFit.cover,
-                              image:
-                              NetworkImage(_miUser.image),
+                              image: _miUser.image,
                             )),
                       ),
                       onTap: () async {
@@ -97,8 +105,7 @@ class _ProfilePageState extends State<ProfilePage> {
                             Row(
                               children: <Widget>[
                                 Text(
-                                  nStringToNNString(
-                                      nStringToNNString(user!.email)),
+                                  nStringToNNString(_miUser.mail),
                                   style: TextStyle(
                                     color: Colors.white60,
                                     fontSize: 1.5 * SizeConfig.textMultiplier!,
@@ -202,72 +209,86 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
+
+                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
-                          "Joined Teams",
+                          "Your Statistics",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
                               fontSize: 2.5 * SizeConfig.textMultiplier!),
                         ),
                       ),
-                      Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.network(
-                                    "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                                    height: 20.0 * SizeConfig.heightMultiplier!,
-                                    width: 50.0 * SizeConfig.widthMultiplier!,
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                  child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        "Team Awesome",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      )))
-                            ],
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Distance: 95km",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
                           ),
-                          SizedBox(
-                            width: 7.0 * SizeConfig.widthMultiplier!,
-                          ),
-                          Container(
-                            width: 32.0 * SizeConfig.widthMultiplier!,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                pushNewScreen(
-                                  context,
-                                  screen: TeamProfile(),
-                                  pageTransitionAnimation: PageTransitionAnimation
-                                      .cupertino,
-
-                                );
-                              },
-                              label: Text("Info"),
-                              icon: FaIcon(FontAwesomeIcons.userCog),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.green[400]),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(18.0),
-                                          side: BorderSide(
-                                              color: Colors.green)))),
-                            ),
-                          )
-                        ],
+                        ),
                       ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Speed: 15km/h",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Total Ride Duration: 30min",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Distance: 45km",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Elevation Gain: 20",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text("Average Duration/Ride: 15min",
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!
+                          ),
+                        ),
+                      ),
+                      // TODO: end of Statistics section <----------------------------------------------------
                       Divider(
                         color: Colors.black,
                       ),
@@ -301,74 +322,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       Divider(
                         color: Colors.grey,
                       ),
-                      // TODO: Read Ride data from MongoDB <----------------------------------------------------------
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Statistics",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2.5 * SizeConfig.textMultiplier!),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Distance: 95km",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Duration: 30 minutes",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Speed: 15km/h",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Elevation: 20",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Pace: 8",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
-                        ),
-                      ),
-                      // TODO: end of Statistics section <----------------------------------------------------
                       SizedBox(
                         height: 3 * SizeConfig.heightMultiplier!,
                       ),

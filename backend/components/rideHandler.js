@@ -6,6 +6,9 @@ const profileController = require("./profileController.js");
 const models = require('../schemas.js');
 const Ride = models.Ride;
 const User = models.User;
+const connection = models.connection;
+
+
 
 
 // POST /record
@@ -15,20 +18,18 @@ app.post("/record", async (req, res) => {
   var ride = new Ride(req.body);
   ride.pace = ride.totalKm / (ride.durationInSeconds / 3600);
 
-  // We cannot do User.findById since the userId is not the _id
-  if (req.body.userId && (await User.findOne({ userId: req.body.userId }))) {
-    gamificationController.assignPoints(ride)
+  if (req.body.userId) {
+    const user = await User.findOne({ userId: req.body.userId });
+    if (user) {
+      gamificationController.assignPoints(user, ride);
+      profileController.updateUserStatistics(user, ride);
+      connection.transaction( (session) => {
+        return Promise.all([
+          user.save({session}),
+          ride.save({session})
+        ])
+      })
       .then(() => {
-        profileController.updateUserStatistics(ride).then(() => {
-          profileController.checkNewBadgesAfterRide(ride).catch(err => {
-            console.log(err);
-            res.status(500).send("Cannot save the ride in the database due to a profile controller's checkNewBadgesAfterRide method failure: " + err);
-          })
-        })
-          .catch((err) => {
-            console.error(err);
-            res.status(500).send("Cannot save the ride in the database due to a profile controller's updateUserStatistics method failure: " + err);
-          });
         res.json({
           message: "Ride saved successfully, user statistics and badges updated successfully",
           points: ride.points,
@@ -37,12 +38,16 @@ app.post("/record", async (req, res) => {
         });
       })
       .catch((err) => {
-        console.error(err);
-        res.status(500).send("Cannot save the ride in the database due to a gamification controller failure: "+err);
-      });
+        console.log("Errors found:\n"+err);
+        res.status(500).send(err);
+      })
+    } else {
+      console.error("Cannot find the user specified!\n");
+      res.status(500).send("Cannot find the user specified!");
+    }
   } else {
-    console.error("Cannot find the user specified!\n");
-    res.status(500).send("Cannot find the user specified!");
+    console.error("User not specified!");
+    res.status(500).send("User not specified!");
   }
 });
 
