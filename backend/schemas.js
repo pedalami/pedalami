@@ -47,5 +47,5 @@ const RideSchema = new Schema({
 exports.User = mongoose.model("User", UserSchema);
 exports.Ride = mongoose.model("Ride", RideSchema);
 exports.Team = mongoose.model("Team", TeamSchema);
-exports.transaction = mongoose.connection.transaction;
+exports.connection = mongoose.connection;
 exports.ObjectId = ObjectId;
