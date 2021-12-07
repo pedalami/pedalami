@@ -48,7 +48,7 @@ app.post('/create', (req, res) => {
 // GET /search?name=start_of_name
 app.get('/search', (req, res) => {
   const to_search = req.query.name;
-  console.log('Received search GET request with param name='+to_search);
+  console.log('Received search GET request with param '+req.query);
   if (to_search) {
     //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
     Team.find({ name: {$regex: to_search} }, (error, teams) => {
@@ -116,7 +116,7 @@ app.post('/join', (req, res) => {
 // GET /getTeam?teamID=teamID
 app.get('/getTeam', (req, res) => {
   const teamID = req.query.teamID;
-  console.log('Received getTeam GET request with param id=' + teamID);
+  console.log('Received getTeam GET request with params ' + req.query);
   if (teamID) {
     Team
       .aggregate([
