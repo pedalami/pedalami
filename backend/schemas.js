@@ -54,6 +54,7 @@ const BadgeSchema = new Schema({
     image: { type: String, required: true },
     // The type is the context where the badge is checked
     type: { type: String, required: true },
+    description: { type: String, required: false }
 });
 
 exports.User = mongoose.model("User", UserSchema);
