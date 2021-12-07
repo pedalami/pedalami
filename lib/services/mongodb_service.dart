@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
@@ -37,7 +38,8 @@ class MongoDB {
         Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
         //TODO when the join on the backend is ready
         List<Team> teamList = []; //decodedBody.map((team) => Team.fromJson(team)).toList();
-        LoggedUser.completeInstance(points, teamList, stats);
+        List<Badge> badgeList = []; //TODO fill here
+        LoggedUser.completeInstance(points, teamList, stats, badgeList);
       } catch (ex) {
         print("An exception occurred in the initUser.\n");
         print(ex);
