@@ -11,7 +11,7 @@ const UserSchema = new Schema({
         numberOfRides: { type: Number, required: true, default: 0 },
         totalDuration: { type: Number, required: true, default: 0 },
         totalKm: { type: Number, required: true, default: 0 },
-        // The elevationGain of a ride is always postiive
+        // The elevationGain of a ride is always positive
         totalElevationGain: { type: Number, required: true, default: 0 },
         averageSpeed: { type: Number, required: true, default: 0 },
         averageDuration: { type: Number, required: true, default: 0 },
@@ -54,7 +54,7 @@ const BadgeSchema = new Schema({
     image: { type: String, required: true },
     // The type is the context where the badge is checked
     type: { type: String, required: true },
-    description: { type: String, required: false }
+    description: { type: String, required: true }
 });
 
 exports.User = mongoose.model("User", UserSchema);

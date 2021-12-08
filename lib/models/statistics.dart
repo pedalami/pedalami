@@ -21,14 +21,15 @@ class Statistics {
 
   factory Statistics.fromJson(dynamic json) {
     return Statistics(
-        json['numberOfRides'] as int,
-        json['totalDuration'] as int,
-        json['totalKm'] as int,
-        json['totalElevationGain'] as int,
-        json['averageSpeed'] as int,
-        json['averageDuration'] as int,
-        json['averageKm'] as int,
-        json['averageElevationGain'] as int);
+      double.parse(json['numberOfRides'].toString()).round(),
+      double.parse(json['totalDuration'].toString()).round(),
+      double.parse(json['totalKm'].toString()).round(),
+      double.parse(json['totalElevationGain'].toString()).round(),
+      double.parse(json['averageSpeed'].toString()).round(),
+      double.parse(json['averageDuration'].toString()).round(),
+      double.parse(json['averageKm'].toString()).round(),
+      double.parse(json['averageElevationGain'].toString()).round()
+    );
   }
 
   @override

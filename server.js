@@ -34,7 +34,7 @@ var swaggerDocument = require('./backend/swagger.json');
 app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
 app.use('/rides', rideRouter);
-//app.use('/tests', require('./backend/components/testingTx'));
+app.use('/tests', require('./backend/components/genBadgesInfo.js'));
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 

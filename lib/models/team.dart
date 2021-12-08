@@ -30,6 +30,7 @@ class Team {
 
   @override
   String toString() {
-    return '{ Team ${this.name}, with id: ${this.id}. AdminId: ${this.adminId} }';
+    return '{ Team ${this.name}, with id: ${this.id}. AdminId: ${this.adminId}.'
+        'Members: ${this.membersId} }';
   }
 }
