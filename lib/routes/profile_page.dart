@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -19,10 +21,21 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   //User? user = FirebaseAuth.instance.currentUser;
-  LoggedUser _miUser = LoggedUser.instance!;
+  late LoggedUser _miUser;
+  List<Ride>? rideHistory;
+
+  void getRideHistory() async {
+    rideHistory = await MongoDB.instance.getAllRidesFromUser(_miUser.userId);
+    print(rideHistory);
+    print("DONE");
+  }
 
   @override
   void initState() {
+    _miUser = LoggedUser.instance!;
+    print(_miUser.userId);
+    getRideHistory();
+
     /*
     OLD. See the above new declaration of _miUser LoggedUser for reference.
     CollectionReference usersCollection =
@@ -81,7 +94,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         await Authentication.signOut(context: context);
                         Navigator.of(context).pushAndRemoveUntil(
                             _routeToSignInScreen(),
-                                (Route<dynamic> route) => false);
+                            (Route<dynamic> route) => false);
                       },
                     ),
                     SizedBox(
@@ -166,9 +179,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        pushNewScreen(context, screen: ProfileEditing(),
-                            pageTransitionAnimation: PageTransitionAnimation
-                                .cupertino);
+                        pushNewScreen(context,
+                            screen: ProfileEditing(),
+                            pageTransitionAnimation:
+                                PageTransitionAnimation.cupertino);
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -195,10 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
         Padding(
             padding: EdgeInsets.only(top: 35 * SizeConfig.heightMultiplier!),
             child: Container(
-              width: MediaQuery
-                  .of(context)
-                  .size
-                  .width,
+              width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -209,7 +220,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-
                       // TODO: Read Ride data from MongoDB <----------------------------------------------------------
                       Padding(
                         padding: EdgeInsets.only(
@@ -225,67 +235,67 @@ class _ProfilePageState extends State<ProfilePage> {
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Distance: 95km",
+                        child: Text(
+                          "Total Distance: 95km",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Speed: 15km/h",
+                        child: Text(
+                          "Average Speed: 15km/h",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Total Ride Duration: 30min",
+                        child: Text(
+                          "Total Ride Duration: 30min",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Distance: 45km",
+                        child: Text(
+                          "Average Distance: 45km",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Elevation Gain: 20",
+                        child: Text(
+                          "Average Elevation Gain: 20",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
                             left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text("Average Duration/Ride: 15min",
+                        child: Text(
+                          "Average Duration/Ride: 15min",
                           style: TextStyle(
                               color: Colors.black,
                               fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!
-                          ),
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       // TODO: end of Statistics section <----------------------------------------------------
@@ -325,12 +335,49 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         height: 3 * SizeConfig.heightMultiplier!,
                       ),
+                      rideHistory == null
+                          ? displayEmptyRideHistory()
+                          : displayRideHistory(),
+                      SizedBox(
+                        height: 3 * SizeConfig.heightMultiplier!,
+                      ),
                     ],
                   ),
                 ),
               ),
             ))
       ],
+    );
+  }
+
+  Widget displayEmptyRideHistory() {
+    return Container(
+      child: Center(
+          child: Text(
+        "Currently you have no ride history, all rides will be displayed here later",
+        textAlign: TextAlign.center,
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+      )),
+    );
+  }
+
+  Widget displayRideHistory() {
+    return Container(
+      child: ListView.builder(
+          itemCount: rideHistory!.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Container(
+              height: MediaQuery.of(context).size.height / 17,
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Text(rideHistory![index].date),
+
+                  //TODO: Here I will add a button to take the user to another page and show the entire route on map
+                ],
+              ),
+            );
+          }),
     );
   }
 
@@ -349,12 +396,12 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             Positioned.fill(
                 child: Align(
-                  child: Text(
-                    "Badge info here",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  alignment: Alignment.bottomCenter,
-                )),
+              child: Text(
+                "Badge info here",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              alignment: Alignment.bottomCenter,
+            )),
           ],
         ),
       ),
@@ -374,7 +421,7 @@ class _ProfilePageState extends State<ProfilePage> {
         var curve = Curves.ease;
 
         var tween =
-        Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+            Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
 
         return SlideTransition(
           position: animation.drive(tween),

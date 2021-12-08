@@ -88,8 +88,8 @@ class _MapPageState extends State<MapPage> {
   late loc.Location location;
   late loc.LocationData _locationData;
   var currentRide = <List, String>{
-    [] : 'geopoints',
-    [] : 'elevation',
+    []: 'geopoints',
+    []: 'elevation',
   };
 
   void getLocationPermission() async {
@@ -98,7 +98,6 @@ class _MapPageState extends State<MapPage> {
 
   @override
   void initState() {
-
     bool _serviceEnabled;
     PermissionStatus _permissionGranted;
     elevations = [];
@@ -279,13 +278,15 @@ class _MapPageState extends State<MapPage> {
                                             latestLocation.latitude) {
                                       print("No progress to save");
                                     } else {
-                                      _locationData = await location.getLocation();
-                                      double newAltitude = _locationData.altitude!;
+                                      _locationData =
+                                          await location.getLocation();
+                                      double newAltitude =
+                                          _locationData.altitude!;
 
-                                      if(elevations!.last < newAltitude){
-                                        print("Only downhill or no change in altitude, don't save");
-                                      }
-                                      else {
+                                      if (elevations!.last < newAltitude) {
+                                        print(
+                                            "Only downhill or no change in altitude, don't save");
+                                      } else {
                                         elevations!.add(newAltitude);
                                         totalElevation = (totalElevation +
                                             (newAltitude - elevations!.last));
@@ -317,21 +318,21 @@ class _MapPageState extends State<MapPage> {
                                     showAlertDialog(context);
                                   } else {
                                     Ride finishedRide = Ride(
-                                      nStringToNNString(_miUser.userId),
-                                      nStringToNNString(_miUser.username),
-                                      _roadInfo!.duration,
-                                      _roadInfo!.distance,
-                                      15.0,
-                                      "test date",
-                                      20.0,
-                                      500,
-                                      null
-                                    );
-                                    var response = MongoDB.instance.recordRide(finishedRide);
-                                    print(response);
+                                        nStringToNNString(_miUser.userId),
+                                        nStringToNNString(_miUser.username),
+                                        _roadInfo!.duration,
+                                        _roadInfo!.distance,
+                                        15.0,
+                                        "test date",
+                                        totalElevation,
+                                        500.0,
+                                        path);
 
-                                    showRideCompleteDialog(
-                                        context, size, _roadInfo!, 15.0, totalElevation, 500);
+                                    //TODO: Uncomment this line to debug the database
+                                    //Ride? response = await MongoDB.instance.recordRide(finishedRide);
+
+                                    showRideCompleteDialog(context, size,
+                                        _roadInfo!, 15.0, totalElevation, 500);
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
@@ -369,11 +370,18 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  showRideCompleteDialog(BuildContext context, Size size, RoadInfo roadInfo, double pace, double elevation, int points) {
+  showRideCompleteDialog(BuildContext context, Size size, RoadInfo roadInfo,
+      double pace, double elevation, int points) {
     //TODO: FIX THIS
     //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
 
-    pushNewScreen(context, screen: RideCompletePage(pace: pace, elevation: elevation, points: points, rideInfo: roadInfo,));
+    pushNewScreen(context,
+        screen: RideCompletePage(
+          pace: pace,
+          elevation: elevation,
+          points: points,
+          rideInfo: roadInfo,
+        ));
   }
 
   showAlertDialog(BuildContext context) {
