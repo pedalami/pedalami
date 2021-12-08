@@ -27,6 +27,7 @@ var listener = app.listen(PORT, () => {
 var usersRouter = require('./backend/components/profileController').router;
 var teamsRouter = require('./backend/components/teamController');
 var rideRouter = require('./backend/components/rideHandler');
+var rewardRouter = require('./backend/components/rewardController');
 
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./backend/swagger.json');
@@ -34,7 +35,9 @@ var swaggerDocument = require('./backend/swagger.json');
 app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
 app.use('/rides', rideRouter);
+app.use('/rewards', rewardRouter);
 app.use('/tests', require('./backend/components/genBadgesInfo.js'));
+
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
