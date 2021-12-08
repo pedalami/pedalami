@@ -3,7 +3,6 @@ var app = express.Router();
 app.use(express.json());
 const mongoose = require("mongoose");
 const Badge = require("../schemas.js").Badge;
-const ObjectId = mongoose.Types.ObjectId;
 
 
 app.get("/genInfo", (req, res) => {
