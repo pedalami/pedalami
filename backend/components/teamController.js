@@ -131,7 +131,7 @@ app.get('/getTeam', (req, res) => {
           $lookup: {
             from: "users", // collection name in db
             localField: "members", // field of Team to make the lookup on (the field with the "foreign key")
-            foreignField: "userID", // the referred field in users 
+            foreignField: "userId", // the referred field in users 
             as: "members" // name that the field of the join will have in the result/JSON
           }
         },
