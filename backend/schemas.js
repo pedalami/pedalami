@@ -76,6 +76,8 @@ exports.User = mongoose.model("User", UserSchema);
 exports.Ride = mongoose.model("Ride", RideSchema);
 exports.Team = mongoose.model("Team", TeamSchema);
 exports.Badge = mongoose.model("Badge", BadgeSchema);
+exports.Reward = mongoose.model("Reward", RewardSchema);
 
 exports.connection = mongoose.connection;
 exports.ObjectId = ObjectId;
+exports.Date = Date;
