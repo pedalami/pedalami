@@ -5,7 +5,7 @@ class Reward {
   double price;
   String description;
   String image;
-
+  
   Reward(this.id, this.price, this.description, this.image);
 
   factory Reward.fromJson(dynamic json) {

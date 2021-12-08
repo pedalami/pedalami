@@ -45,6 +45,9 @@ void main() {
     RedeemedReward? newReward = await instance.redeemReward('61b0ce42c08e1dcc4daa29ab');
     assert (newReward != null);
     print(newReward!);
+  test('getRewardsByUser testing', () async {
+    instance.localDebug();
+    assert(await instance.getAllRewardsFromUser("yTi9ZmJbK4Sy4yykwRvrDAcCFPB3") != null);
   });
 
 }

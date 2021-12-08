@@ -169,6 +169,20 @@ class MongoDB {
       return null; //TODO add more verbose error
   }
 
+  // Get all rewards of a userId
+  Future<List<Reward>?> getAllRewardsFromUser(String userID) async {
+    var url = Uri.parse(baseUri + '/rewards/getByUser')
+        .replace(queryParameters: {'userId': userID});
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Reward> rewardsList =
+          decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
+      return rewardsList;
+    } else
+      return null;
+  }
+  
 }
 
 
