@@ -6,6 +6,8 @@ import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
+import 'package:pedala_mi/models/reward.dart';
+
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 
 class MongoDB {
@@ -137,6 +139,21 @@ class MongoDB {
     } else
       return null;
   }
+
+  // Get all rewards of a userId
+  Future<List<Reward>?> getAllRewardsFromUser(String userID) async {
+    var url = Uri.parse(baseUri + '/rewards/getByUser')
+        .replace(queryParameters: {'userId': userID});
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Reward> rewardsList =
+          decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
+      return rewardsList;
+    } else
+      return null;
+  }
+  
 }
 
 

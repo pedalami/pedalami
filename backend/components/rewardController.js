@@ -92,11 +92,12 @@ app.get("/getByUser", (req, res) => {
           }
         ])
         .exec((error, user) => {
-          if (error) {
+          console.log("User: " + user + " Error: " + error);
+          if (error || !user || user.length != 1) {
             console.log("Error finding the user and performing the join with rewards.\n" + error);
             res.status(500).send("Error finding the user and performing the join with rewards.\n" + error);
           } else {
-            res.status(200).send(user.rewards);
+            res.status(200).send(user[0].rewards);
           }
         });
     } else {
