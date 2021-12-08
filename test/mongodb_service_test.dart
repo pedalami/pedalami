@@ -33,5 +33,10 @@ void main() {
     assert(await instance.recordRide(ride) != null);
   });
 
+  test('getRewardsByUser testing', () async {
+    instance.localDebug();
+    assert(await instance.getAllRewardsFromUser("yTi9ZmJbK4Sy4yykwRvrDAcCFPB3") != null);
+  });
+
 }
 
