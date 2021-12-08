@@ -21,6 +21,26 @@ app.get("/list", async (req, res) => {
     });
 });
 
-app.get("getByUser")
+
+// USELESS
+// GET /getByUser?userId=userId
+app.get("/getByUser", (req, res) => {
+    console.log("Received rewards/getByUser GET request with param userId=" + req.query.userId);
+    if (req.query.userId) {
+      User.findOne({ userId: req.query.userId }, (user, error) => {
+        console.log("User: " + user + " Error: " + error);
+        if (error || !user) {
+          console.log("Error finding the specified user.\n" + error);
+          res.status(500).send("Error finding the specified user!");
+        } else {
+          res.status(200).send(user.rewards);
+        }
+      });
+    } else {
+      console.log("Error: Missing parameter userId");
+      res.status(400).send("Error: Missing parameter userId");
+    }
+  });
+
 
 module.exports = app;
