@@ -115,16 +115,16 @@ app.post('/join', (req, res) => {
   }
 });
 
-// GET /getTeam?teamID=teamID
+// GET /getTeam?teamId=teamId
 app.get('/getTeam', (req, res) => {
-  const teamID = req.query.teamID;
+  const teamId = req.query.teamId;
   console.log('Received getTeam GET request with params ' + req.query);
-  if (teamID) {
+  if (teamId) {
     Team
       .aggregate([
         {
           $match: {
-            _id: ObjectId(teamID)
+            _id: ObjectId(teamId)
           }
         },
         {
