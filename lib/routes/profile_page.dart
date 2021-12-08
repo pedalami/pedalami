@@ -371,7 +371,7 @@ class _ProfilePageState extends State<ProfilePage> {
               padding: EdgeInsets.all(8.0),
               child: Row(
                 children: [
-                  Text(rideHistory![index].date),
+                  Text(rideHistory![index].displayDate()),
 
                   //TODO: Here I will add a button to take the user to another page and show the entire route on map
                 ],

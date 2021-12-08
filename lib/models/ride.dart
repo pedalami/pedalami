@@ -1,4 +1,6 @@
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
+import 'package:intl/intl.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 
 class Ride {
   String userId;
@@ -7,7 +9,7 @@ class Ride {
   double? durationInSeconds;
   double? totalKm;
   double? pace;
-  String date;
+  DateTime date;
   double? elevationGain;
   double? points;
   List<GeoPoint>? path;
@@ -16,24 +18,30 @@ class Ride {
       this.date, this.elevationGain, this.points, this.path);
 
   factory Ride.fromJson(dynamic json) {
-    List<GeoPoint> pathList = json['path'].map((e) => new GeoPoint(latitude: e.latitude, longitude: e.longitude)).toList();
+    List<GeoPoint> pathList = (json['path'] as List)
+        .map<GeoPoint>((e) => new GeoPoint(
+            latitude: double.parse(e['latitude'].toString()),
+            longitude: double.parse(e['longitude'].toString()))
+        ).toList();
     return Ride(
       json['userId'] as String,
       json['name'] as String,
-      json['durationInSeconds'] as double?,
-      json['totalKm'] as double?,
-      json['pace'] as double?,
-      json['date'] as String,
-      json['elevationGain'] as double?,
-      json['points'] as double?,
+      double.parse(json['durationInSeconds'].toString()),
+      double.parse(json['totalKm'].toString()),
+      double.parse(json['pace'].toString()),
+      MongoDB.parseDate(json['date'] as String), //parse server date format
+      double.parse(json['elevationGain'].toString()),
+      double.parse(json['points'].toString()),
       pathList
     );
   }
 
-
+  String displayDate() {
+    return DateFormat("yyyy-MM-dd HH:mm").format(date.toLocal());
+  }
 
   @override
   String toString() {
-    return 'Ride{ rideId: $rideId, userId: $userId, name: $name, durationInSeconds: $durationInSeconds, totalKm: $totalKm, pace: $pace, date: $date, elevationGain: $elevationGain, earnedPoints: $points}';
+    return 'Ride{ rideId: $rideId, userId: $userId, name: $name, durationInSeconds: $durationInSeconds, totalKm: $totalKm, pace: $pace, date: '+displayDate()+', elevationGain: $elevationGain, earnedPoints: $points}';
   }
 }

@@ -1,13 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/reward.dart';
-import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
@@ -17,11 +17,25 @@ class MongoDB {
 
   http.Client _serverClient = http.Client();
   String baseUri = "https://pedalami.herokuapp.com";
+  static var _dateFormatter = DateFormat("yyyy-MM-ddTHH:mm:ss.000");
+
 
   Map<String, String> _headers = {
     'Content-type': 'application/json; charset=utf-8',
     'Accept': 'application/json',
   };
+
+  //Use to convert Dart DateTime object to a string whose format matches the one of the backend
+  //returns the date in the following UTC format: 2021-12-03T03:30:40.000Z
+  static String formatDate(DateTime date) {
+    return _dateFormatter.format(date.toUtc())+"Z";
+  }
+
+  //Use to convert a string matching the database date format to Dart DateTime.
+  //Note that the string must have the following UTC format: 2021-12-03T03:30:40.000Z
+  static DateTime parseDate(String dateStr) {
+    return _dateFormatter.parse(dateStr, true).toLocal();
+  }
 
   void localDebug() {
     baseUri = "http://localhost:8000";
@@ -98,8 +112,7 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      List<Ride> ridesList =
-          decodedBody.map((ride) => Ride.fromJson(ride)).toList();
+      List<Ride> ridesList = decodedBody.map<Ride>((ride) => Ride.fromJson(ride)).toList();
       return ridesList;
     } else
       return null;
@@ -114,7 +127,7 @@ class MongoDB {
           "name": toRecord.name,
           "durationInSeconds": toRecord.durationInSeconds,
           "totalKm": toRecord.totalKm,
-          "date": toRecord.date,
+          "date": formatDate(toRecord.date),
           "elevationGain": toRecord.elevationGain,
           "path": toRecord.path?.map((e) => {"latitude":e.latitude, "longitude":e.longitude}).toList()
         }));

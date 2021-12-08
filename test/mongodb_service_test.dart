@@ -20,6 +20,11 @@ void main() {
     print(double.parse("3").round());
   });
 
+  test('date testing', () async {
+    print(MongoDB.formatDate(DateTime.now()));
+    print(MongoDB.parseDate("2021-12-03T00:00:00.000Z"));
+  });
+
 
   test('record a ride testing', () async {
     instance.localDebug();
@@ -28,23 +33,34 @@ void main() {
     gpl.add(gp);
     gpl.add(gp);
     gpl.add(gp);
-    Ride ride = new Ride("15MkgTwMyOST77sinqjCzBhaPyE3", "first_test_ride",
-        20.0, 0.1, null, "2021-12-03", 0.4, null, gpl);
+    Ride ride = new Ride(LoggedUser.instance!.userId, "newDateTest",
+        20.0, 0.1, null, DateTime.now(), 0.4, null, gpl);
     assert(await instance.recordRide(ride) != null);
   });
 
-  test('get list of available rewards', () async{
+  test('ride history testing', () async {
+    instance.localDebug();
+    List<Ride>? response = await MongoDB.instance.getAllRidesFromUser(LoggedUser.instance!.userId);
+    print(response);
+    assert(response != null);
+  });
+
+
+  test('get list of available rewards', () async {
     instance.localDebug();
     List<Reward>? rewards = await instance.getRewards();
     assert (rewards != null);
     print(rewards!);
   });
 
-  test('redeem a reward', () async{
+  test('redeem a reward', () async {
     instance.localDebug();
-    RedeemedReward? newReward = await instance.redeemReward('61b0ce42c08e1dcc4daa29ab');
+    RedeemedReward? newReward = await instance.redeemReward(
+        '61b0ce42c08e1dcc4daa29ab');
     assert (newReward != null);
     print(newReward!);
+  });
+
   test('getRewardsByUser testing', () async {
     instance.localDebug();
     assert(await instance.getAllRewardsFromUser("yTi9ZmJbK4Sy4yykwRvrDAcCFPB3") != null);

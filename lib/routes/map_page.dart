@@ -323,7 +323,7 @@ class _MapPageState extends State<MapPage> {
                                         _roadInfo!.duration,
                                         _roadInfo!.distance,
                                         15.0,
-                                        "test date",
+                                        DateTime.now(),
                                         totalElevation,
                                         500.0,
                                         path);

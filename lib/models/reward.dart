@@ -19,7 +19,7 @@ class Reward {
 
   @override
   String toString() {
-    return 'Reward{ id: $id, price: $price, description: $description, image: $image}';
+    return 'Reward{ id: $id, price: $price, description: $description}';
   }
 }
 
