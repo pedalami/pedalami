@@ -48,7 +48,7 @@ const RideSchema = new Schema({
     path: [new Schema({
         _id: false,
         latitude: { type: Number, required: true },
-        longitude: { type: Number, required: true }
+        longitude: { type: Number, required: true },
     })],
     elevationGain: { type: Number, required: true },
     points: { type: Number, required: true },
