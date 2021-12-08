@@ -1,6 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ObjectId = mongoose.Types.ObjectId;
+const Date = mongoose.Schema.Types.Date;
+const Mixed = mongoose.Schema.Types.Mixed;
 
 // Schemas
 const UserSchema = new Schema({
@@ -19,6 +21,12 @@ const UserSchema = new Schema({
         averageElevationGain: { type: Number, required: true, default: 0 }
     },
     badges: [{ type: ObjectId, required: false, default: null }],
+    rewards: [new Schema({
+        _id: false,
+        rewardId: { type: ObjectId, required: true, default: null },
+        redeemedDate: { type: Date, required: true, default: null },
+        rewardContent: { type: Mixed, required: true, default: null } //TODO must decide how to manage it in a secure way
+    })]
 });
 
 const TeamSchema = new Schema({
@@ -37,10 +45,11 @@ const RideSchema = new Schema({
     totalKm: { type: Number, required: true },
     pace: { type: Number, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
-    path: [{
+    path: [new Schema({
+        _id: false,
         latitude: { type: Number, required: true },
-        longitude: { type: Number, required: true },
-    }],
+        longitude: { type: Number, required: true }
+    })],
     elevationGain: { type: Number, required: true },
     points: { type: Number, required: true },
 });
@@ -55,6 +64,12 @@ const BadgeSchema = new Schema({
     // The type is the context where the badge is checked
     type: { type: String, required: true },
     description: { type: String, required: true }
+});
+
+const RewardSchema = new Schema({
+    price : { type: Number, required: true },
+    description : { type: String, required: true },
+    image : { type: String, required: true },
 });
 
 exports.User = mongoose.model("User", UserSchema);

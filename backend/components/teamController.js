@@ -136,7 +136,7 @@ app.get('/getTeam', (req, res) => {
           }
         },
         {
-          $unset: ["members.teams", "members._id", "members.__v", "__v"]
+          $unset: ["members.teams", "members._id", "members.__v", "__v", "members.rewards"]
         }
       ])
       .exec((error, team) => {
