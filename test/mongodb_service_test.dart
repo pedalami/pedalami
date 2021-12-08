@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/models/reward.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
@@ -9,7 +10,6 @@ MongoDB instance = MongoDB.instance;
 void main() {
   test('initUser testing', () async {
     instance.localDebug();
-    LoggedUser.initInstance("userId", "imageUrl", "mail", "username");
     bool res = await instance.initUser("yTi9ZmJbK4Sy4yykwRvrDAcCFPB3");
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
@@ -31,6 +31,20 @@ void main() {
     Ride ride = new Ride("15MkgTwMyOST77sinqjCzBhaPyE3", "first_test_ride",
         20.0, 0.1, null, "2021-12-03", 0.4, null, gpl);
     assert(await instance.recordRide(ride) != null);
+  });
+
+  test('get list of available rewards', () async{
+    instance.localDebug();
+    List<Reward>? rewards = await instance.getRewards();
+    assert (rewards != null);
+    print(rewards!);
+  });
+
+  test('redeem a reward', () async{
+    instance.localDebug();
+    RedeemedReward? newReward = await instance.redeemReward('61b0ce42c08e1dcc4daa29ab');
+    assert (newReward != null);
+    print(newReward!);
   });
 
 }

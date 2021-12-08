@@ -25,7 +25,7 @@ const UserSchema = new Schema({
         _id: false,
         rewardId: { type: ObjectId, required: true, default: null },
         redeemedDate: { type: Date, required: true, default: null },
-        rewardContent: { type: Mixed, required: true, default: null } //TODO must decide how to manage it in a secure way
+        rewardContent: { type: String, required: true, default: null } //TODO must decide how to manage it in a secure way
     })]
 });
 

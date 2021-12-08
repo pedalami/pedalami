@@ -6,6 +6,7 @@ import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
+import 'package:pedala_mi/models/reward.dart';
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 
 class MongoDB {
@@ -24,6 +25,7 @@ class MongoDB {
 
   void localDebug() {
     baseUri = "http://localhost:8000";
+    LoggedUser.initInstance('testUser', 'imageUrl', 'mail', 'testUser');
   }
 
   //Returns true if everything went fine, false otherwise
@@ -137,6 +139,36 @@ class MongoDB {
     } else
       return null;
   }
+
+  //Gets all the available rewards
+  Future<List<Reward>?> getRewards() async{
+    var url = Uri.parse(baseUri + '/rewards/list');
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Reward> rewardList = decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
+      return rewardList;
+    } else
+      return null; //TODO add verbose error
+  }
+
+  //Redeem a reward
+  Future<RedeemedReward?> redeemReward(String rewardId) async{
+    var url = Uri.parse(baseUri + '/rewards/redeem');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({
+          "userId": LoggedUser.instance!.userId,
+          "rewardId": rewardId
+        }));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      RedeemedReward newReward = RedeemedReward.fromJson(decodedBody);
+    return newReward;
+    } else
+      return null; //TODO add more verbose error
+  }
+
 }
 
 
