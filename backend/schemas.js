@@ -80,3 +80,4 @@ exports.Reward = mongoose.model("Reward", RewardSchema);
 
 exports.connection = mongoose.connection;
 exports.ObjectId = ObjectId;
+exports.Date = Date;
