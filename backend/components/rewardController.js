@@ -76,21 +76,38 @@ app.get("/list", async (req, res) => {
 // GET /getByUser?userId=userId
 app.get("/getByUser", (req, res) => {
     console.log("Received rewards/getByUser GET request with param userId=" + req.query.userId);
-    if (req.query.userId) {
-      User.findOne({ userId: req.query.userId }, (user, error) => {
-        console.log("User: " + user + " Error: " + error);
-        if (error || !user) {
-          console.log("Error finding the specified user.\n" + error);
-          res.status(500).send("Error finding the specified user!");
-        } else {
-          res.status(200).send(user.rewards);
-        }
-      });
+    const userId = req.query.userId;
+    if (userId) {
+      User
+        .aggregate([
+          {
+            $match: {
+              userId: userId
+            }
+          },
+          {
+            $lookup: {
+              from: "rewards", // collection name in db
+              localField: "rewards.rewardId", // field of User to make the lookup on (the foreign key)
+              foreignField: "_id", // the referred field in rewards
+              as: "rewards" // name that the field of the join will have in the result/JSON
+            }
+          }
+        ])
+        .exec((error, user) => {
+          if (error) {
+            console.log("Error finding the user and performing the join with rewards.\n" + error);
+            res.status(500).send("Error finding the user and performing the join with rewards.\n" + error);
+          } else {
+            res.status(200).send(user);
+          }
+        });
     } else {
-      console.log("Error: Missing parameter userId");
-      res.status(400).send("Error: Missing parameter userId");
+      console.log('Error: Missing userId parameter!');
+      res.status(400).send('Error: Missing userId parameter!');
     }
   });
+
 
 
 module.exports = app;
