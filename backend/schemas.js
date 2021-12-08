@@ -37,10 +37,11 @@ const RideSchema = new Schema({
     totalKm: { type: Number, required: true },
     pace: { type: Number, required: true }, //Average speed in km/h
     date: { type: Date, required: true },
-    path: [{
+    path: [new Schema({
+        _id: false,
         latitude: { type: Number, required: true },
         longitude: { type: Number, required: true },
-    }],
+    })],
     elevationGain: { type: Number, required: true },
     points: { type: Number, required: true },
 });
