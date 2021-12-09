@@ -33,8 +33,7 @@ app.post('/redeem', (req, res) => {
                                         selected_reward : reward,
                                         generated_reward: newReward
                                         });
-                                }).
-                            catch(err => {
+                                }).catch(err => {
                                 console.log('Error in assigning the reward to the user: ' + err);
                                 res.status(500).send('Error in assigning the reward to the user.');
                             })

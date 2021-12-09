@@ -72,11 +72,33 @@ const RewardSchema = new Schema({
     image : { type: String, required: true },
 });
 
+const EventSchema = new Schema({
+    name: { type: String, required: true },
+    description: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    // The event can be team or individual
+    type: { type: String, required: true },
+    // The event can be public or private
+    visibility: { type: String, required: true },
+    // The event can be open or closed
+    status: { type: String, required: true }, //added to have faster checks and in order to avoid checking the end date
+    prize: { type: Number, required: false }, //the event must have a prize only if visibility is "public"
+    proposingTeam: { type: ObjectId, required: false }, //the team proposing the event
+    invitedTeams: [{type: ObjectId, required: false}], //the teams invited to the event
+    involvedTeams: [new Schema({ //the other opposing teams that are involved in the event
+        _id: false,
+        teamId: { type: ObjectId, required: false },
+        points: { type: Number, required: false, default: null }
+    })] 
+});
+
 exports.User = mongoose.model("User", UserSchema);
 exports.Ride = mongoose.model("Ride", RideSchema);
 exports.Team = mongoose.model("Team", TeamSchema);
 exports.Badge = mongoose.model("Badge", BadgeSchema);
 exports.Reward = mongoose.model("Reward", RewardSchema);
+exports.Event = mongoose.model("Event", EventSchema);
 
 exports.connection = mongoose.connection;
 exports.ObjectId = ObjectId;
