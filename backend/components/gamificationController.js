@@ -2,7 +2,7 @@ const User = require('../schemas.js').User;
 const Badge = require('../schemas.js').Badge;
 function assignPoints(user, ride) {
     //Calculate points
-    var points = Math.round(points)((ride.totalKm * 100) + (ride.elevationGain * 10)); //add bonus if raining later on
+    var points = Math.round(((ride.totalKm * 100) + (ride.elevationGain * 10))); //add bonus if raining later on
     ride.points = points;
     console.log("Assigning " + points + " points to " + user.userId);
     user.points += points;
