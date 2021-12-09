@@ -329,10 +329,11 @@ class _MapPageState extends State<MapPage> {
                                         path);
 
                                     //TODO: Uncomment this line to debug the database
-                                    //Ride? response = await MongoDB.instance.recordRide(finishedRide);
+                                    Ride? response = await MongoDB.instance.recordRide(finishedRide);
+                                    print(response!.rideId);
 
                                     showRideCompleteDialog(context, size,
-                                        _roadInfo!, 15.0, totalElevation, 500);
+                                        response);
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
@@ -370,17 +371,13 @@ class _MapPageState extends State<MapPage> {
     );
   }
 
-  showRideCompleteDialog(BuildContext context, Size size, RoadInfo roadInfo,
-      double pace, double elevation, int points) {
+  showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide) {
     //TODO: FIX THIS
     //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
 
     pushNewScreen(context,
         screen: RideCompletePage(
-          pace: pace,
-          elevation: elevation,
-          points: points,
-          rideInfo: roadInfo,
+          finishedRide: finishedRide,
         ));
   }
 
