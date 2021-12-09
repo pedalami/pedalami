@@ -11,13 +11,14 @@ class Team {
   Team(this.id, this.adminId, this.name, this.description, this.membersId, this.members);
 
   factory Team.fromJson(dynamic json) {
-    var membersList = json['members'] as List;
     try {
-      List<MongoUser> userMembersList = membersList.map((member) => MongoUser.fromJson(member)).toList();
+      List<MongoUser> userMembersList = json['members'].map<MongoUser>((member) => MongoUser.fromJson(member)).toList();
       return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String,
           json['description'] as String?, userMembersList.map((team) => team.userId).toList(), userMembersList);
-    } catch (ex) {
-      List<String> membersIdList = membersList.map((id) => id.toString()).toList();
+    } catch (ex, st) {
+      print(ex);
+      print(st);
+      List<String> membersIdList = json['members'].map<String>((id) => id.toString()).toList();
       return Team(json['_id'] as String, json['adminId'] as String,
           json['name'] as String, json['description'] as String?,
           membersIdList, null);

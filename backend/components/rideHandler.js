@@ -58,8 +58,8 @@ app.get("/getAllByUserId", (req, res) => {
   console.log("User:", req.query.userId);
 
   if (req.query.userId) {
-    // I return an array of rides without the fields _id and __v
-    Ride.find({ userId: req.query.userId }, "-_id -__v", (error, rides) => {
+    // I return an array of rides without the field __v
+    Ride.find({ userId: req.query.userId }, "-__v", (error, rides) => {
       if (error) {
         console.log(
           "Error finding the rides of the specified userId.\n" + error

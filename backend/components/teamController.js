@@ -118,7 +118,7 @@ app.post('/join', (req, res) => {
 // GET /getTeam?teamId=teamId
 app.get('/getTeam', (req, res) => {
   const teamId = req.query.teamId;
-  console.log('Received getTeam GET request with params ' + req.query);
+  console.log('Received getTeam GET request with params ' + teamId);
   if (teamId) {
     Team
       .aggregate([
@@ -139,12 +139,16 @@ app.get('/getTeam', (req, res) => {
           $unset: ["members.teams", "members._id", "members.__v", "__v", "members.rewards"]
         }
       ])
-      .exec((error, team) => {
+      .exec((error, teams) => {
         if (error) {
           console.log('Error finding the user.\n' + error);
           res.status(500).send('Error finding the team!');
         } else {
-          res.status(200).send(team);
+          if (teams && teams.length == 1) {
+            res.status(200).send(teams[0]);
+          } else {
+            res.status(500).send('Error finding the team!');
+          }
         }
       });
   } else {

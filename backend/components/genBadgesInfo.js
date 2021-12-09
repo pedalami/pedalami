@@ -3,6 +3,7 @@ var app = express.Router();
 app.use(express.json());
 const mongoose = require("mongoose");
 const Badge = require("../schemas.js").Badge;
+const imageToBase64 = require('image-to-base64');
 
 
 app.get("/genInfo", (req, res) => {
@@ -37,6 +38,85 @@ app.get("/genInfo", (req, res) => {
                         }
                     }
                 }
+                
+            })
+            mongoose.connection.transaction( (session) => {
+                return Promise.all(badges.map((badge) => badge.save({session})))
+            }).then(() => {
+                console.log("NO errors");
+                res.status(200).send('FINE');
+            }).catch((err) => {
+                console.log("Errors:\n"+err);
+                res.status(500).send('NOT FINE');
+            })
+            
+        }
+    })
+});
+
+//NOT NEEDED
+app.get("/genImg", (req, res) => {
+    Badge.find({}, (err, badges) => {
+        if (err) {
+            res.status(500).send("Error: "+err);
+        } else {
+            badges.forEach(async (badge) => {
+                    if (badge.type == "ride") {
+                        // Criteria can be totalKm, totalElevationGain, totalDuration, numberOfRides
+                        if (badge.criteria == "totalKm") {
+                            if (badge.criteriaValue == 1){
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/totKm1.png");
+                                console.log(badge.image);
+                            }
+                            /*if (badge.criteriaValue == 10)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/totKm10.png");
+                            if (badge.criteriaValue == 20)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/totKm20.png");*/
+                        }
+                        /*if (badge.criteria == "elevationGain") {
+                            if (badge.criteriaValue == 10)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/elevationGain (1).png");
+                            if (badge.criteriaValue == 100)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/elevationGain (2).png");
+                            if (badge.criteriaValue == 200)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/elevationGain (3).png");
+                        }
+                        if (badge.criteria == "pace") {
+                            if (badge.criteriaValue == 10)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/pace10kmh.png");
+                            if (badge.criteriaValue == 20)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/pace20kmh.png");
+                            if (badge.criteriaValue == 40)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/pace40kmh.png");
+                        }
+                        if (badge.criteria == "durationInSeconds") {
+                            if (badge.criteriaValue == 1800)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/durationInSeconds1800.png");
+                            if (badge.criteriaValue == 3600)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/durationInSeconds3600.png");
+                            if (badge.criteriaValue == 10800)
+                                badge.image = await imageToBase64("/Users/vi/Downloads/badges/durationInSeconds10800.png");
+                        }*/
+                    } else {
+                        /*if (badge.type == "userStat") {
+                            if (badge.criteria == "totalKm") {
+                                if (badge.criteriaValue == 10)
+                                    badge.image = await imageToBase64("/Users/vi/Downloads/badges/userTotalKm10.png");
+                                if (badge.criteriaValue == 100)
+                                    badge.image = await imageToBase64("/Users/vi/Downloads/badges/userTotalKm100.png");
+                                if (badge.criteriaValue == 1000)
+                                    badge.image = await imageToBase64("/Users/vi/Downloads/badges/userTotalKm1000.png");
+                            }
+                            if (badge.criteria == "nukberOfRides") {
+                                if (badge.criteriaValue == 1)
+                                    badge.image = await imageToBase64("/Users/vi/Downloads/badges/numberOfRides (2).png");
+                                if (badge.criteriaValue == 10)
+                                    badge.image = await imageToBase64("/Users/vi/Downloads/badges/numberOfRides (3).png");
+                                if (badge.criteriaValue == 100)
+                                    badge.image = await imageToBase64("/Users/vi/Downloads/badges/numberOfRides (1).png");
+                            }
+                        }*/
+                    }
                 
             })
             mongoose.connection.transaction( (session) => {
