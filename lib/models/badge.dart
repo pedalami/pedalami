@@ -6,7 +6,7 @@ class Badge{
   //String name;
   //String criteria;
   //num criteriaValue;
-  String image;
+  String image; //image in base64
   //String type;
   String description;
 

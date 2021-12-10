@@ -14,14 +14,16 @@ MongoDB instance = MongoDB.instance;
 void main() {
   test('initUser testing', () async {
     instance.localDebug();
-    bool res = await instance.initUser("yTi9ZmJbK4Sy4yykwRvrDAcCFPB3");
+    bool res = await instance.initUser(LoggedUser.instance!.userId);
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
+    print(LoggedUser.instance!.redeemedRewards);
     assert(res == true);
   });
 
   test('int testing', () async {
     print(double.parse("3").round());
+    print("ab".split(',').last);
   });
 
   test('date testing', () async {

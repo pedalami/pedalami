@@ -17,7 +17,7 @@ class MongoDB {
 
   http.Client _serverClient = http.Client();
   String baseUri = "https://pedalami.herokuapp.com";
-  static var _dateFormatter = DateFormat("yyyy-MM-ddTHH:mm:ss.000");
+  static var _dateFormatter = DateFormat("yyyy-MM-ddTHH:mm:ss");
 
 
   Map<String, String> _headers = {
@@ -28,7 +28,7 @@ class MongoDB {
   //Use to convert Dart DateTime object to a string whose format matches the one of the backend
   //returns the date in the following UTC format: 2021-12-03T03:30:40.000Z
   static String formatDate(DateTime date) {
-    return _dateFormatter.format(date.toUtc())+"Z";
+    return _dateFormatter.format(date.toUtc())+".000Z";
   }
 
   //Use to convert a string matching the database date format to Dart DateTime.
@@ -54,7 +54,8 @@ class MongoDB {
         Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
         List<Team> teamList = decodedBody["teams"].map<Team>((team) => Team.fromJson(team)).toList();
         List<Badge> badgeList = decodedBody["badges"].map<Badge>((badge) => Badge.fromJson(badge)).toList();
-        LoggedUser.completeInstance(points, teamList, stats, badgeList);
+        List<RedeemedReward> rewardsList = decodedBody["rewards"].map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward)).toList();
+        LoggedUser.completeInstance(points, teamList, stats, badgeList, rewardsList);
       } catch (ex, st) {
         print("The following exception occurred in the initUser:\n");
         print(ex);
