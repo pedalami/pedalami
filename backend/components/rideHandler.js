@@ -48,7 +48,7 @@ app.post("/record", async (req, res) => {
     }
   } else {
     console.error("User not specified!");
-    res.status(500).send("User not specified!");
+    res.status(400).send("User not specified!");
   }
 });
 

@@ -45,3 +45,5 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 app.get('/', (req, res) => {
     res.send('<h1>Welcome to PedalaMi!<h1>');
 });
+
+module.exports = app;

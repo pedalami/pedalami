@@ -93,7 +93,7 @@ app.get("/getByUser", (req, res) => {
         ])
         .exec((error, user) => {
           console.log("User: " + user + " Error: " + error);
-          if (error || !user || user.length != 1) {
+          if (error || !user || user.length !== 1) {
             console.log("Error finding the user and performing the join with rewards.\n" + error);
             res.status(500).send("Error finding the user and performing the join with rewards.\n" + error);
           } else {
