@@ -338,6 +338,16 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         height: 3 * SizeConfig.heightMultiplier!,
                       ),
+                      Center(
+                        child: Text(
+                          "Previous Rides",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 35,
+                              decoration: TextDecoration.underline),
+                        ),
+                      ),
+                      SizedBox(height: 3*SizeConfig.heightMultiplier!),
                       decideHistoryToShow(),
                       SizedBox(
                         height: 20 * SizeConfig.heightMultiplier!,
