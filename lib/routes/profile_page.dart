@@ -1,12 +1,15 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
+import 'package:pedala_mi/routes/single_ride_visualization.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
@@ -27,17 +30,17 @@ class _ProfilePageState extends State<ProfilePage> {
   late LoggedUser _miUser;
   List<Ride>? rideHistory;
 
-  void getRideHistory() async {
+  Future<void> getRideHistory() async {
     rideHistory = await MongoDB.instance.getAllRidesFromUser(_miUser.userId);
     print(rideHistory);
     print("DONE");
+    print(rideHistory == null);
   }
 
   @override
   void initState() {
     _miUser = LoggedUser.instance!;
     print(_miUser.userId);
-    getRideHistory();
 
     /*
     OLD. See the above new declaration of _miUser LoggedUser for reference.
@@ -323,9 +326,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 20 * SizeConfig.heightMultiplier!,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          children:
-                            LoggedUser.instance?.badges?.map<Widget>((badge) => displayBadge(badge)).toList()
-                          ?? [Image.asset("badge_placeholder.png")],
+                          children: LoggedUser.instance?.badges
+                                  ?.map<Widget>((badge) => displayBadge(badge))
+                                  .toList() ??
+                              [Image.asset("badge_placeholder.png")],
                         ),
                       ),
                       Divider(
@@ -334,11 +338,9 @@ class _ProfilePageState extends State<ProfilePage> {
                       SizedBox(
                         height: 3 * SizeConfig.heightMultiplier!,
                       ),
-                      rideHistory == null
-                          ? displayEmptyRideHistory()
-                          : displayRideHistory(),
+                      decideHistoryToShow(),
                       SizedBox(
-                        height: 3 * SizeConfig.heightMultiplier!,
+                        height: 20 * SizeConfig.heightMultiplier!,
                       ),
                     ],
                   ),
@@ -347,6 +349,18 @@ class _ProfilePageState extends State<ProfilePage> {
             ))
       ],
     );
+  }
+
+  Widget decideHistoryToShow() {
+    //TODO: prob needs some refactoring
+    Widget returnWidget;
+    if (rideHistory == null) {
+      getRideHistory().then((value) => setState(() {}));
+    }
+    rideHistory == null
+        ? returnWidget = displayEmptyRideHistory()
+        : returnWidget = displayRideHistory();
+    return returnWidget;
   }
 
   Widget displayEmptyRideHistory() {
@@ -362,18 +376,64 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget displayRideHistory() {
     return Container(
-      child: ListView.builder(
+      decoration: BoxDecoration(
+          color: Colors.blueGrey.shade50,
+          borderRadius: BorderRadius.all(Radius.circular(18.0))),
+      //TODO: Fix the height size to change if there is a small amount of ride history / Marcus
+      height: MediaQuery.of(context).size.height / 3,
+      child: ListView.separated(
+          separatorBuilder: (context, index) {
+            return Divider(
+              color: Colors.black,
+            );
+          },
           itemCount: rideHistory!.length,
           itemBuilder: (BuildContext context, int index) {
-            return Container(
-              height: MediaQuery.of(context).size.height / 17,
-              padding: EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Text(rideHistory![index].displayDate()),
-
-                  //TODO: Here I will add a button to take the user to another page and show the entire route on map
-                ],
+            return InkWell(
+              onTap: () {
+                pushNewScreen(context,
+                    screen: ShowSingleRideHistoryPage(
+                        path: rideHistory![index].path!));
+              },
+              child: Container(
+                height: MediaQuery.of(context).size.height / 11,
+                padding: EdgeInsets.all(8.0),
+                child: Row(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 15),
+                      child: Column(
+                        children: [
+                          Text(
+                            DateFormat('EEEE').format(DateTime.parse(
+                                rideHistory![index].displayDate())),
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold, fontSize: 18),
+                          ),
+                          SizedBox(
+                            height: 10,
+                          ),
+                          Text(
+                            DateFormat('dd MMMM HH:mm').format(DateTime.parse(
+                                rideHistory![index].displayDate())),
+                            style: TextStyle(),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.3,
+                    ),
+                    Text(
+                      rideHistory![index].points!.toStringAsFixed(0) + " P",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 35,
+                    ),
+                    FaIcon(FontAwesomeIcons.greaterThan)
+                  ],
+                ),
               ),
             );
           }),
