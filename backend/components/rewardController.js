@@ -26,25 +26,29 @@ app.post('/redeem', (req, res) => {
                             user.points -= reward.price;
                             var newReward = {rewardId: reward._id, redeemedDate: new Date() , rewardContent: "Dummy Reward Content"}
                             user.rewards.push(newReward);
-                            user.save().
-                                then(() => {
-                                    res.status(200).json({
+                            newReward.description = reward.description;
+                            newReward.price = reward.price;
+                            newReward.image = reward.image;
+                            user.save()
+                            .then(() => {
+                                    res.status(200).send(newReward);
+                                    /*.json({
                                         message: 'Reward redeemed successfully.',
-                                        selected_reward : reward,
-                                        generated_reward: newReward
-                                        });
-                                }).
-                            catch(err => {
+                                        reward : newReward
+                                        //generated_reward: newReward
+                                    });*/
+                                })
+                            .catch(err => {
                                 console.log('Error in assigning the reward to the user: ' + err);
                                 res.status(500).send('Error in assigning the reward to the user.');
                             })
                         }
                         else {
-                            res.status(400).send('Insufficient points.');
+                            res.status(500).send('Insufficient points.');
                         }
                     }
                     else {
-                        res.status(404).send('User not found.');
+                        res.status(500).send('User not found.');
                     }
                 });
             }

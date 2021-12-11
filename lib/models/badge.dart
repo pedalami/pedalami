@@ -6,7 +6,7 @@ class Badge{
   //String name;
   //String criteria;
   //num criteriaValue;
-  String image;
+  String image; //image in base64
   //String type;
   String description;
 
@@ -14,7 +14,7 @@ class Badge{
 
   factory Badge.fromJson(dynamic json) {
     return Badge(
-        (json['image'] as String).substring("data:image/png;base64,".length+1),
+        (json['image'] as String).split(',').last,
         json['description'] as String
     );
   }
@@ -24,9 +24,4 @@ class Badge{
     return 'Badge{ description: $description }';
   }
 
-  /*
-  factory Badge.fromJson(dynamic json) {
-    return Badge(json['_id'] as String, json['criteria'] as String, json['criteria_value'] as num, json['image'] as String, json['type'] as String, json['description'] as String?);
-  }
-   */
 }

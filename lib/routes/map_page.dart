@@ -320,9 +320,10 @@ class _MapPageState extends State<MapPage> {
                                     Ride finishedRide = Ride(
                                         nStringToNNString(_miUser.userId),
                                         nStringToNNString(_miUser.username),
+                                        null,
                                         _roadInfo!.duration,
                                         _roadInfo!.distance,
-                                        15.0,
+                                        null,
                                         DateTime.now(),
                                         totalElevation,
                                         500.0,

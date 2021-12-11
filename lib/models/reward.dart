@@ -1,10 +1,11 @@
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 
 class Reward {
   String id;
   double price;
   String description;
-  String image;
+  String image;  //image in base64
   
   Reward(this.id, this.price, this.description, this.image);
 
@@ -13,7 +14,7 @@ class Reward {
         json['_id'] as String,
         double.parse(json['price'].toString()),
         json['description'] as String,
-        json['image'] as String
+        (json['image'] as String).split(',').last
     );
   }
 
@@ -25,11 +26,32 @@ class Reward {
 
 class RedeemedReward extends Reward{
 
-  String redeemedDate;
+  DateTime redeemedDate;
   String rewardContent;
 
   RedeemedReward(id, price, description, image, this.redeemedDate, this.rewardContent) : super(id, price , description, image);
 
+  factory RedeemedReward.fromJson(dynamic json) {
+    return RedeemedReward(
+        json['rewardId'] as String,
+        double.parse(json['price'].toString()),
+        json['description'] as String,
+        (json['image'] as String).split(',').last,
+        MongoDB.parseDate(json['redeemedDate'] as String),
+        json['rewardContent'] as String
+    );
+  }
+
+  @override
+  String toString() {
+    return 'RedeemedReward{id: $id, price: $price, description: $description, redeemedDate: $redeemedDate, rewardContent: $rewardContent}';
+  }
+
+}
+
+
+
+/*
   factory RedeemedReward.fromJson(dynamic json) {
     return RedeemedReward(
         json['selected_reward']['_id'] as String,
@@ -40,10 +62,4 @@ class RedeemedReward extends Reward{
         json['generated_reward']['rewardContent'] as String
     );
   }
-
-  @override
-  String toString() {
-    return 'RedeemedReward{id: $id, price: $price, description: $description, image: $image, redeemedDate: $redeemedDate, rewardContent: $rewardContent}';
-  }
-
-}
+*/

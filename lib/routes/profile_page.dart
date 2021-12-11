@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
@@ -320,13 +323,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         height: 20 * SizeConfig.heightMultiplier!,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
-                          children: [
-                            displayBadge(1),
-                            displayBadge(1),
-                            displayBadge(1),
-                            displayBadge(1),
-                            displayBadge(1),
-                          ],
+                          children:
+                            LoggedUser.instance?.badges?.map<Widget>((badge) => displayBadge(badge)).toList()
+                          ?? [Image.asset("badge_placeholder.png")],
                         ),
                       ),
                       Divider(
@@ -381,7 +380,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget displayBadge(badgeID) {
+  Widget displayBadge(Badge badge) {
     //If you want to be able to click on a badge for more information you can wrap all this in GestureDetector and a Hero widget to another page
 
     return Padding(
@@ -391,13 +390,16 @@ class _ProfilePageState extends State<ProfilePage> {
         width: 30.0 * SizeConfig.widthMultiplier!,
         child: Stack(
           children: [
-            Image.network(
-              "https://thumbs.dreamstime.com/b/gold-badge-5392868.jpg",
-            ),
+            //Image.network(
+            //  "https://thumbs.dreamstime.com/b/gold-badge-5392868.jpg",
+            //),
+            Image.memory(base64Decode(badge.image)),
             Positioned.fill(
                 child: Align(
               child: Text(
-                "Badge info here",
+                //TODO descriptions are very long, I won't show them at the moment
+                //(in the future one may tap on the badge and the description popups)
+                badge.description,
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               alignment: Alignment.bottomCenter,
