@@ -58,7 +58,7 @@ app.post('/initUser', (req, res) => {
         foreignField: "_id", // the referred field in badges
         as: "badges" // name that the field of the join will have in the result/JSON
       }},
-      { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.members", "teams.__v", "__v"] }
+      { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.__v", "__v"] }
     ])
     .exec((err, users) => {
       if (err) {
