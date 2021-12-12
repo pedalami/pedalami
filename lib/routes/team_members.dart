@@ -6,6 +6,7 @@ import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
+import 'package:pedala_mi/models/mongoUser.dart';
 import "dart:math";
 
 class TeamMembers extends StatefulWidget {
@@ -35,6 +36,16 @@ class _TeamMembersState extends State<TeamMembers> {
         return true;
     }
     return false;
+  }
+
+  String getUsername(int index) {
+    List<MongoUser>? members = LoggedUser.instance?.teams?.first.members;
+    if (members != null) {
+      print(members.first);
+      members.forEach((element) {print(element);});
+      return members[index].username ?? "Error while getting username";
+    }
+    return "Error while getting username";
   }
 
   //Async function that going through teams to check if the user belongs to that team
@@ -266,7 +277,7 @@ class _TeamMembersState extends State<TeamMembers> {
                 top: 1 * SizeConfig.heightMultiplier!),
               child: Column(
               children: <Widget>[
-                Text("Member ID",
+                Text("Member's username",
                   style: TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.bold,
@@ -276,10 +287,10 @@ class _TeamMembersState extends State<TeamMembers> {
                 SizedBox(
                   height: 1 * SizeConfig.heightMultiplier!,
                 ),
-              Text(LoggedUser.instance!.teams!.first.membersId[index].toString(),
+              Text(getUsername(index),
                 style: TextStyle(
                   color: Colors.black,
-                  fontWeight: FontWeight.bold,
+                  //fontWeight: FontWeight.bold,
                   fontSize: 2 * SizeConfig.textMultiplier!,
                 ),
               ),
