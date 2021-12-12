@@ -191,9 +191,9 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 ],
               ),
             ),
-            SizedBox(
-              height: 3 * SizeConfig.heightMultiplier!,
-            ),
+            /*SizedBox(
+              height: 1 * SizeConfig.heightMultiplier!,
+            ),*/
             displayTeam(LoggedUser.instance!.teams),
             /*Padding(
               padding: EdgeInsets.only(
@@ -258,13 +258,13 @@ Widget displayTeam(teamId) {
         children: [
           GestureDetector(
             child: Padding(
-              padding: const EdgeInsets.only(left: 100.0),
+              padding: EdgeInsets.only(left: 135.0),
               child: ClipRRect(
-                //borderRadius: BorderRadius.circular(70),
-                child: Image.network(
-                  "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                  height: 20.0 * SizeConfig.heightMultiplier!,
-                  width: 50.0 * SizeConfig.widthMultiplier!,
+                borderRadius: BorderRadius.circular(70),
+                child: Image(
+                  image: AssetImage('lib/assets/app_icon.png'),
+                  height: 16 * SizeConfig.heightMultiplier!,
+                  width: 32 * SizeConfig.widthMultiplier!,
                 ),
               ),
             ),
@@ -281,7 +281,9 @@ Widget displayTeam(teamId) {
                   child: Text(
                     LoggedUser.instance!.teams![index].name.toString(),
                     style: TextStyle(
+                        fontSize: 2 * SizeConfig.textMultiplier!,
                         fontWeight: FontWeight.bold),
+
                   )))
         ],
       ),

@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
-import 'package:pedala_mi/models/mongoUser.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
@@ -256,16 +255,6 @@ class _TeamMembersState extends State<TeamMembers> {
     return str ?? "";
   }
 
-  String getUsername(int index) {
-    List<MongoUser>? members = LoggedUser.instance?.teams?.first.members;
-    if (members != null) {
-      print(members.first);
-      members.forEach((element) {print(element);});
-      return members[index].username ?? "Error while getting username";
-    }
-    return "Error while getting username";
-  }
-
   Widget displaymemberz() {
     return Container(
       height: MediaQuery.of(context).size.height / 2,
@@ -287,10 +276,10 @@ class _TeamMembersState extends State<TeamMembers> {
                 SizedBox(
                   height: 1 * SizeConfig.heightMultiplier!,
                 ),
-              Text( getUsername(index),
+              Text(LoggedUser.instance!.teams!.first.membersId[index].toString(),
                 style: TextStyle(
                   color: Colors.black,
-                  fontWeight: FontWeight.bold,
+                  //fontWeight: FontWeight.bold,
                   fontSize: 2 * SizeConfig.textMultiplier!,
                 ),
               ),
