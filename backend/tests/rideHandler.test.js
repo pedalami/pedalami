@@ -1,8 +1,12 @@
 const request = require('supertest');
 const app = require('./../../server');
 const mongoose = require('mongoose');
+const testUser = "testUserId1";
+const models = require('../schemas.js');
+const Ride = models.Ride;
+const User = models.User;
 
-jest.setTimeout(15000);
+jest.setTimeout(30000);
 
 beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -12,14 +16,14 @@ afterAll(async () => {
     await mongoose.connection.close();
 })
 
-var ride_json = {
-    "userId": "user_id",
-    "name": "test_ride",
-    "durationInSeconds": 200,
-    "totalKm": 12,
-    "pace": 10,
-    "date": "2021-12-03",
-    "geoPoints": [
+const ride_json = {
+    userId: testUser,
+    name: "test_ride",
+    durationInSeconds: 200,
+    totalKm: 12,
+    pace: 10,
+    date: "2021-12-03",
+    path: [
         {
             "latitude": 10,
             "longitude": 10
@@ -29,8 +33,7 @@ var ride_json = {
             "longitude": 10
         }
     ],
-    "elevationGain": 102,
-    "points": 100
+    elevationGain: 102
 };
 
 describe("POST /record", () => {
@@ -45,8 +48,11 @@ describe("POST /record", () => {
     })
 
     test("A request with a correct ride should saved it successfully", async () => {
+        await request(app).post('/users/initUser').send({ userId: testUser });
         const response = await request(app).post('/rides/record').send(ride_json);
         expect(response.body.message).toBe("Ride saved successfully, user statistics and badges updated successfully");
+        await User.deleteOne({userId: testUser});
+        await Ride.deleteOne({userId: testUser});
     })
 })
 
@@ -61,10 +67,14 @@ describe("GET /getAllByUserId", () => {
         expect(response.body.length).toBe(0);
     })
     test("A request with a real userId should return a rides array", async () => {
-        const response = await request(app).get('/rides/getAllByUserId').query({ userId: 'yTi9ZmJbK4Sy4yykwRvrDAcCFPB3' });
+        await request(app).post('/users/initUser').send({ userId: testUser });
+        await request(app).post('/rides/record').send(ride_json);
+        const response = await request(app).get('/rides/getAllByUserId').query({ userId: testUser });
         expect(response.status).toBe(200);
         expect(response.body.length).toBeGreaterThan(0);
         expect(response.type).toBe("application/json");
+        await User.deleteOne({userId: testUser});
+        await Ride.deleteOne({userId: testUser});
     })
 
 })

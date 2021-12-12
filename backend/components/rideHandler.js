@@ -9,8 +9,6 @@ const User = models.User;
 const connection = models.connection;
 
 
-
-
 // POST /record
 app.post("/record", async (req, res) => {
   console.log("Received record POST request:");

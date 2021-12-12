@@ -5,7 +5,7 @@ const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
 const mongoose = require('mongoose');
 
-jest.setTimeout(10000);
+jest.setTimeout(30000);
 
 beforeAll(async () => {
   await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
@@ -14,6 +14,27 @@ beforeAll(async () => {
 afterAll(async () => {
   await mongoose.connection.close();
 })
+
+const ride = Ride({
+  "userId": "username",
+  "name": "test_ride",
+  "durationInSeconds": 200,
+  "totalKm": 12,
+  "pace": 10,
+  "date": "2021-12-03",
+  "path": [
+    {
+      "latitude": 10,
+      "longitude": 10
+    },
+    {
+      "latitude": 20,
+      "longitude": 10
+    }
+  ],
+  "elevationGain": 102,
+  "points": 100
+});
 
 describe("POST /initUser", ()=>{
   test("The response should be 400 if no userId is sent", async () =>{
@@ -50,26 +71,6 @@ describe("updateUserStatistics", () => {
         "averageElevationGain": 0
       }
     });
-    var ride = Ride({
-      "userId": "username",
-      "name": "test_ride",
-      "durationInSeconds": 200,
-      "totalKm": 12,
-      "pace": 10,
-      "date": "2021-12-03",
-      "geoPoints": [
-        {
-          "latitude": 10,
-          "longitude": 10
-        },
-        {
-          "latitude": 20,
-          "longitude": 10
-        }
-      ],
-      "elevationGain": 102,
-      "points": 100
-    });
     const oldNum = user.statistics.numberOfRides;
     await update(user, ride);
     expect(user.statistics.numberOfRides).toBe(oldNum + 1);
@@ -90,26 +91,6 @@ describe("updateUserStatistics", () => {
         "averageDuration": 0,
         "averageElevationGain": 0
       }
-    });
-    var ride = Ride({
-      "userId": "username",
-      "name": "test_ride",
-      "durationInSeconds": 200,
-      "totalKm": 12,
-      "pace": 10,
-      "date": "2021-12-03",
-      "geoPoints": [
-        {
-          "latitude": 10,
-          "longitude": 10
-        },
-        {
-          "latitude": 20,
-          "longitude": 10
-        }
-      ],
-      "elevationGain": 102,
-      "points": 100
     });
     var oldTotDuration = user.statistics.totalDuration;
     await update(user, ride);
@@ -133,26 +114,6 @@ describe("updateUserStatistics", () => {
         "averageElevationGain": 0
       }
     });
-    var ride = Ride({
-      "userId": "username",
-      "name": "test_ride",
-      "durationInSeconds": 200,
-      "totalKm": 12,
-      "pace": 10,
-      "date": "2021-12-03",
-      "geoPoints": [
-        {
-          "latitude": 10,
-          "longitude": 10
-        },
-        {
-          "latitude": 20,
-          "longitude": 10
-        }
-      ],
-      "elevationGain": 102,
-      "points": 100
-    });
     const oldTotKm = user.statistics.totalKm;
     await update(user, ride);
     expect(user.statistics.totalKm).toBe(oldTotKm + ride.totalKm);
@@ -174,26 +135,6 @@ describe("updateUserStatistics", () => {
         "averageDuration": 0,
         "averageElevationGain": 0
       }
-    });
-    var ride = Ride({
-      "userId": "username",
-      "name": "test_ride",
-      "durationInSeconds": 200,
-      "totalKm": 12,
-      "pace": 10,
-      "date": "2021-12-03",
-      "geoPoints": [
-        {
-          "latitude": 10,
-          "longitude": 10
-        },
-        {
-          "latitude": 20,
-          "longitude": 10
-        }
-      ],
-      "elevationGain": 102,
-      "points": 100
     });
     const oldElevation = user.statistics.totalElevationGain;
     await update(user, ride);

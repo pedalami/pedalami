@@ -12,7 +12,7 @@ app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
   if (req.body.name) {
-    newTeam = new Team(req.body);
+    var newTeam = new Team(req.body);
     User.findOne({ userId: req.body.adminId }, (error, admin) => {
       if (error) {
         console.log('Error while searching for the user specified as admin!\n'+error);
@@ -144,7 +144,7 @@ app.get('/getTeam', (req, res) => {
           console.log('Error finding the user.\n' + error);
           res.status(500).send('Error finding the team!');
         } else {
-          if (teams && teams.length == 1) {
+          if (teams && teams.length === 1) {
             res.status(200).send(teams[0]);
           } else {
             res.status(500).send('Error finding the team!');
