@@ -53,11 +53,9 @@ class _SwitchPageState extends State<SwitchPage> {
             icon: FaIcon(FontAwesomeIcons.user), title: 'Profile'),
         PersistentBottomNavBarItem(
             activeColorPrimary: Colors.green,
-            activeColorSecondary: Colors.red,
             icon: FaIcon(FontAwesomeIcons.peopleArrows), title: 'Teams'),
         PersistentBottomNavBarItem(
             activeColorPrimary: Colors.green,
-            activeColorSecondary: Colors.red,
             icon: FaIcon(FontAwesomeIcons.star), title: 'Events'),
       ],
     );
