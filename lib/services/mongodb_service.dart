@@ -50,11 +50,13 @@ class MongoDB {
     if (response.statusCode == 200) {
       try {
         var decodedBody = json.decode(response.body);
+        //print("Received json from the initUser");
+        //print(decodedBody);
         var points = double.parse(decodedBody["points"].toString());
         Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
-        List<Team> teamList = decodedBody["teams"].map<Team>((team) => Team.fromJson(team)).toList();
-        List<Badge> badgeList = decodedBody["badges"].map<Badge>((badge) => Badge.fromJson(badge)).toList();
-        List<RedeemedReward> rewardsList = decodedBody["rewards"].map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward)).toList();
+        List<Team> teamList = decodedBody["teams"]?.map<Team>((team) => Team.fromJson(team)).toList();
+        List<Badge> badgeList = decodedBody["badges"]?.map<Badge>((badge) => Badge.fromJson(badge)).toList();
+        List<RedeemedReward> rewardsList = decodedBody["rewards"]?.map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward)).toList();
         LoggedUser.completeInstance(points, teamList, stats, badgeList, rewardsList);
       } catch (ex, st) {
         print("The following exception occurred in the initUser:\n");

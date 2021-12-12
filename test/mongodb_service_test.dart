@@ -14,7 +14,9 @@ MongoDB instance = MongoDB.instance;
 void main() {
   test('initUser testing', () async {
     instance.localDebug();
-    bool res = await instance.initUser(LoggedUser.instance!.userId);
+    var uid ='15MkgTwMyOST77sinqjCzBhaPyE3';
+    var lid = LoggedUser.instance!.userId;
+    bool res = await instance.initUser(uid);
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
     print(LoggedUser.instance!.redeemedRewards);
