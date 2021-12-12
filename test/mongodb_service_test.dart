@@ -26,6 +26,13 @@ void main() {
   test('int testing', () async {
     print(double.parse("3").round());
     print("ab".split(',').last);
+    List<dynamic> path = [];
+    List<GeoPoint> pathList = (path)
+        .map<GeoPoint>((e) => new GeoPoint(
+        latitude: double.parse(e['latitude'].toString()),
+        longitude: double.parse(e['longitude'].toString()))
+    ).toList();
+    print(pathList);
   });
 
   test('date testing', () async {

@@ -114,7 +114,9 @@ class MongoDB {
         .replace(queryParameters: {'userId': userID});
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
-      var decodedBody = json.decode(response.body) as List;
+      var decodedBody = json.decode(response.body) as List<dynamic>;
+      print("decoded body");
+      print(decodedBody);
       List<Ride> ridesList = decodedBody.map<Ride>((ride) => Ride.fromJson(ride)).toList();
       return ridesList;
     } else
