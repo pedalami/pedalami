@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
@@ -29,6 +30,8 @@ class _ProfilePageState extends State<ProfilePage> {
   //User? user = FirebaseAuth.instance.currentUser;
   late LoggedUser _miUser;
   List<Ride>? rideHistory;
+  double trideduration = LoggedUser.instance!.statistics!.averageSpeed / 60;
+
 
   Future<void> getRideHistory() async {
     rideHistory = await MongoDB.instance.getAllRidesFromUser(_miUser.userId);
@@ -150,14 +153,14 @@ class _ProfilePageState extends State<ProfilePage> {
                     Column(
                       children: <Widget>[
                         Text(
-                          "500",
+                          LoggedUser.instance!.points!.round().toString(),
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 3 * SizeConfig.textMultiplier!,
                               fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          "Total KM",
+                          "Points",
                           style: TextStyle(
                             color: Colors.white70,
                             fontSize: 1.9 * SizeConfig.textMultiplier!,
@@ -168,7 +171,8 @@ class _ProfilePageState extends State<ProfilePage> {
                     Column(
                       children: <Widget>[
                         Text(
-                          "28",
+                          "2",
+                          //LoggedUser.instance!.redeemedRewards.toString(),
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 3 * SizeConfig.textMultiplier!,
@@ -229,79 +233,273 @@ class _ProfilePageState extends State<ProfilePage> {
                       // TODO: Read Ride data from MongoDB <----------------------------------------------------------
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                           top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
-                          "Your Statistics",
+                          "Statistics",
                           style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.black54,
                               fontWeight: FontWeight.bold,
                               fontSize: 2.5 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Total Distance: 95km",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!),
+                            top: 2 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Total Rides: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Text(
+                              LoggedUser.instance!.statistics!.numberOfRides.toString(),
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                          ],
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Average Speed: 15km/h",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!),
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                        children: <Widget> [
+                          Text(
+                            "Total Distance: ",
+                            style: TextStyle(
+                                color: Colors.black,
+                                //fontWeight: FontWeight.bold,
+                                fontSize: 2 * SizeConfig.textMultiplier!),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.totalKm.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " Km",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                           ],
+                          ),
+                         ],
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Total Ride Duration: 30min",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!),
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Total Ride Duration: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.totalDuration.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " sec",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Average Distance: 45km",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!),
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Total Elevation Gain: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.totalElevationGain.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " pace",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Average Elevation Gain: 20",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!),
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Average Speed: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.averageSpeed.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " km/h",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 1 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "Average Duration/Ride: 15min",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2 * SizeConfig.textMultiplier!),
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Average Distance: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.averageKm.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " sec",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Average Duration per Ride: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.averageDuration.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " sec",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Column(
+                          children: <Widget> [
+                            Text(
+                              "Average Elevation Gain: ",
+                              style: TextStyle(
+                                  color: Colors.black,
+                                  //fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget> [
+                                Text(
+                                  LoggedUser.instance!.statistics!.averageElevationGain.toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " pace",
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                       // TODO: end of Statistics section <----------------------------------------------------
@@ -312,9 +510,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         padding: EdgeInsets.only(
                             left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
-                          "Badges",
+                          "Earned Badges",
                           style: TextStyle(
-                              color: Colors.black,
+                              color: Colors.black54,
                               fontWeight: FontWeight.bold,
                               fontSize: 2.5 * SizeConfig.textMultiplier!),
                         ),
@@ -342,9 +540,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         child: Text(
                           "Previous Rides",
                           style: TextStyle(
+                              color: Colors.black54,
                               fontWeight: FontWeight.bold,
-                              fontSize: 35,
-                              decoration: TextDecoration.underline),
+                              fontSize: 2.5 * SizeConfig.textMultiplier!),
                         ),
                       ),
                       SizedBox(height: 3*SizeConfig.heightMultiplier!),
@@ -466,12 +664,12 @@ class _ProfilePageState extends State<ProfilePage> {
             Image.memory(base64Decode(badge.image)),
             Positioned.fill(
                 child: Align(
-              child: Text(
+              /*child: Text(
                 //TODO descriptions are very long, I won't show them at the moment
                 //(in the future one may tap on the badge and the description popups)
                 badge.description,
                 style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              ),*/
               alignment: Alignment.bottomCenter,
             )),
           ],
