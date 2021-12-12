@@ -35,15 +35,12 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Future<void> getRideHistory() async {
     rideHistory = await MongoDB.instance.getAllRidesFromUser(_miUser.userId);
-    print(rideHistory);
-    print("DONE");
-    print(rideHistory == null);
   }
 
   @override
   void initState() {
     _miUser = LoggedUser.instance!;
-    print(_miUser.userId);
+    print("userId of the logged user is: "+_miUser.userId);
 
     /*
     OLD. See the above new declaration of _miUser LoggedUser for reference.

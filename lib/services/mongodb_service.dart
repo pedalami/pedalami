@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
@@ -115,12 +116,19 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List<dynamic>;
-      print("decoded body");
-      print(decodedBody);
+      //print("decoded body");
+      //print(decodedBody);
       List<Ride> ridesList = decodedBody.map<Ride>((ride) => Ride.fromJson(ride)).toList();
       return ridesList;
     } else
       return null;
+  }
+
+  Future<String> getUsername(String userId) async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("Users")
+        .where("userId", isEqualTo: userId)
+        .get();
+    return querySnapshot.docs[0].get(userId);
   }
 
   Future<Ride?> recordRide(Ride toRecord) async {

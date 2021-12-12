@@ -1,4 +1,5 @@
 import 'package:pedala_mi/models/mongoUser.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 
 class Team {
   String id;
@@ -13,6 +14,9 @@ class Team {
   factory Team.fromJson(dynamic json) {
     try {
       List<MongoUser> userMembersList = json['members'].map<MongoUser>((member) => MongoUser.fromJson(member)).toList();
+      userMembersList.forEach((element) {
+        MongoDB.instance.getUsername("userId").then((value) => element.userId = value);
+      });
       return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String,
           json['description'] as String?, userMembersList.map((team) => team.userId).toList(), userMembersList);
     } catch (ex, st) {

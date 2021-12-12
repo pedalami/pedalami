@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/reward.dart';
@@ -26,13 +27,6 @@ void main() {
   test('int testing', () async {
     print(double.parse("3").round());
     print("ab".split(',').last);
-    List<dynamic> path = [];
-    List<GeoPoint> pathList = (path)
-        .map<GeoPoint>((e) => new GeoPoint(
-        latitude: double.parse(e['latitude'].toString()),
-        longitude: double.parse(e['longitude'].toString()))
-    ).toList();
-    print(pathList);
   });
 
   test('date testing', () async {
