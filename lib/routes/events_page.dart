@@ -46,7 +46,7 @@ class _EventsPageState extends State<EventsPage> {
                           width: 150 * SizeConfig.widthMultiplier!,
                           decoration: BoxDecoration(
                             shape: BoxShape.rectangle,
-                            color: Colors.green,
+                              border: Border.all(color: Colors.green, width: 2),
                               borderRadius: BorderRadius.all(Radius.circular(20))
                             // TODO: insert events icon <----
                             /*image: DecorationImage(
@@ -61,7 +61,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                                 child: Text("Event Name: \"Rough Bikers only\"",
                                   style: TextStyle(
-                                      color: Colors.black,
+                                      color: Colors.black54,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 2 * SizeConfig.textMultiplier!
                                   ),
@@ -72,7 +72,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                               child: Text("Points: 300",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
@@ -83,7 +83,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                               child: Text("Event Type: Individual",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
@@ -94,7 +94,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                               child: Text("Ends: 31/February/2056",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
@@ -145,7 +145,8 @@ class _EventsPageState extends State<EventsPage> {
                         width: 150 * SizeConfig.widthMultiplier!,
                         decoration: BoxDecoration(
                           shape: BoxShape.rectangle,
-                          color: Colors.green,
+                            border: Border.all(color: Colors.green, width: 2),
+
                             borderRadius: BorderRadius.all(Radius.circular(20))
                           /*image: DecorationImage(
                                       fit: BoxFit.cover,
@@ -157,9 +158,9 @@ class _EventsPageState extends State<EventsPage> {
                             Padding(
                               padding: EdgeInsets.only(
                                   top: 1 * SizeConfig.heightMultiplier!),
-                              child: Text("Event Name: \"I challenge you, Milano!\"",
+                              child: Text("Event Name: \"Long ride!\"",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
@@ -170,7 +171,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                               child: Text("Points: 100",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
@@ -181,7 +182,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                               child: Text("Event Type: 1 vs 1",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
@@ -192,7 +193,7 @@ class _EventsPageState extends State<EventsPage> {
                                   top: 1 * SizeConfig.heightMultiplier!),
                               child: Text("Ends: 1/January/2022",
                                 style: TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.black54,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
