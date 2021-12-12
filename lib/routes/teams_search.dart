@@ -194,7 +194,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
             SizedBox(
               height: 3 * SizeConfig.heightMultiplier!,
             ),
-            displayTeam(LoggedUser.instance!.teams),
+            displayTeam(),
             /*Padding(
               padding: EdgeInsets.only(
                   left: 10,
@@ -247,11 +247,11 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
     );
   }
 
-Widget displayTeam(teamId) {
+Widget displayTeam() {
   return Container(
       height: MediaQuery.of(context).size.height / 1.8,
       child: ListView.builder(
-      itemCount: LoggedUser.instance!.teams!.length,
+      itemCount: LoggedUser.instance!.teams?.length ?? 0,
       itemBuilder: (BuildContext context, int index) {
       return GestureDetector(
       child: Stack(
@@ -268,10 +268,17 @@ Widget displayTeam(teamId) {
                 ),
               ),
             ),
-            onTap: () {
+            onTap: () async {
+              Team selectedTeam = LoggedUser.instance!.teams![index];
+              if (selectedTeam.members == null) {
+                print("Getting team data");
+                LoggedUser.instance!.teams![index] = (await MongoDB.instance.getTeam(selectedTeam.id))!;
+                selectedTeam = LoggedUser.instance!.teams![index];
+              }
+              print("Showing team details");
               pushNewScreen(
                 context,
-                screen: TeamProfile(),
+                screen: TeamProfile(team: selectedTeam),
                 pageTransitionAnimation: PageTransitionAnimation.cupertino,);
             },
           ),
@@ -279,7 +286,7 @@ Widget displayTeam(teamId) {
               child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Text(
-                    LoggedUser.instance!.teams![index].name.toString(),
+                    LoggedUser.instance!.teams![index].name,
                     style: TextStyle(
                         fontWeight: FontWeight.bold),
                   )))
@@ -288,7 +295,7 @@ Widget displayTeam(teamId) {
       onTap: () {
         pushNewScreen(
           context,
-          screen: TeamProfile(),
+          screen: TeamProfile(team: LoggedUser.instance!.teams![index],),
           pageTransitionAnimation: PageTransitionAnimation.cupertino,);
        },
       );

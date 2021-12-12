@@ -27,8 +27,7 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  //User? user = FirebaseAuth.instance.currentUser;
-  late LoggedUser _miUser;
+  LoggedUser _miUser = LoggedUser.instance!;
   List<Ride>? rideHistory;
   double trideduration = LoggedUser.instance!.statistics!.averageSpeed / 60;
 
@@ -39,32 +38,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void initState() {
-    _miUser = LoggedUser.instance!;
     print("userId of the logged user is: "+_miUser.userId);
+    getRideHistory().then((value) => setState(() {}));
 
-    /*
-    OLD. See the above new declaration of _miUser LoggedUser for reference.
-    CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection("Users");
-    usersCollection
-        .where("Mail", isEqualTo: user!.email)
-        .get()
-        .then((QuerySnapshot querySnapshot) async {
-
-          //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
-
-      setState(() {
-        _miUser = new LoggedUser(
-            querySnapshot.docs[0].id,
-            querySnapshot.docs[0].get("Image"),
-            querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"), 0.0);
-      });
-      //TODO - Comment added by Vincenzo:
-      //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
-      //My suggestion is to have a single shared MiUser to use in the whole application.
-    });
-     */
     super.initState();
   }
 
@@ -168,8 +144,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Column(
                       children: <Widget>[
                         Text(
-                          "0",
-                          //LoggedUser.instance!.redeemedRewards.toString(),
+                          LoggedUser.instance!.redeemedRewards?.length.toString() ?? "0",
                           style: TextStyle(
                               color: Colors.white,
                               fontSize: 3 * SizeConfig.textMultiplier!,
@@ -559,9 +534,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget decideHistoryToShow() {
     //TODO: prob needs some refactoring
     Widget returnWidget;
-    if (rideHistory == null) {
-      getRideHistory().then((value) => setState(() {}));
-    }
     rideHistory == null
         ? returnWidget = displayEmptyRideHistory()
         : returnWidget = displayRideHistory();

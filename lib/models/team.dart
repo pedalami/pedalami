@@ -1,35 +1,50 @@
+import 'package:flutter/foundation.dart';
 import 'package:pedala_mi/models/mongoUser.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
-class Team {
+class Team extends ChangeNotifier {
   String id;
   String adminId;
   String name;
   String? description;
   List<String> membersId;
-  List<MongoUser>? members;
+  Map<String, MongoUser>? members;
 
   Team(this.id, this.adminId, this.name, this.description, this.membersId, this.members);
 
-  factory Team.fromJson(dynamic json) {
-    try {
-      List<MongoUser> userMembersList = json['members'].map<MongoUser>((member) => MongoUser.fromJson(member)).toList();
-      userMembersList.forEach((element) {
-        MongoDB.instance.getUsername("userId").then((value) => element.userId = value);
-      });
-      return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String,
-          json['description'] as String?, userMembersList.map((team) => team.userId).toList(), userMembersList);
-    } catch (ex, st) {
-      //print("Cannot get full MongoUser");
-      List<String> membersIdList = json['members'].map<String>((id) => id.toString()).toList();
+  factory Team.fromJson(dynamic json, {bool parseMembers = false}) {
+    if (!parseMembers) {
+      List<String> membersIdList = json['members'].map<String>((id) =>
+          id.toString()).toList();
       return Team(json['_id'] as String, json['adminId'] as String,
           json['name'] as String, json['description'] as String?,
           membersIdList, null);
+    } else {
+      Map<String, MongoUser> membersMap =
+      Map.fromIterable(
+          json['members']
+          .map<MongoUser>((member) => MongoUser.fromJson(member)).toList(),
+          key: (e) => e.userId,
+          value: (e) => e
+      );
+      return Team(json['_id'] as String, json['adminId'] as String,
+          json['name'] as String, json['description'] as String?,
+          membersMap.keys.toList(), membersMap);
     }
   }
 
-  void setMembers(List<String> members) {
-    this.membersId = members;
+  String getNNDescription() {
+    return description ?? "";
+  }
+
+  void retrieveUsernames() {
+    this.members?.values.forEach((element) {
+      MongoDB.instance.getUsername(element.userId).then((value) {element.username = value; this.notifyListeners();});
+    });
+  }
+
+  String? getAdminName() {
+    return members?[this.adminId]?.username;
   }
 
   @override
