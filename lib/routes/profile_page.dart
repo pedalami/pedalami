@@ -168,7 +168,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     Column(
                       children: <Widget>[
                         Text(
-                          "2",
+                          "0",
                           //LoggedUser.instance!.redeemedRewards.toString(),
                           style: TextStyle(
                               color: Colors.white,
@@ -277,14 +277,14 @@ class _ProfilePageState extends State<ProfilePage> {
                             mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget> [
                                 Text(
-                                  LoggedUser.instance!.statistics!.totalKm.toString(),
+                                  LoggedUser.instance!.statistics!.totalKm.roundToDouble().toString(),
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 2 * SizeConfig.textMultiplier!),
                                 ),
                                 Text(
-                                  " Km",
+                                  " km",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -352,7 +352,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       fontSize: 2 * SizeConfig.textMultiplier!),
                                 ),
                                 Text(
-                                  " pace",
+                                  " meters",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -379,7 +379,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget> [
                                 Text(
-                                  LoggedUser.instance!.statistics!.averageSpeed.toString(),
+                                  LoggedUser.instance!.statistics!.averageSpeed.roundToDouble().toString(),
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -488,7 +488,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       fontSize: 2 * SizeConfig.textMultiplier!),
                                 ),
                                 Text(
-                                  " pace",
+                                  " meters",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -505,7 +505,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                            top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
                           "Earned Badges",
                           style: TextStyle(
