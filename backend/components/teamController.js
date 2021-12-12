@@ -173,8 +173,7 @@ app.get('/getTeam', (req, res) => {
       console.log('The specified teamId is not a valid objectId' + error);
       res.status(500).send('The specified teamId is not a valid objectId');
     }
-    Team
-      .aggregate([
+    Team.aggregate([
         {
           $match: {
             _id: teamIdObject
@@ -203,10 +202,7 @@ app.get('/getTeam', (req, res) => {
             res.status(500).send('Error finding the team!');
           }
         }
-      }).catch((error) => {
-      console.log('Error finding the team.\n' + error);
-      res.status(500).send('Error finding the team!');
-    });
+      })
   } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
