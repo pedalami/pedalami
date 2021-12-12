@@ -262,16 +262,17 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
               child: Stack(
                 children: [
                   GestureDetector(
-                    child: Padding(
-                      padding: EdgeInsets.only(left: 135.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(70),
-                        child: Image(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         ClipRRect(
+                         borderRadius: BorderRadius.circular(70),
+                         child: Image(
                           image: AssetImage('lib/assets/app_icon.png'),
                           height: 16 * SizeConfig.heightMultiplier!,
                           width: 32 * SizeConfig.widthMultiplier!,
                         ),
-                      ),
+                      ),],
                     ),
                     onTap: () async {
                       Team selectedTeam = LoggedUser.instance!.teams![index];
