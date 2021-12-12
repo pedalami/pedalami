@@ -196,6 +196,9 @@ app.get('/getTeam', (req, res) => {
             res.status(500).send('Error finding the team!');
           }
         }
+      }).catch((error) => {
+        console.log('Error finding the team.\n' + error);
+        res.status(500).send('Error finding the team!');
       });
   } else {
     console.log('Error: Missing parameters.');
