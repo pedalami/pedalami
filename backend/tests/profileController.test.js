@@ -47,10 +47,11 @@ describe("POST /initUser", ()=>{
     const userId = "user_id";
     const response = await request(app).post('/users/initUser').send({
       userId: userId
-    }); //Delete the user after the creation.
+    });
     //Chiamare firbase dal backend per controllare che le uid sia di un utente
     expect(response.status).toBe(200);
     expect(response.body.userId).toBe(userId);
+    await User.deleteOne({userId: userId});
   })
 })
 

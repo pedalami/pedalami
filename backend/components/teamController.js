@@ -115,6 +115,52 @@ app.post('/join', (req, res) => {
   }
 });
 
+//POST /leave
+app.post('/leave', (req, res) => {
+  console.log('Received leave POST request:');
+  console.log(req.body);
+  if (req.body.teamId && req.body.userId) {
+    Promise.all([
+      User.findOne({ userId: req.body.userId }).exec(),
+      Team.findOne({ _id: req.body.teamId }).exec()
+    ])
+        .then(([user, team]) => {
+          if (!team.members.includes(req.body.userId)) {
+            console.log('Error: User not in team.');
+            res.status(500).send('Error: User not in team.');
+          } else
+          if (team.adminId === req.body.userId) {
+            console.log('Error: User is the admin of the team.');
+            res.status(500).send('Error: User is the admin of the team. An admin cannot leave the team.');
+          } else {
+            user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
+            team.members.splice(team.members.indexOf(req.body.userId), 1);
+            connection.transaction( (session) => {
+              return Promise.all([
+                team.save({session}),
+                user.save({session})
+              ])
+            })
+                .then(() => {
+                  res.status(200).send('Team left successfully');
+                })
+                .catch((err) => {
+                  console.log('Error while leaving the team\n' + err);
+                  res.status(500).send('Error while leaving the team');
+                })
+          }
+        })
+        .catch((error) => {
+          console.log('Error finding the user or the team.\n' + error);
+          res.status(500).send('Error finding the user or the team!');
+        });
+  }
+  else {
+    console.log('Error: Missing parameters.');
+    res.status(400).send('Error: Missing parameters.');
+  }
+});
+
 // GET /getTeam?teamId=teamId
 app.get('/getTeam', (req, res) => {
   const teamId = req.query.teamId;
