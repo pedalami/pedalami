@@ -3,6 +3,17 @@ const app = require('./../../server');
 const update = require('./../components/profileController').updateUserStatistics
 const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
+const mongoose = require('mongoose');
+
+jest.setTimeout(10000);
+
+beforeAll(async () => {
+  await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+})
+
+afterAll(async () => {
+  await mongoose.connection.close();
+})
 
 describe("POST /initUser", ()=>{
   test("The response should be 400 if no userId is sent", async () =>{

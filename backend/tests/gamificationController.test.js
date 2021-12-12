@@ -4,6 +4,17 @@ const update = require('./../components/profileController').updateUserStatistics
 const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
 const app = require('./../../server');
+const mongoose = require('mongoose');
+
+jest.setTimeout(15000);
+
+beforeAll(async () => {
+    await mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true });
+})
+
+afterAll(async () => {
+    await mongoose.connection.close();
+})
 
 var ride = Ride({
     "userId": "user_id",
