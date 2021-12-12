@@ -1,8 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/routes/teams_search.dart';
 import "dart:math";
 
 class TeamMembers extends StatefulWidget {
@@ -17,6 +20,51 @@ class _TeamMembersState extends State<TeamMembers> {
   bool check = false;
   final usernameController = TextEditingController();
   LoggedUser _miUser = LoggedUser.instance!;
+  Team? active;
+  String? activateTeams;
+  String nullz = "Caught null string";
+  late List<String> tmz;
+
+  //boolean function that checks if the user exists to that team
+  bool checkUserInTeam(List<String>? users) {
+    if (users == null)
+      return false;
+    String myId = FirebaseAuth.instance.currentUser!.uid;
+    for (int i=0; i < users.length; i++) {
+      if (users[i] == myId)
+        return true;
+    }
+    return false;
+  }
+
+  //Async function that going through teams to check if the user belongs to that team
+  void teamMem() async {
+    /*for(int i = 0; i < teamsFound.length; i++)
+    {
+      if(checkUserInTeam(teamsFound[i].membersId.cast<String>()))
+      {
+        active = await MongoDB.instance.getTeam(teamsFound[i].id);
+      }
+    }*/
+    //active = await MongoDB.instance.getTeam(teamId);
+    active = await MongoDB.instance.getTeam("61af228ca2719ca673109a22");
+  }
+
+  // Temporary check for null strings when receiving data from MongoDB
+  String checkNull() {
+    activateTeams = _miUser.teams!.first.name.toString();
+
+    return _miUser.teams!.first.name.toString();
+  }
+
+  List<String> teamMemberz()
+  {
+    for(int i = 0; i < LoggedUser.instance!.teams!.length; i++)
+    {
+      tmz.add(LoggedUser.instance!.teams![i].name.toString());
+    }
+    return tmz;
+  }
 
   // TODO : Make Dynamic read from users enrolled to team
   List<String> names = [
@@ -33,6 +81,8 @@ class _TeamMembersState extends State<TeamMembers> {
 
   @override
   void initState() {
+    teamMem();
+
     /*
     OLD. See the above new declaration of _miUser LoggedUser for reference.
     CollectionReference usersCollection =
@@ -149,101 +199,25 @@ class _TeamMembersState extends State<TeamMembers> {
                       children: [
                         Padding(
                           padding: EdgeInsets.only(
-                              top: 3 * SizeConfig.heightMultiplier!),
+                              top: 3 * SizeConfig.heightMultiplier!,
+                              bottom: 3 * SizeConfig.heightMultiplier!),
                           child: Text(
                             // Team's Name Goes here
-                            randomTeam(),
+                            checkNull(),
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 3.5 * SizeConfig.textMultiplier!,
+                                fontSize: 4 * SizeConfig.textMultiplier!,
                                 decoration: TextDecoration.underline
-                                ),
-                             ),
+                            ),
+                          ),
                         ),
-
                         // Team Members
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                            child: Text(
-                              randomName(),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                                ),
-                            ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
+                        displaymemberz(),
                         Padding(
                           padding: EdgeInsets.only(
                               left: 10,
-                              top: 3 * SizeConfig.heightMultiplier!,
+                              top: 2 * SizeConfig.heightMultiplier!,
                               right: 10.0),
                         ),
                         SizedBox(
@@ -280,5 +254,67 @@ class _TeamMembersState extends State<TeamMembers> {
   String nStringToNNString(String? str) {
     return str ?? "";
   }
+
+  Widget displaymemberz() {
+    return Container(
+      height: MediaQuery.of(context).size.height / 2,
+        child: ListView.builder(
+          itemCount: LoggedUser.instance!.teams!.first.membersId.length,
+          itemBuilder: (BuildContext context, int index) {
+            return Padding(
+                padding: EdgeInsets.only(
+                top: 1 * SizeConfig.heightMultiplier!),
+              child: Column(
+              children: <Widget>[
+                Text("Member ID",
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 2 * SizeConfig.textMultiplier!,
+                    ),
+                  ),
+                SizedBox(
+                  height: 1 * SizeConfig.heightMultiplier!,
+                ),
+              Text(LoggedUser.instance!.teams!.first.membersId[index].toString(),
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 2 * SizeConfig.textMultiplier!,
+                ),
+              ),
+                SizedBox(
+                  height: 2 * SizeConfig.heightMultiplier!,
+                ),
+             ],
+              ),
+            );
+          }),
+    );
+  }
+
+/*Widget displayNamet() {
+    return Padding(
+      padding: EdgeInsets.all(9),
+      child: ElevatedButton(
+        onPressed: () async {
+            active = await MongoDB.instance.getTeam("61af228ca2719ca673109a22");
+            setState(() {
+            });
+          },
+        child: Text(checkNull()),
+        style: ButtonStyle(
+            fixedSize: MaterialStateProperty.all(
+                Size(200, 35)),
+            backgroundColor: MaterialStateProperty.all(
+                Colors.lightGreen),
+            shape: MaterialStateProperty.all(
+                RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(18.0),
+                    side: BorderSide(
+                        color: Colors.lightGreen)))),
+        ),
+      );
+  }*/
 
 }
