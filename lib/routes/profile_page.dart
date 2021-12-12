@@ -355,7 +355,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       fontSize: 2 * SizeConfig.textMultiplier!),
                                 ),
                                 Text(
-                                  " pace",
+                                  " meters",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -491,7 +491,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                       fontSize: 2 * SizeConfig.textMultiplier!),
                                 ),
                                 Text(
-                                  " pace",
+                                  " meters",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -508,7 +508,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
+                            top: 3 * SizeConfig.heightMultiplier!),
                         child: Text(
                           "Earned Badges",
                           style: TextStyle(
