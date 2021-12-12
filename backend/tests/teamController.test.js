@@ -184,11 +184,12 @@ describe("GET /getTeam", () => {
     test("A get request with an existing teamId should return 200 and the team", async () =>{
         const testUser = "admin";
         const team = await Team.findOne({adminId: testUser});
+        const teamId = team._id.toString();
         const response = await request(app).get('/teams/getTeam').query({
-            teamId: team._id.toString()
+            teamId: teamId
         });
         expect(response.status).toBe(200);
-        //expect(response.body.length).toBeGreaterThan(0);
+        expect(response.body._id).toBe(teamId);
         expect(response.type).toBe("application/json");
     })
 })
