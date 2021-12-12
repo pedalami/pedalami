@@ -3,9 +3,10 @@ const checkBadge = require('./../components/gamificationController').checkNewBad
 const update = require('./../components/profileController').updateUserStatistics;
 const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
+const app = require('./../../server');
 
 var ride = Ride({
-    "userId": "username",
+    "userId": "user_id",
     "name": "test_ride",
     "durationInSeconds": 200,
     "totalKm": 12,
@@ -52,7 +53,7 @@ describe("Testing assignPoints function", () => {
 describe("Testing checkNewBadgesAfterRide function", () => {
     test("Checking ride type badges unlocking", async () => {
         var user = User({
-            "userId": "username",
+            "userId": "user_id",
             "badges": [],
             "teams": [],
             "points": 0,
@@ -73,7 +74,7 @@ describe("Testing checkNewBadgesAfterRide function", () => {
         expect(user.badges.length).toBe(5);
     })
 
-    /*test("Checking userStat and ride type badges unlocking", async () => {
+    test("Checking userStat and ride type badges unlocking", async () => {
         var user = User({
             "userId": "username",
             "badges": [],
@@ -98,5 +99,5 @@ describe("Testing checkNewBadgesAfterRide function", () => {
         // ride - pace 10, totalKm 1, totalKm 10, elevationGain 10, elevationGain 100
         // userStat - numberOfRides 1, totalKm 10
         expect(user.badges.length).toBe(7);
-    })*/
+    })
 })
