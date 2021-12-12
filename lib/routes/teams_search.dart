@@ -1,7 +1,7 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/routes/create_team.dart';
 import 'package:pedala_mi/routes/teams_page.dart';
@@ -10,8 +10,7 @@ import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/widget/teams_search_button.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-
-
+import 'package:pedala_mi/routes/team_members.dart';
 
 
 class TeamsSearchPage extends StatefulWidget {
@@ -34,214 +33,268 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
     super.initState();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            children: <Widget>[
-              Container(
-                color: Colors.green[600],
-                height: 45 * SizeConfig.heightMultiplier!,
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      left: 30.0,
-                      right: 30.0,
-                      top: 10 * SizeConfig.heightMultiplier!),
-                  child: Column(
-                    children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
-                          child: Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    left: 20.0,
-                                    top: 10 * SizeConfig.heightMultiplier!,
-                                    right: 20),
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  cursorColor: CustomColors.green,
-                                  decoration: InputDecoration(
-                                      counterStyle: TextStyle(
-                                        color: CustomColors.silver,
-                                      ),
-                                      enabledBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
-                                        borderSide:
-                                        BorderSide(color: CustomColors.silver),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
-                                        borderSide:
-                                        BorderSide(color: CustomColors.green),
-                                      ),
-                                      hintText: "Search for team",
-                                      hintStyle:
-                                      TextStyle(color: CustomColors.silver)),
-                                  controller: teamSearchController,
-                                  onSubmitted: (value) async {
-                                    setState(() {
-                                      hasSearched=true;
-                                      loading=true;
-                                    });
-                                    foundTeams = await MongoDB.instance.searchTeam(teamSearchController.text);
-                                    setState(() {
-                                      loading=false;
-                                    });
-                                  },
-                                ),
-                              ),
-                              SizedBox(
-                                height: 3 * SizeConfig.heightMultiplier!,
-                              ),
-                            ],
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              color: Colors.green[600],
+              height: 20 * SizeConfig.heightMultiplier!,
+              child: Padding(
+                padding: EdgeInsets.only(
+                    left: 30.0,
+                    right: 30.0,
+                    top: 3 * SizeConfig.heightMultiplier!),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
+                      child: Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 20.0,
+                                //top: 1 * SizeConfig.heightMultiplier!,
+                                right: 20),
+                            child: TextField(
+                              style: TextStyle(color: Colors.white),
+                              cursorColor: CustomColors.green,
+                              decoration: InputDecoration(
+                                  counterStyle: TextStyle(
+                                    color: CustomColors.silver,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
+                                    borderSide:
+                                    BorderSide(color: CustomColors.silver),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
+                                    borderSide:
+                                    BorderSide(color: CustomColors.green),
+                                  ),
+                                  hintText: "Search for team",
+                                  hintStyle:
+                                  TextStyle(color: CustomColors.silver)),
+                              controller: teamSearchController,
+                              onSubmitted: (value) async {
+                                setState(() {
+                                  hasSearched=true;
+                                  loading=true;
+                                });
+                                foundTeams = await MongoDB.instance.searchTeam(teamSearchController.text);
+                                setState(() {
+                                  loading=false;
+                                });
+                              },
                             ),
-                        ),
-                    ],
-                  ),
+                          ),
+                          /*SizedBox(
+                                height: 3 * SizeConfig.heightMultiplier!,
+                              ),*/
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              !hasSearched?
-              Container(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      Padding(
+            ),
+            !hasSearched?
+            Container(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    /*Padding(
                         padding: EdgeInsets.only(
-                            left: 30.0,
+                            left: 40.0, top: 1 * SizeConfig.heightMultiplier!,
                             right: 30.0,),
-                        child: Column(
+                        child: Row(
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Align(alignment: Alignment.center),
-                              ElevatedButton(
-                                  onPressed: () {
-                                    pushNewScreen(
-                                      context,
-                                      screen: TeamCreation(),
-                                      pageTransitionAnimation: PageTransitionAnimation.cupertino,
-
-                                    );
-                                    },
-                                  child: Text("Create New Team"),
-                                  style: ButtonStyle(
-                                      fixedSize: MaterialStateProperty.all(
-                                          Size(200, 35)),
-                                      backgroundColor: MaterialStateProperty.all(
-                                          Colors.lightGreen),
-                                      shape: MaterialStateProperty.all(
-                                          RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(18.0)))),
-                               ),
-                              ElevatedButton(
+                              Text(
+                                "My Teams",
+                                style: TextStyle(
+                                    color: Colors.grey[500],
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 3 * SizeConfig.textMultiplier!),
+                              ),
+                              SizedBox(
+                                width: 15 * SizeConfig.heightMultiplier!,
+                              ),
+                              Align(alignment: Alignment.centerRight),
+                              FloatingActionButton.extended(backgroundColor: Colors.lightGreen,
+                                label: FaIcon(FontAwesomeIcons.plus),
                                 onPressed: () {
                                   pushNewScreen(
                                     context,
-                                    screen: TeamProfile(),
+                                    screen: TeamCreation(),
                                     pageTransitionAnimation: PageTransitionAnimation.cupertino,
-
-                                  );  //TODO: If user has no active team, show dialog window with message to join the team
+                                  );
                                 },
-                                child: Text("Your Current Team"),
-                                style: ButtonStyle(
-                                    fixedSize: MaterialStateProperty.all(
-                                        Size(200, 35)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.lightGreen),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(18.0)))),
-                              ),
-                            ],
+                              ), */
+                    Divider(
+                      color: Colors.grey[500],
+                    ),
+                    Row(
+                      children: [
+                        SizedBox(
+                          width: 7.0 * SizeConfig.widthMultiplier!,
                         ),
-                      ),
-                      Divider(
-                        color: Colors.black,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                            left: 30.0, top: 3 * SizeConfig.heightMultiplier!),
-                        child: Text(
-                          "My Teams",
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 2.5 * SizeConfig.textMultiplier!),
-                        ),
-                      ),
-                      Row(
-                        children: [
-                          Stack(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.network(
-                                    "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                                    height: 20.0 * SizeConfig.heightMultiplier!,
-                                    width: 50.0 * SizeConfig.widthMultiplier!,
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                  child: Align(
-                                      alignment: Alignment.bottomCenter,
-                                      child: Text(
-                                        "Team Awesome",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold),
-                                      )))
-                            ],
-                          ),
-                          SizedBox(
-                            width: 7.0 * SizeConfig.widthMultiplier!,
-                          ),
-                          Container(
-                            width: 32.0 * SizeConfig.widthMultiplier!,
-                            child: ElevatedButton.icon(
-                              onPressed: () {
-                                pushNewScreen(
-                                  context,
-                                  screen: TeamProfile(),
-                                  pageTransitionAnimation: PageTransitionAnimation
-                                      .cupertino,
-
-                                );
-                              },
-                              label: Text("Info"),
-                              icon: FaIcon(FontAwesomeIcons.userCog),
-                              style: ButtonStyle(
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.green[400]),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                          borderRadius:
-                                          BorderRadius.circular(18.0),
-                                          side: BorderSide(
-                                              color: Colors.green)))),
-                            ),
-                          )
-                        ],
-                      ),
-                    ],
-                  ),
+                        //)
+                      ],
+                    ),
+                  ],
                 ),
-              ) :
-              loading ?
-              Text("Loading...") :
-              (
-                  foundTeams != null && foundTeams!.length>0 ?
-                  TeamSearchButton(teamsFound: foundTeams!) :
-                  Text("No teams found")
               ),
-              //TODO: better ui loading or no results
-            ],
-          ),
+            ) :
+            loading ?
+            Text("Loading...") :
+            (
+                foundTeams != null && foundTeams!.length>0 ?
+                TeamSearchButton(teamsFound: foundTeams!) :
+                Text("No teams found")
+            ),
+            Divider(
+              color: Colors.grey[500],
+            ),
+            //TODO: better ui loading or no results
+            Padding(
+              padding: EdgeInsets.only(
+                left: 40.0, top: 1 * SizeConfig.heightMultiplier!,
+                right: 30.0,),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Align(alignment: Alignment.center),
+                  Text(
+                    "My Teams",
+                    style: TextStyle(
+                        color: Colors.grey[500],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 3 * SizeConfig.textMultiplier!),
+                  ),
+                  SizedBox(
+                    width: 15 * SizeConfig.heightMultiplier!,
+                  ),
+                  Align(alignment: Alignment.centerRight),
+                  FloatingActionButton.extended(backgroundColor: Colors.lightGreen,
+                    label: FaIcon(FontAwesomeIcons.plus),
+                    onPressed: () {
+                      pushNewScreen(
+                        context,
+                        screen: TeamCreation(),
+                        pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(
+              height: 3 * SizeConfig.heightMultiplier!,
+            ),
+            displayTeam(LoggedUser.instance!.teams),
+            /*Padding(
+              padding: EdgeInsets.only(
+                  left: 10,
+                  top: 3 * SizeConfig.heightMultiplier!,
+                  right: 10.0),
+            ),*/
+            /*SizedBox(
+              height: 30 * SizeConfig.heightMultiplier!,
+            ),*/
+            /*Container(
+              height: 20 * SizeConfig.heightMultiplier!,
+            ),
+            Divider(
+              color: Colors.grey,
+            )*/
+            /*Stack(
+              children: [
+                GestureDetector(
+                  child: Padding(
+                    padding: const EdgeInsets.only(left: 20.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(70),
+                      child: Image.network(
+                        "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
+                        height: 20.0 * SizeConfig.heightMultiplier!,
+                        width: 50.0 * SizeConfig.widthMultiplier!,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    pushNewScreen(
+                      context,
+                      screen: TeamProfile(),
+                      pageTransitionAnimation: PageTransitionAnimation.cupertino,);
+                  },
+                ),
+                Positioned.fill(
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Text(
+                          LoggedUser.instance!.teams![0].name.toString(),
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold),
+                        )))
+              ],
+            ),*/
+          ],
         ),
+      ),
     );
   }
 
+Widget displayTeam(teamId) {
+  return Container(
+      height: MediaQuery.of(context).size.height / 1.8,
+      child: ListView.builder(
+      itemCount: LoggedUser.instance!.teams!.length,
+      itemBuilder: (BuildContext context, int index) {
+      return GestureDetector(
+      child: Stack(
+        children: [
+          GestureDetector(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 100.0),
+              child: ClipRRect(
+                //borderRadius: BorderRadius.circular(70),
+                child: Image.network(
+                  "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
+                  height: 20.0 * SizeConfig.heightMultiplier!,
+                  width: 50.0 * SizeConfig.widthMultiplier!,
+                ),
+              ),
+            ),
+            onTap: () {
+              pushNewScreen(
+                context,
+                screen: TeamProfile(),
+                pageTransitionAnimation: PageTransitionAnimation.cupertino,);
+            },
+          ),
+          Positioned.fill(
+              child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Text(
+                    LoggedUser.instance!.teams![index].name.toString(),
+                    style: TextStyle(
+                        fontWeight: FontWeight.bold),
+                  )))
+        ],
+      ),
+      onTap: () {
+        pushNewScreen(
+          context,
+          screen: TeamProfile(),
+          pageTransitionAnimation: PageTransitionAnimation.cupertino,);
+       },
+      );
+     }
+    ),
+   );
+  }
 
 }
-
