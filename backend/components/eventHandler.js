@@ -6,15 +6,16 @@ const User = models.User;
 const Event = models.Event;
 const connection = models.connection;
 
-app.post("/create",  (req, res) => {
-    var event  = new Event({
+app.post("/create", (req, res) => {
+    var event = new Event({
         name: req.body.name,
         description: req.body.description,
         startDate: req.body.startDate,
         endDate: req.body.endDate,
         location: req.body.location,
         type: req.body.type,
-        visibility: req.body.visibility});
+        visibility: req.body.visibility
+    });
     if (req.body.type == "team") {
         event.proposingTeam = req.body.proposingTeam;
         event.invitedTeams = req.body.invitedTeams; //MUST BE DONE CHECK ON WETHER TEAMS EXISTS IN THE DB OR NOT
@@ -33,16 +34,30 @@ app.post("/create",  (req, res) => {
     //TODO SEND INVITED TO INVITED TEAMS, IF ANY
 
     event.save().
-    then(() => {
-        res.status(200).json({
-            message: 'Event saved successfully.',
-            event: event
+        then(() => {
+            res.status(200).json({
+                message: 'Event saved successfully.',
+                event: event
             });
-    }).catch(err => {
-    console.log('Error in creating the event' + err);
-    res.status(500).send('Error in creating the event');
-})
+        }).catch(err => {
+            console.log('Error in creating the event' + err);
+            res.status(500).send('Error in creating the event');
+        })
 
 });
+
+/* app.post("/acceptInvite", (req, res) => {
+    Event.findOneAndUpdate({ _id: req.body.eventId }, { $push: { acceptedTeams: req.body.teamId } }).
+        then(() => {
+            res.status(200).json({
+                message: 'Invite accepted successfully.'
+            });
+        }).catch(err => {
+            console.log('Error in accepting the invite' + err);
+            res.status(500).send('Error in accepting the invite');
+        })
+});
+ */
+
 
 exports.app = app;
