@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/team.dart';
 
 class TeamMembers extends StatefulWidget {
-  TeamMembers ({ Key? key, required this.team }) : super(key: key);
+  TeamMembers({Key? key, required this.team}) : super(key: key);
   final Team team;
 
   @override
@@ -119,8 +119,7 @@ class _TeamMembersState extends State<TeamMembers> {
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 4 * SizeConfig.textMultiplier!,
-                                decoration: TextDecoration.underline
-                            ),
+                                decoration: TextDecoration.underline),
                           ),
                         ),
                         // Team Members
@@ -134,26 +133,31 @@ class _TeamMembersState extends State<TeamMembers> {
                                       top: 1 * SizeConfig.heightMultiplier!),
                                   child: Column(
                                     children: <Widget>[
-                                      Text("Member username",
+                                      Text(
+                                        "Member username",
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 2 * SizeConfig.textMultiplier!,
+                                          fontSize:
+                                              2 * SizeConfig.textMultiplier!,
                                         ),
                                       ),
                                       SizedBox(
-                                        height: 1 * SizeConfig.heightMultiplier!,
+                                        height:
+                                            1 * SizeConfig.heightMultiplier!,
                                       ),
                                       Text(
                                         getUsername(index),
                                         style: TextStyle(
                                           color: Colors.black,
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 2 * SizeConfig.textMultiplier!,
+                                          fontSize:
+                                              2 * SizeConfig.textMultiplier!,
                                         ),
                                       ),
                                       SizedBox(
-                                        height: 2 * SizeConfig.heightMultiplier!,
+                                        height:
+                                            2 * SizeConfig.heightMultiplier!,
                                       ),
                                     ],
                                   ),
@@ -190,6 +194,7 @@ class _TeamMembersState extends State<TeamMembers> {
   }
 
   String getUsername(int index) {
-    return widget.team.members!.values.elementAt(index).username ?? "Error while getting username";
+    return widget.team.members!.values.elementAt(index).username ??
+        "Error while getting username";
   }
 }
