@@ -16,8 +16,7 @@ class Team {
       return Team(json['_id'] as String, json['adminId'] as String, json['name'] as String,
           json['description'] as String?, userMembersList.map((team) => team.userId).toList(), userMembersList);
     } catch (ex, st) {
-      print(ex);
-      print(st);
+      //print("Cannot get full MongoUser");
       List<String> membersIdList = json['members'].map<String>((id) => id.toString()).toList();
       return Team(json['_id'] as String, json['adminId'] as String,
           json['name'] as String, json['description'] as String?,

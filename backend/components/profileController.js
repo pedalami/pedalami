@@ -32,12 +32,18 @@ app.post('/initUser', (req, res) => {
         points: {$first: "$points"},
         teams: {$first: "$teams"},
         rewards: {$push: {
-          rewardId: "$rewards.rewardId",
-          redeemedDate: "$rewards.redeemedDate",
-          rewardContent: "$rewards.rewardContent",
-          description: "$baseReward.description",
-          image: "$baseReward.image",
-          price: "$baseReward.price"
+          $cond:[
+            { $eq: [ { "$ifNull": [ "$rewards", null ] }, null ] },
+            "$$REMOVE",
+            {
+              rewardId: "$rewards.rewardId",
+              redeemedDate: "$rewards.redeemedDate",
+              rewardContent: "$rewards.rewardContent",
+              description: "$baseReward.description",
+              image: "$baseReward.image",
+              price: "$baseReward.price"
+            }
+          ]
         }}
       }},
       { $lookup: {
