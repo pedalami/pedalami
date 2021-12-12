@@ -12,6 +12,6 @@
     "supertest": "^6.1.6"
   },
   "scripts": {
-    "test": "jest"
+    "test": "jest --coverage --forceExit --watchAll --maxWorkers=1"
   }
 }

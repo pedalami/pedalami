@@ -19,9 +19,11 @@ mongoose.connect(MONGO_URI,connectionParams)
 mongoose.Promise = Promise;
 const app = express();
 app.use(express.json());
-var listener = app.listen(PORT, () => {
-    console.log('Listening on port ' + listener.address().port);
-});
+if (process.env.NODE_ENV !== 'test') {
+    var listener = app.listen(PORT, () => {
+        console.log('Listening on port ' + listener.address().port);
+    });
+}
 
 
 var usersRouter = require('./backend/components/profileController').router;
