@@ -71,7 +71,7 @@ app.get('/search', (req, res) => {
 
 
 // POST /join
-app.post('/join', (req, res) => {
+app.post('/join',  (req, res) => {
   console.log('Received join POST request:');
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
@@ -79,7 +79,7 @@ app.post('/join', (req, res) => {
       User.findOne({ userId: req.body.userId }).exec(),
       Team.findOne({ _id: req.body.teamId }).exec()
     ])
-    .then(([user, team]) => {
+    .then(async ([user, team]) =>  {
       if (team.members.includes(req.body.userId)) {
         console.log('Error: User already in team.');
         res.status(500).send('Error: User already in team.');
@@ -89,19 +89,16 @@ app.post('/join', (req, res) => {
         }
         user.teams.push(req.body.teamId);
         team.members.push(req.body.userId);
-        connection.transaction( (session) => {
+        await connection.transaction( (session) => {
           return Promise.all([
             team.save({session}),
             user.save({session})
           ])
-        })
-        .then(() => {
-          res.status(200).send('Team joined successfully');
-        })
-        .catch((err) => {
+        }).catch((err) => {
           console.log('Error while joining the team\n' + err);
           res.status(500).send('Error while joining the team');
         })
+        res.status(200).send('Team joined successfully');
       }
     })
     .catch((error) => {
