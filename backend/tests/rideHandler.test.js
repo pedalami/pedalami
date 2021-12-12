@@ -1,6 +1,5 @@
 const request = require('supertest');
 const app = require('./../../server');
-const Ride = require('../schemas.js').Ride;
 
 var ride_json = {
     "userId": "user_id",
