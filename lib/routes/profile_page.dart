@@ -22,25 +22,27 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 class ProfilePage extends StatefulWidget {
   ProfilePage({Key? key}) : super(key: key);
 
+
   @override
   _ProfilePageState createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  LoggedUser _miUser = LoggedUser.instance!;
-  List<Ride>? rideHistory;
   double trideduration = LoggedUser.instance!.statistics!.averageSpeed / 60;
+  LoggedUser _miUser = LoggedUser.instance! ;
+
 
 
   Future<void> getRideHistory() async {
-    rideHistory = await MongoDB.instance.getAllRidesFromUser(_miUser.userId);
+    _miUser.setRideHistory(await MongoDB.instance.getAllRidesFromUser(_miUser.userId));
   }
 
   @override
   void initState() {
+    _miUser.addListener(() => setState(() {}));
     print("userId of the logged user is: "+_miUser.userId);
-    getRideHistory().then((value) => setState(() {}));
-
+//    getRideHistory().then((value) => setState(() {}));
+    MongoDB.instance.initUser(_miUser.userId).then((value) => getRideHistory());
     super.initState();
   }
 
@@ -534,7 +536,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget decideHistoryToShow() {
     //TODO: prob needs some refactoring
     Widget returnWidget;
-    rideHistory == null
+    _miUser.rideHistory == null
         ? returnWidget = displayEmptyRideHistory()
         : returnWidget = displayRideHistory();
     return returnWidget;
@@ -564,13 +566,13 @@ class _ProfilePageState extends State<ProfilePage> {
               color: Colors.black,
             );
           },
-          itemCount: rideHistory!.length,
+          itemCount: _miUser.rideHistory!.length,
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onTap: () {
                 pushNewScreen(context,
                     screen: ShowSingleRideHistoryPage(
-                        path: rideHistory![index].path!));
+                        path: _miUser.rideHistory![index].path!));
               },
               child: Container(
                 height: MediaQuery.of(context).size.height / 11,
@@ -583,7 +585,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         children: [
                           Text(
                             DateFormat('EEEE').format(DateTime.parse(
-                                rideHistory![index].displayDate())),
+                                _miUser.rideHistory![index].displayDate())),
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 18),
                           ),
@@ -592,17 +594,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           Text(
                             DateFormat('dd MMMM HH:mm').format(DateTime.parse(
-                                rideHistory![index].displayDate())),
+                                _miUser.rideHistory![index].displayDate())),
                             style: TextStyle(),
                           ),
                         ],
                       ),
                     ),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.3,
+                      width: (MediaQuery.of(context).size.width + 10) / 2.3,
                     ),
                     Text(
-                      rideHistory![index].points!.toStringAsFixed(0) + " P",
+                      _miUser.rideHistory![index].points!.toStringAsFixed(0) + " Pts",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     SizedBox(

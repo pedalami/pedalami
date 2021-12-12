@@ -332,7 +332,7 @@ class _MapPageState extends State<MapPage> {
                                     //TODO: Uncomment this line to debug the database
                                     Ride? response = await MongoDB.instance.recordRide(finishedRide);
                                     print(response!.rideId);
-
+                                    MongoDB.instance.initUser(_miUser.userId);
                                     showRideCompleteDialog(context, size,
                                         response);
                                   }

@@ -32,9 +32,15 @@ class LoggedUser extends ChangeNotifier {
     instance!.statistics = stats;
     instance!.badges = badges;
     instance!.redeemedRewards = rewards;
+    instance!.notifyListeners();
   }
 
   List<Team> getNNTeams() {return teams ?? []; }
   List<Badge> getNNBadges() {return badges ?? []; }
   List<Reward> getNNRewards() {return redeemedRewards ?? []; }
+
+  void setRideHistory(List<Ride>? rideHistory){
+    this.rideHistory = rideHistory;
+    this.notifyListeners();
+  }
 }
