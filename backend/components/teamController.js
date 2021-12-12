@@ -166,11 +166,18 @@ app.get('/getTeam', (req, res) => {
   const teamId = req.query.teamId;
   console.log('Received getTeam GET request with params ' + teamId);
   if (teamId) {
+    var teamIdObject;
+    try {
+      teamIdObject = new ObjectId(teamId);
+    } catch (error) {
+      console.log('The specified teamId is not a valid objectId' + error);
+      res.status(500).send('The specified teamId is not a valid objectId');
+    }
     Team
       .aggregate([
         {
           $match: {
-            _id: ObjectId(teamId)
+            _id: teamIdObject
           }
         },
         {
@@ -187,7 +194,7 @@ app.get('/getTeam', (req, res) => {
       ])
       .exec((error, teams) => {
         if (error) {
-          console.log('Error finding the user.\n' + error);
+          console.log('Error finding the team.\n' + error);
           res.status(500).send('Error finding the team!');
         } else {
           if (teams && teams.length === 1) {
@@ -196,7 +203,10 @@ app.get('/getTeam', (req, res) => {
             res.status(500).send('Error finding the team!');
           }
         }
-      });
+      }).catch((error) => {
+      console.log('Error finding the team.\n' + error);
+      res.status(500).send('Error finding the team!');
+    });
   } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');

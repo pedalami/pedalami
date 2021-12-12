@@ -74,13 +74,13 @@ describe("GET /search", () => {
 
 })
 
-describe("POST /join", () => {
-    test("A request without userId and teamId field should return 400", async () =>{
+describe("POST /join & /leave", () => {
+    test("A join request without userId and teamId field should return 400", async () =>{
         const response = await request(app).post('/teams/join').send({});
         expect(response.status).toBe(400);
         expect(response.text).toBe('Error: Missing parameters.');
     })
-    test("A request with a fake teamId should return 500", async () =>{
+    test("A join request with a fake teamId should return 500", async () =>{
         const response = await request(app).post('/teams/join').send({
             userId: "admin",
             teamId: "n0n3x1st1ngT3@m"
@@ -89,7 +89,7 @@ describe("POST /join", () => {
         expect(response.text).toBe('Error finding the user or the team!');
     })
 
-    test("A request with a fake userId should return 500", async () =>{
+    test("A join request with a fake userId should return 500", async () =>{
         const teamName = "testTeam";
         const team = await Team.findOne({name: teamName});
         const response = await request(app).post('/teams/join').send({
@@ -102,7 +102,7 @@ describe("POST /join", () => {
 
     test("Joining with a member of the team should return 500", async () =>{
         const testUser = "admin";
-        const team = await Team.findOne({userId: testUser});
+        const team = await Team.findOne({adminId: testUser});
         const response = await request(app).post('/teams/join').send({
             userId: testUser,
             teamId: team._id
@@ -110,8 +110,86 @@ describe("POST /join", () => {
         expect(response.status).toBe(500);
         expect(response.text).toBe('Error: User already in team.');
     })
+    test("A leave request without userId and teamId field should return 400", async () =>{
+        const response = await request(app).post('/teams/leave').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error: Missing parameters.');
+    })
+    test("A leave request with a fake teamId should return 500", async () =>{
+        const response = await request(app).post('/teams/leave').send({
+            userId: "admin",
+            teamId: "n0n3x1st1ngT3@m"
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error finding the user or the team!');
+    })
+
+    test("A leave request with a fake userId should return 500", async () =>{
+        const teamName = "testTeam";
+        const team = await Team.findOne({name: teamName});
+        const response = await request(app).post('/teams/leave').send({
+            userId: "n0t3x1st",
+            teamId: team._id
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe("Error: User not in team.");
+    })
+
+    test("Leaving a team where the user is the admin should return 500", async () =>{
+        const testUser = "admin";
+        const team = await Team.findOne({adminId: testUser});
+        const response = await request(app).post('/teams/leave').send({
+            userId: testUser,
+            teamId: team._id
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe("Error: User is the admin of the team. An admin cannot leave the team.");
+    })
+
+    test("Joining a team where the user is not a member and then leaving it should return 200", async () =>{
+        const testUser = "testUser";
+        const teamName = "testTeam";
+        await request(app).post('/users/initUser').send({ userId: testUser });
+        const team = await Team.findOne({name: teamName});
+        const join_response = await request(app).post('/teams/join').send({
+            userId: testUser,
+            teamId: team._id
+        });
+        expect(join_response.status).toBe(200);
+        expect(join_response.text).toBe('Team joined successfully');
+        const leave_response = await request(app).post('/teams/leave').send({
+            userId: testUser,
+            teamId: team._id
+        });
+        expect(leave_response.status).toBe(200);
+        expect(leave_response.text).toBe('Team left successfully');
+        await User.deleteOne({userId: testUser});
+    })
+
 })
 
-describe("GET /getTeam", () => {})
+describe("GET /getTeam", () => {
+    test("A get request without teamId should return 400", async () =>{
+        const response = await request(app).get('/teams/getTeam').query({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error: Missing parameters.');
+    })
 
-describe("GET /leave", () => {})
+    test("A get request with a non existing teamId should return 500", async () =>{
+        const response = await request(app).get('/teams/getTeam').query({teamId: "n0t3x1st1n9t3am"});
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('The specified teamId is not a valid objectId');
+    })
+
+    test("A get request with an existing teamId should return 200 and the team", async () =>{
+        const testUser = "admin";
+        const team = await Team.findOne({adminId: testUser});
+        const response = await request(app).get('/teams/getTeam').query({
+            teamId: team._id
+        });
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBeGreaterThan(0);
+        expect(response.type).toBe("application/json");
+    })
+})
+
