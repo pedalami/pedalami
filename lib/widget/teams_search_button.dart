@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
@@ -102,12 +105,19 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                 onPressed: () async{
                                   if(await MongoDB.instance.joinTeam(teamsFound[i].id, FirebaseAuth.instance.currentUser!.uid))
                                     {
+                                      if(LoggedUser.instance!.teams == null) {
+                                        LoggedUser.instance!.teams =
+                                            List.empty();
+                                      }
+                                      LoggedUser.instance!.teams!.add(teamsFound[i]);
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                         content: Text(
                                           "Joined "+teamsFound[i].name+" successfully!",),
                                       ));
                                       teamsFound[i].membersId.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
+                                      teamsFound.remove(teamsFound[i]);
+                                      LoggedUser.instance!.notifyListeners();
                                       setState(() {
 
                                       });
