@@ -388,7 +388,14 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget> [
                                 Text(
-                                  meterDistance(LoggedUser.instance!.statistics!.averageKm),
+                                  LoggedUser.instance!.statistics!.averageKm.roundToDouble().toString(),
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 2 * SizeConfig.textMultiplier!),
+                                ),
+                                Text(
+                                  " km",
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
