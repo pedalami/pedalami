@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/reward.dart';
 import 'package:pedala_mi/widget/get_reward_button.dart';
 
@@ -23,14 +22,12 @@ class _RewardItemState extends State<RewardItem> {
   @override
   void initState() {
     rewards=widget.rewards;
-    
     super.initState();
   }
 
   refresh() {
     widget.notifyParent();
     setState(() {});
-
   }
 
   @override

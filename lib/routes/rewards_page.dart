@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/reward.dart';
+import 'package:pedala_mi/routes/redeemed_rewards_page.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/widget/reward_item.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class RewardPage extends StatefulWidget {
   const RewardPage({Key? key}) : super(key: key);
@@ -39,6 +41,15 @@ class _RewardPageState extends State<RewardPage> {
   Widget build(BuildContext context) {
     String points= LoggedUser.instance!.points!.toStringAsFixed(0);
     return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: "btnShowRedeemedRewards",
+        backgroundColor: Colors.green[600],
+        onPressed: () {
+          pushNewScreen(context, screen: RedeemedRewardsPage());
+        },
+        label: Text("Redeemed Rewards"),
+        icon: Icon(Icons.list),
+      ),
       body: SingleChildScrollView(
         child: Column(
           children: [
