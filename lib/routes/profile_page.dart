@@ -578,7 +578,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     SizedBox(
-                      width: (MediaQuery.of(context).size.width + 10) / 2.3,
+                      width: (MediaQuery.of(context).size.width + 10) / 3,
                     ),
                     Text(
                       _miUser.rideHistory![index].points!.toStringAsFixed(0) + " Pts",
