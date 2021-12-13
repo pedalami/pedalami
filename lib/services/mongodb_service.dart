@@ -156,7 +156,7 @@ class MongoDB {
           "elevationGain": toRecord.elevationGain,
           "path": toRecord.path?.map((e) => {"latitude":e.latitude, "longitude":e.longitude}).toList()
         }));
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200){
       var decodedBody = json.decode(response.body);
       toRecord.pace = double.parse(decodedBody["pace"].toString());
       toRecord.points = double.parse(decodedBody["points"].toString());

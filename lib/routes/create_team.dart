@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -227,14 +228,13 @@ setState(() {
                                               ),
                                               onPressed: () {
                                                 Navigator.of(context).pop();
-                                                Navigator.of(context).pop();
                                               },
                                             ),
                                           ],
                                         );
 
                                       },
-                                    );
+                                    ).then((value) => Navigator.of(context).pop());
                                   }
                                 else
                                   {

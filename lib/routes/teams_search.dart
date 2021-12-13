@@ -19,14 +19,15 @@ class TeamsSearchPage extends StatefulWidget {
 }
 
 class _TeamsSearchPageState extends State<TeamsSearchPage> {
-  User? user;
+  LoggedUser? user;
   List<Team>? foundTeams;
   late bool hasSearched, loading;
   final teamSearchController = TextEditingController();
 
   @override
   void initState() {
-    user = FirebaseAuth.instance.currentUser;
+    user = LoggedUser.instance!;
+    user!.addListener(() {setState((){});});
     hasSearched = false;
     loading = false;
     super.initState();

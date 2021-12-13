@@ -384,11 +384,11 @@ class _MapPageState extends State<MapPage> {
                             onPressed: () async {
                               var road = await controller.drawRoad(
                                   GeoPoint(
-                                      latitude: 59.599115690689025,
-                                      longitude: 16.51954157364659),
+                                      latitude: 45.47706577107621,
+                                      longitude: 9.225647327123237),
                                   GeoPoint(
-                                      latitude: 59.618232365488105,
-                                      longitude: 16.540931231674413),
+                                      latitude: 45.47911197529172,
+                                      longitude: 9.22567362278855),
                                   roadType: RoadType.bike,
                                   roadOption: RoadOption(
                                     roadWidth: 10,
@@ -406,23 +406,35 @@ class _MapPageState extends State<MapPage> {
                                   totalElevation,
                                   500.0, [
                                 GeoPoint(
-                                    latitude: 59.599115690689025,
-                                    longitude: 16.51954157364659),
+                                    latitude: 45.47706577107621,
+                                    longitude: 9.225647327123237),
                                 GeoPoint(
-                                    latitude: 59.618232365488105,
-                                    longitude: 16.540931231674413)
+                                    latitude: 45.47911197529172,
+                                    longitude: 9.22567362278855)
                               ]);
 
-                              await controller.setZoom(stepZoom: -5.0);
-                              await controller.zoomOut();
+
                               Ride? response = await MongoDB.instance
                                   .recordRide(finishedRide);
-                              showRideCompleteDialog(context, size, response!);
+                              if (response != null) {
+          MongoDB.instance.initUser(_miUser.userId);
+          showRideCompleteDialog(
+          context, size, response);
+          //sleep(Duration(seconds:20));
 
-                              sleep(Duration(seconds: 10));
-                              pushNewScreen(context,
-                                  screen: RideCompletePage(
-                                      finishedRide: finishedRide));
+
+                                /*MongoDB.instance.initUser(_miUser.userId);
+                                //showRideCompleteDialog(context, size, response);
+                                pushNewScreen(context,
+                                    screen: RideCompletePage(
+                                        finishedRide: response));
+                                _miUser.notifyListeners();
+                              setState(() {
+
+                              });*/
+
+
+                              }
                             },
                             icon: FaIcon(FontAwesomeIcons.bicycle),
                             label: Text("Demo"));
