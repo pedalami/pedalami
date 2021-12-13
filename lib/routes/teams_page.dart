@@ -1,9 +1,12 @@
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/team_members.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
+
 
 class TeamProfile extends StatefulWidget {
   TeamProfile ({ Key? key, required this.team }) : super(key: key);
@@ -182,7 +185,29 @@ class _TeamProfileState extends State<TeamProfile> {
                             top: 3 * SizeConfig.heightMultiplier!,
                             right: 10),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async{
+                            var response = await MongoDB.instance.leaveTeam(widget.team.id, LoggedUser.instance!.userId);
+                            if(response.item1)
+                            {
+                              LoggedUser.instance!.teams?.remove(widget.team);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  widget.team.name+" left successfully!",),
+                              ));
+                              setState(() {
+
+                              });
+                            }
+                            else
+                            {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  response.item2,),
+                              ));
+                            }
+
                             pushNewScreen(
                               context,
                               screen: TeamsSearchPage(),
