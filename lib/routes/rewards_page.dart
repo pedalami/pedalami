@@ -85,7 +85,7 @@ class _RewardPageState extends State<RewardPage> with SingleTickerProviderStateM
               pushNewScreen(context, screen: RedeemedRewardsPage());
             },
             label: Text("Redeemed Rewards"),
-            icon: Icon(Icons.edit),
+            icon: Icon(Icons.list),
           ),
         ),
       ),
