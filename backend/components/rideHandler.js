@@ -16,7 +16,7 @@ app.post("/record", async (req, res) => {
   console.log("Received record POST request:");
   console.log(req.body);
   var ride = new Ride(req.body);
-  ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) *100)/100;
+  ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) * 100) / 100;
 
   if (req.body.userId) {
     const user = await User.findOne({ userId: req.body.userId });
@@ -24,24 +24,30 @@ app.post("/record", async (req, res) => {
       gamificationController.assignPoints(user, ride);
       profileController.updateUserStatistics(user, ride);
       await gamificationController.checkNewBadgesAfterRide(user, ride);
-      connection.transaction( (session) => {
+      /*connection.transaction((session) => {
         return Promise.all([
-          user.save({session}),
-          ride.save({session})
+          user.save({ session }),
+          ride.save({ session })
         ])
       })
-      .then(() => {
-        res.json({
-          message: "Ride saved successfully, user statistics and badges updated successfully",
-          points: ride.points,
-          pace: ride.pace,
-          id: ride._id,
-        });
-      })
-      .catch((err) => {
-        console.log("Errors found:\n"+err);
+      */
+      user.save().then(() => {
+        ride.save().then(() => {
+          res.json({
+            message: "Ride saved successfully, user statistics and badges updated successfully",
+            points: ride.points,
+            pace: ride.pace,
+            id: ride._id,
+          });
+        })
+          .catch((err) => {
+            console.log("Errors found:\n" + err);
+            res.status(500).send(err);
+          })
+      }).catch((err) => {
+        console.log("Errors found:\n" + err);
         res.status(500).send(err);
-      })
+      });
     } else {
       console.error("Cannot find the user specified!\n");
       res.status(500).send("Cannot find the user specified!");

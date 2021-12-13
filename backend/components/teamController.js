@@ -25,12 +25,15 @@ app.post('/create', (req, res) => {
       else {
         newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
-        connection.transaction((session) => {
+        /*connection.transaction((session) => {
           return Promise.all([
             newTeam.save({ session }),
             admin.save({ session })
           ])
         })
+        */
+        newTeam.save().then(() => {
+        admin.save()
           .then(() => {
             res.status(200).json({
               teamId: newTeam._id
@@ -42,8 +45,12 @@ app.post('/create', (req, res) => {
           }
           );
       }
+    ).catch(error => {
+      console.log('Error while creating the team!\n' + error);
+      res.status(500).send('Error while creating the team!\n' + error);
     });
-  } else {
+  }});
+ } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
   }
