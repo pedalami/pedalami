@@ -58,10 +58,6 @@ class _RewardPageState extends State<RewardPage> with SingleTickerProviderStateM
     _scrollController.addListener(() => setState(() {}));
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       rewards=(await MongoDB.instance.getRewards())!;
-      for(int i=0;i<10;i++)
-        {
-          rewards.add(rewards[0]);
-        }
       loading=false;
       setState(() {
 
