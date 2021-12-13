@@ -9,6 +9,8 @@ import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/reward.dart';
+import 'package:tuple/tuple.dart';
+
 
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
@@ -107,6 +109,16 @@ class MongoDB {
         headers: _headers,
         body: json.encode({'teamId': teamId, 'userId': userId}));
     return response.statusCode == 200 ? true : false;
+  }
+
+  //Returns true if everything went fine, false otherwise
+  Future<Tuple2<bool, String>> leaveTeam(String teamId, String userId) async {
+    var url = Uri.parse(baseUri + '/teams/leave');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'userId': userId}));
+    var returnTuple = Tuple2<bool, String>(response.statusCode == 200, response.body.toString());
+    return returnTuple;
   }
 
   //To get the history of rides of a user

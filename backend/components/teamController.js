@@ -55,7 +55,7 @@ app.get('/search', (req, res) => {
   console.log('Received search GET request with param '+req.query);
   if (to_search) {
     //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
-    Team.find({ name: {$regex: to_search} }, (error, teams) => {
+    Team.find({ name: {$regex: '.*'+to_search+".*", $options: 'i'}}, (error, teams) => {
       if (error) {
         console.log('Error finding the teams.\n'+error);
         res.status(500).send('Error finding the teams!');
@@ -131,7 +131,7 @@ app.post('/leave', (req, res) => {
       } else 
       if (team.adminId == req.body.userId) {
         console.log('Error: User is the admin of the team.');
-        res.status(500).send('Error: User is the admin of the team. An admin cannot leave the team.');
+        res.status(403).send('Forbidden: An admin cannot leave the team.');
       } else {
         user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
         team.members.splice(team.members.indexOf(req.body.userId), 1);

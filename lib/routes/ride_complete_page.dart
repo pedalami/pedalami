@@ -41,7 +41,7 @@ class RideCompletePage extends StatelessWidget {
                 ),
                 Container(
                   child: Text(
-                    finishedRide.durationInSeconds!.toStringAsFixed(3),
+                    (finishedRide.durationInSeconds!/60).toStringAsFixed(1) + " min",
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -66,7 +66,7 @@ class RideCompletePage extends StatelessWidget {
                 ),
                 Container(
                   child: Text(
-                    finishedRide.totalKm!.toStringAsFixed(3),
+                    finishedRide.totalKm!.toStringAsFixed(2) + " km",
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -82,7 +82,7 @@ class RideCompletePage extends StatelessWidget {
               children: [
                 Container(
                   child: Text(
-                    "AVG Speed:",
+                    "Pace:",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                 ),
@@ -91,7 +91,7 @@ class RideCompletePage extends StatelessWidget {
                 ),
                 Container(
                   child: Text(
-                    finishedRide.pace!.toStringAsFixed(3),
+                    finishedRide.pace!.toStringAsFixed(2) + " km/h",
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -107,7 +107,7 @@ class RideCompletePage extends StatelessWidget {
               children: [
                 Container(
                   child: Text(
-                    "Road Slope: ",
+                    "Elevation gain: ",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                 ),
@@ -117,7 +117,7 @@ class RideCompletePage extends StatelessWidget {
 
                 Container(
                   child: Text(
-                    finishedRide.elevationGain!.toStringAsFixed(3),
+                    finishedRide.elevationGain!.toStringAsFixed(2) + " m",
                     style: TextStyle(fontSize: 20),
                   ),
                 )
@@ -158,7 +158,7 @@ class RideCompletePage extends StatelessWidget {
                   height: 10,
                 ),
                 Text(
-                  finishedRide.points!.toString(),
+                  finishedRide.points!.toStringAsFixed(0),
                   style: TextStyle(
                       fontSize: 60,
                       color: Colors.green,
