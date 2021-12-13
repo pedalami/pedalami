@@ -196,9 +196,9 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 ],
               ),
             ),
-            SizedBox(
+            /*SizedBox(
               height: 3 * SizeConfig.heightMultiplier!,
-            ),
+            ),*/
             displayTeam(),
             /*Padding(
               padding: EdgeInsets.only(
