@@ -1,23 +1,16 @@
-import 'dart:io';
-//import 'dart:js_util';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
-import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/team_members.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
-import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:pedala_mi/models/team.dart';
-import 'package:pedala_mi/routes/teams_search.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
+
 
 class TeamProfile extends StatefulWidget {
-  TeamProfile({Key? key}) : super(key: key);
+  TeamProfile ({ Key? key, required this.team }) : super(key: key);
+  final Team team;
 
   @override
   _TeamProfileState createState() => _TeamProfileState();
@@ -25,59 +18,19 @@ class TeamProfile extends StatefulWidget {
 
 class _TeamProfileState extends State<TeamProfile> {
   bool check = false;
-  LoggedUser _miUser = LoggedUser.instance!;
-  Team? active;
-
-  String teamName = /*active!.name;*/ "Team Awesome";
-  String description = /*active!.description.toString(); */ "Nerd guys with high ambitions";
-  String teamAdmin = /*active!.adminId;*/ "Admin's username";
-
-
-  void initValues() async{
-    active = await MongoDB.instance.getTeam("61af228ca2719ca673109a22");
-    //active = await MongoDB.instance.getTeam("yTi9ZmJbK4Sy4yykwRvrDAcCFPB3");
-    //print(active!.name);
-  }
-
-  String adminsUsername(){
-    if(_miUser.userId == LoggedUser.instance!.teams!.first.adminId)
-      return _miUser.username;
-    else
-      return "Admin's uername";
-  }
 
   @override
   void initState() {
-    //initValues();
-
-    /*
-    OLD. See the above new declaration of _miUser LoggedUser for reference.
-    CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection("Users");
-    usersCollection
-        .where("Mail", isEqualTo: user!.email)
-        .get()
-        .then((QuerySnapshot querySnapshot) async {
-      setState(() {
-        _miUser = new LoggedUser(
-            querySnapshot.docs[0].id,
-            querySnapshot.docs[0].get("Image"),
-            querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"), 0.0);
-        usernameController.value =
-            usernameController.value.copyWith(text: _miUser.username);
-        //TODO - Comment added by Vincenzo:
-        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
-        //My suggestion is to have a single shared MiUser to use in the whole application.
-      });
-    });
-     */
+    widget.team.addListener(() => setState(() {}));
     super.initState();
+  }
+
+  String getAdminUsername() {
+    return widget.team.getAdminName() ?? "Username of the admin not found";
   }
 
   @override
   Widget build(BuildContext context) {
-    //initValues();
     return Scaffold(
       body: Stack(
         clipBehavior: Clip.none,
@@ -101,16 +54,10 @@ class _TeamProfileState extends State<TeamProfile> {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: Colors.lightGreen,
-                          /*image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      nStringToNNString(_miUser.image)),*/
                         ),
                       ),
                       Text(
-                        _miUser.teams!.first.name.toString(),
-                        //LoggedUser.instance!.teams!.first.name.toString(),
-                        // teamName, //active!.name,
+                        widget.team.name,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.black54,
@@ -158,9 +105,7 @@ class _TeamProfileState extends State<TeamProfile> {
                           color: Colors.black54,
                           fontSize: 2.5 * SizeConfig.textMultiplier!,),
                       ),
-                      Text( _miUser.teams!.first.description.toString(),
-                        //LoggedUser.instance!.teams!.first.description.toString(),
-                        //description, //active!.description.toString(),
+                      Text( widget.team.description ?? "This team has no description",
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Colors.black54,
@@ -178,8 +123,8 @@ class _TeamProfileState extends State<TeamProfile> {
                           color: Colors.black54,
                           fontSize: 2.5 * SizeConfig.textMultiplier!,),
                       ),
-                      Text(//teamAdmin, // active!.adminId,
-                         adminsUsername(),
+                      Text(
+                        getAdminUsername(),
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Colors.black54,
@@ -217,9 +162,8 @@ class _TeamProfileState extends State<TeamProfile> {
                           onPressed: () {
                             pushNewScreen(
                               context,
-                              screen: TeamMembers(),
+                              screen: TeamMembers(team: widget.team),
                               pageTransitionAnimation: PageTransitionAnimation.cupertino,
-
                             );
                           },
                           child: Text("Team Members"),
@@ -241,7 +185,29 @@ class _TeamProfileState extends State<TeamProfile> {
                             top: 3 * SizeConfig.heightMultiplier!,
                             right: 10),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async{
+                            var response = await MongoDB.instance.leaveTeam(widget.team.id, LoggedUser.instance!.userId);
+                            if(response.item1)
+                            {
+                              LoggedUser.instance!.teams?.remove(widget.team);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  widget.team.name+" left successfully!",),
+                              ));
+                              setState(() {
+
+                              });
+                            }
+                            else
+                            {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  response.item2,),
+                              ));
+                            }
+
                             pushNewScreen(
                               context,
                               screen: TeamsSearchPage(),
@@ -274,6 +240,7 @@ class _TeamProfileState extends State<TeamProfile> {
         ],
       ),
     );
+
   }
 
   String nStringToNNString(String? str) {

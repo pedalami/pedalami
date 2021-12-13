@@ -9,6 +9,8 @@ import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/reward.dart';
+import 'package:tuple/tuple.dart';
+
 
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
@@ -109,6 +111,16 @@ class MongoDB {
     return response.statusCode == 200 ? true : false;
   }
 
+  //Returns true if everything went fine, false otherwise
+  Future<Tuple2<bool, String>> leaveTeam(String teamId, String userId) async {
+    var url = Uri.parse(baseUri + '/teams/leave');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'userId': userId}));
+    var returnTuple = Tuple2<bool, String>(response.statusCode == 200, response.body.toString());
+    return returnTuple;
+  }
+
   //To get the history of rides of a user
   Future<List<Ride>?> getAllRidesFromUser(String userID) async {
     var url = Uri.parse(baseUri + '/rides/getAllByUserId')
@@ -125,10 +137,10 @@ class MongoDB {
   }
 
   Future<String> getUsername(String userId) async {
-    QuerySnapshot querySnapshot = await FirebaseFirestore.instance.collection("Users")
+    QuerySnapshot querySnapshot = await (FirebaseFirestore.instance.collection("Users")
         .where("userId", isEqualTo: userId)
-        .get();
-    return querySnapshot.docs[0].get(userId);
+        .get());
+    return querySnapshot.docs.first.get("Username");
   }
 
   Future<Ride?> recordRide(Ride toRecord) async {
@@ -144,7 +156,7 @@ class MongoDB {
           "elevationGain": toRecord.elevationGain,
           "path": toRecord.path?.map((e) => {"latitude":e.latitude, "longitude":e.longitude}).toList()
         }));
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200){
       var decodedBody = json.decode(response.body);
       toRecord.pace = double.parse(decodedBody["pace"].toString());
       toRecord.points = double.parse(decodedBody["points"].toString());
@@ -161,7 +173,9 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);
-      return Team.fromJson(decodedBody);
+      Team t = Team.fromJson(decodedBody, parseMembers: true);
+      t.retrieveUsernames();
+      return t;
     } else
       return null;
   }
@@ -210,40 +224,3 @@ class MongoDB {
   }
   
 }
-
-
-
-
-
-
-/*
-//Returns the recorded ride if everything went fine
-  //Returns null in case of error
-  Future<List<String>?> recordRide2(String userID, String name, int durationInSeconds, double totalKm, DateTime date, double elevationGain) async {
-    var url = Uri.parse('https://pedalami.herokuapp.com/rides/record');
-    var response = await _serverClient.post(url,
-        headers: _headers,
-        body: json.encode({
-          "uid": userID,
-          "name": name,
-          "durationInSeconds": durationInSeconds,
-          "totalKm": totalKm,
-          "date": date.toString(),
-          "elevationGain": elevationGain})
-          );
-    if (response.statusCode == 200) {
-      var decodedBody = json.decode(response.body) as List<String>;
-      return decodedBody; //here, after implementing the ride class, we can return the ride object updated with the values in the serponse
-      /*
-      The response body has this structure:
-      {
-        "message": "Ride saved successfully",
-        "points": 10100,
-        "pace": 7200,
-        "id": "61a53224c7a4d074a77aa6bc"
-      }
-      */
-    } else
-      return null;
-  }
- */

@@ -12,7 +12,6 @@ import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/routes/team_members.dart';
 
-
 class TeamsSearchPage extends StatefulWidget {
   TeamsSearchPage({Key? key}) : super(key: key);
   @override
@@ -20,16 +19,17 @@ class TeamsSearchPage extends StatefulWidget {
 }
 
 class _TeamsSearchPageState extends State<TeamsSearchPage> {
-  User? user;
+  LoggedUser? user;
   List<Team>? foundTeams;
   late bool hasSearched, loading;
   final teamSearchController = TextEditingController();
 
   @override
   void initState() {
-    user = FirebaseAuth.instance.currentUser;
-    hasSearched=false;
-    loading=false;
+    user = LoggedUser.instance!;
+    user!.addListener(() {setState((){});});
+    hasSearched = false;
+    loading = false;
     super.initState();
   }
 
@@ -50,7 +50,8 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 child: Column(
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.only(top: 5 * SizeConfig.heightMultiplier!),
+                      padding: EdgeInsets.only(
+                          top: 5 * SizeConfig.heightMultiplier!),
                       child: Column(
                         children: <Widget>[
                           Padding(
@@ -65,26 +66,29 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                   counterStyle: TextStyle(
                                     color: CustomColors.silver,
                                   ),
-                                  enabledBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
                                     borderSide:
-                                    BorderSide(color: CustomColors.silver),
+                                        BorderSide(color: CustomColors.silver),
                                   ),
-                                  focusedBorder: OutlineInputBorder(borderRadius:BorderRadius.circular(20.0),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(20.0),
                                     borderSide:
-                                    BorderSide(color: CustomColors.green),
+                                        BorderSide(color: CustomColors.green),
                                   ),
                                   hintText: "Search for team",
                                   hintStyle:
-                                  TextStyle(color: CustomColors.silver)),
+                                      TextStyle(color: CustomColors.silver)),
                               controller: teamSearchController,
                               onSubmitted: (value) async {
                                 setState(() {
-                                  hasSearched=true;
-                                  loading=true;
+                                  hasSearched = true;
+                                  loading = true;
                                 });
-                                foundTeams = await MongoDB.instance.searchTeam(teamSearchController.text);
+                                foundTeams = await MongoDB.instance
+                                    .searchTeam(teamSearchController.text);
                                 setState(() {
-                                  loading=false;
+                                  loading = false;
                                 });
                               },
                             ),
@@ -99,12 +103,12 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 ),
               ),
             ),
-            !hasSearched?
-            Container(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    /*Padding(
+            !hasSearched
+                ? Container(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          /*Padding(
                         padding: EdgeInsets.only(
                             left: 40.0, top: 1 * SizeConfig.heightMultiplier!,
                             right: 30.0,),
@@ -133,36 +137,36 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                   );
                                 },
                               ), */
-                    Divider(
-                      color: Colors.grey[500],
+                          Divider(
+                            color: Colors.grey[500],
+                          ),
+                          Row(
+                            children: [
+                              SizedBox(
+                                width: 7.0 * SizeConfig.widthMultiplier!,
+                              ),
+                              //)
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 7.0 * SizeConfig.widthMultiplier!,
-                        ),
-                        //)
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ) :
-            loading ?
-            Text("Loading...") :
-            (
-                foundTeams != null && foundTeams!.length>0 ?
-                TeamSearchButton(teamsFound: foundTeams!) :
-                Text("No teams found")
-            ),
+                  )
+                : loading
+                    ? Text("Loading...")
+                    : (foundTeams != null && foundTeams!.length > 0
+                        ? TeamSearchButton(teamsFound: foundTeams!)
+                        : Text("No teams found")),
             Divider(
               color: Colors.grey[500],
             ),
             //TODO: better ui loading or no results
             Padding(
               padding: EdgeInsets.only(
-                left: 40.0, top: 1 * SizeConfig.heightMultiplier!,
-                right: 30.0,),
+                left: 40.0,
+                top: 1 * SizeConfig.heightMultiplier!,
+                right: 30.0,
+              ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
@@ -178,23 +182,25 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                     width: 15 * SizeConfig.heightMultiplier!,
                   ),
                   Align(alignment: Alignment.centerRight),
-                  FloatingActionButton.extended(backgroundColor: Colors.lightGreen,
+                  FloatingActionButton.extended(
+                    backgroundColor: Colors.lightGreen,
                     label: FaIcon(FontAwesomeIcons.plus),
                     onPressed: () {
                       pushNewScreen(
                         context,
                         screen: TeamCreation(),
-                        pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                        pageTransitionAnimation:
+                            PageTransitionAnimation.cupertino,
                       );
                     },
                   ),
                 ],
               ),
             ),
-            SizedBox(
+            /*SizedBox(
               height: 3 * SizeConfig.heightMultiplier!,
-            ),
-            displayTeam(LoggedUser.instance!.teams),
+            ),*/
+            displayTeam(),
             /*Padding(
               padding: EdgeInsets.only(
                   left: 10,
@@ -247,54 +253,67 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
     );
   }
 
-Widget displayTeam(teamId) {
-  return Container(
+  Widget displayTeam() {
+    return Container(
       height: MediaQuery.of(context).size.height / 1.8,
       child: ListView.builder(
-      itemCount: LoggedUser.instance!.teams!.length,
-      itemBuilder: (BuildContext context, int index) {
-      return GestureDetector(
-      child: Stack(
-        children: [
-          GestureDetector(
-            child: Padding(
-              padding: const EdgeInsets.only(left: 100.0),
-              child: ClipRRect(
-                //borderRadius: BorderRadius.circular(70),
-                child: Image.network(
-                  "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                  height: 20.0 * SizeConfig.heightMultiplier!,
-                  width: 50.0 * SizeConfig.widthMultiplier!,
-                ),
+          itemCount: LoggedUser.instance!.teams?.length ?? 0,
+          itemBuilder: (BuildContext context, int index) {
+            return GestureDetector(
+              child: Stack(
+                children: [
+                  GestureDetector(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                       children: [
+                         ClipRRect(
+                         borderRadius: BorderRadius.circular(70),
+                         child: Image(
+                          image: AssetImage('lib/assets/app_icon.png'),
+                          height: 16 * SizeConfig.heightMultiplier!,
+                          width: 32 * SizeConfig.widthMultiplier!,
+                        ),
+                      ),],
+                    ),
+                    onTap: () async {
+                      Team selectedTeam = LoggedUser.instance!.teams![index];
+                      if (selectedTeam.members == null) {
+                        print("Getting team data");
+                        LoggedUser.instance!.teams![index] =
+                            (await MongoDB.instance.getTeam(selectedTeam.id))!;
+                        selectedTeam = LoggedUser.instance!.teams![index];
+                      }
+                      print("Showing team details");
+                      pushNewScreen(
+                        context,
+                        screen: TeamProfile(team: selectedTeam),
+                        pageTransitionAnimation:
+                            PageTransitionAnimation.cupertino,
+                      );
+                    },
+                  ),
+                  Positioned.fill(
+                      child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Text(
+                            LoggedUser.instance!.teams![index].name,
+                            style: TextStyle(
+                                fontSize: 2 * SizeConfig.textMultiplier!,
+                                fontWeight: FontWeight.bold),
+                          )))
+                ],
               ),
-            ),
-            onTap: () {
-              pushNewScreen(
-                context,
-                screen: TeamProfile(),
-                pageTransitionAnimation: PageTransitionAnimation.cupertino,);
-            },
-          ),
-          Positioned.fill(
-              child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Text(
-                    LoggedUser.instance!.teams![index].name.toString(),
-                    style: TextStyle(
-                        fontWeight: FontWeight.bold),
-                  )))
-        ],
-      ),
-      onTap: () {
-        pushNewScreen(
-          context,
-          screen: TeamProfile(),
-          pageTransitionAnimation: PageTransitionAnimation.cupertino,);
-       },
-      );
-     }
-    ),
-   );
+              onTap: () {
+                pushNewScreen(
+                  context,
+                  screen: TeamProfile(
+                    team: LoggedUser.instance!.teams![index],
+                  ),
+                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                );
+              },
+            );
+          }),
+    );
   }
-
 }

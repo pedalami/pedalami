@@ -55,7 +55,7 @@ app.get('/search', (req, res) => {
   console.log('Received search GET request with param '+req.query);
   if (to_search) {
     //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
-    Team.find({ name: {$regex: to_search} }, (error, teams) => {
+    Team.find({ name: {$regex: '.*'+to_search+".*", $options: 'i'}}, (error, teams) => {
       if (error) {
         console.log('Error finding the teams.\n'+error);
         res.status(500).send('Error finding the teams!');
@@ -131,7 +131,7 @@ app.post('/leave', (req, res) => {
       } else 
       if (team.adminId == req.body.userId) {
         console.log('Error: User is the admin of the team.');
-        res.status(500).send('Error: User is the admin of the team. An admin cannot leave the team.');
+        res.status(403).send('Forbidden: An admin cannot leave the team.');
       } else {
         user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
         team.members.splice(team.members.indexOf(req.body.userId), 1);
@@ -166,11 +166,17 @@ app.get('/getTeam', (req, res) => {
   const teamId = req.query.teamId;
   console.log('Received getTeam GET request with params ' + teamId);
   if (teamId) {
-    Team
-      .aggregate([
+    var teamIdObject;
+    try {
+      teamIdObject = new ObjectId(teamId);
+    } catch (error) {
+      console.log('The specified teamId is not a valid objectId' + error);
+      res.status(500).send('The specified teamId is not a valid objectId');
+    }
+    Team.aggregate([
         {
           $match: {
-            _id: ObjectId(teamId)
+            _id: teamIdObject
           }
         },
         {
@@ -187,22 +193,20 @@ app.get('/getTeam', (req, res) => {
       ])
       .exec((error, teams) => {
         if (error) {
-          console.log('Error finding the user.\n' + error);
+          console.log('Error finding the team.\n' + error);
           res.status(500).send('Error finding the team!');
         } else {
-          if (teams && teams.length == 1) {
+          if (teams && teams.length === 1) {
             res.status(200).send(teams[0]);
           } else {
             res.status(500).send('Error finding the team!');
           }
         }
-      });
+      })
   } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
   }
 });
-
-
 
 module.exports = app;

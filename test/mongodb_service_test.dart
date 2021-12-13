@@ -15,11 +15,12 @@ MongoDB instance = MongoDB.instance;
 void main() {
   test('initUser testing', () async {
     instance.localDebug();
-    var uid ='15MkgTwMyOST77sinqjCzBhaPyE3';
+    var uid ='wqYXryHv31anGdjr2AsjjijLH0y1';
     var lid = LoggedUser.instance!.userId;
     bool res = await instance.initUser(uid);
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
+    print(LoggedUser.instance!.teams!.first.members);
     print(LoggedUser.instance!.redeemedRewards);
     assert(res == true);
   });
@@ -84,7 +85,7 @@ void main() {
 
   test('getTeam testing', () async {
     instance.localDebug();
-    Team? t = await instance.getTeam("61af228ca2719ca673109a22");
+    Team? t = await instance.getTeam("61b62171060cfec3a916b9a8");
     print(t?.members ?? "Null team");
     assert(t != null);
   });
