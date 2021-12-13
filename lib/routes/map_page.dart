@@ -329,11 +329,11 @@ class _MapPageState extends State<MapPage> {
                                         500.0,
                                         path);
 
-                                    //TODO: Uncomment this line to debug the database
                                     Ride? response = await MongoDB.instance
                                         .recordRide(finishedRide);
                                     print(response!.rideId);
-                                    MongoDB.instance.initUser(_miUser.userId);
+                                    await MongoDB.instance.initUser(_miUser.userId);
+                                    _miUser.notifyListeners();
                                     showRideCompleteDialog(
                                         context, size, response);
                                   }
@@ -417,7 +417,8 @@ class _MapPageState extends State<MapPage> {
                               Ride? response = await MongoDB.instance
                                   .recordRide(finishedRide);
                               if (response != null) {
-          MongoDB.instance.initUser(_miUser.userId);
+          await MongoDB.instance.initUser(_miUser.userId);
+          _miUser.notifyListeners();
           showRideCompleteDialog(
           context, size, response);
           //sleep(Duration(seconds:20));
