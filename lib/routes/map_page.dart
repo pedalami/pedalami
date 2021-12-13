@@ -330,11 +330,12 @@ class _MapPageState extends State<MapPage> {
                                         path);
 
                                     //TODO: Uncomment this line to debug the database
-                                    Ride? response = await MongoDB.instance.recordRide(finishedRide);
+                                    Ride? response = await MongoDB.instance
+                                        .recordRide(finishedRide);
                                     print(response!.rideId);
                                     MongoDB.instance.initUser(_miUser.userId);
-                                    showRideCompleteDialog(context, size,
-                                        response);
+                                    showRideCompleteDialog(
+                                        context, size, response);
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
@@ -364,6 +365,69 @@ class _MapPageState extends State<MapPage> {
                             );
                           },
                         ))),
+                Positioned(
+                    bottom: size.height / 4,
+                    width: size.width / 0.6,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: StatefulBuilder(builder: (context, internalState) {
+                        return ElevatedButton.icon(
+                            style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                    Size(size.width / 3, size.height / 15)),
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.amber),
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                ))),
+                            onPressed: () async {
+                              var road = await controller.drawRoad(
+                                  GeoPoint(
+                                      latitude: 59.599115690689025,
+                                      longitude: 16.51954157364659),
+                                  GeoPoint(
+                                      latitude: 59.618232365488105,
+                                      longitude: 16.540931231674413),
+                                  roadType: RoadType.bike,
+                                  roadOption: RoadOption(
+                                    roadWidth: 10,
+                                    roadColor: Colors.green,
+                                  ));
+
+                              Ride finishedRide = Ride(
+                                  nStringToNNString(_miUser.userId),
+                                  nStringToNNString(_miUser.username),
+                                  null,
+                                  road.duration,
+                                  road.distance,
+                                  null,
+                                  DateTime.now(),
+                                  totalElevation,
+                                  500.0, [
+                                GeoPoint(
+                                    latitude: 59.599115690689025,
+                                    longitude: 16.51954157364659),
+                                GeoPoint(
+                                    latitude: 59.618232365488105,
+                                    longitude: 16.540931231674413)
+                              ]);
+
+                              await controller.setZoom(stepZoom: -5.0);
+                              await controller.zoomOut();
+                              Ride? response = await MongoDB.instance
+                                  .recordRide(finishedRide);
+                              showRideCompleteDialog(context, size, response!);
+
+                              sleep(Duration(seconds: 10));
+                              pushNewScreen(context,
+                                  screen: RideCompletePage(
+                                      finishedRide: finishedRide));
+                            },
+                            icon: FaIcon(FontAwesomeIcons.bicycle),
+                            label: Text("Demo"));
+                      }),
+                    ))
               ],
             ),
           );
