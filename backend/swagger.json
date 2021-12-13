@@ -18,21 +18,21 @@
     "application/json"
   ],
   "paths": {
-    "/users/create": {
+    "/users/initUser": {
       "post": {
-        "summary": "Create new user",
+        "summary": "Create new user or retrieve exixting one",
         "tags": [
           "Users"
         ],
-        "description": "Create new user",
+        "description": "Create new user or retrieve exixting one",
         "parameters": [
           {
             "in": "body",
             "name": "user ID",
-            "description": "ID of the user that we want to create",
+            "description": "ID of the user",
             "schema": {
               "properties": {
-                "uid": {
+                "userId": {
                   "type": "string"
                 }
               }
@@ -44,7 +44,10 @@
         ],
         "responses": {
           "200": {
-            "description": "User saved correctly!"
+            "description": "User saved correctly!",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
           },
           "400": {
             "description": "Missing parameters"
@@ -68,7 +71,17 @@
             "name": "team data",
             "description": "Data of the team that we want to create",
             "schema": {
-              "$ref": "#/definitions/Team"
+              "properties": {
+                "adminId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -77,7 +90,14 @@
         ],
         "responses": {
           "200": {
-            "description": "Team saved correctly!"
+            "description": "Team saved correctly!",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                }
+              }
+            }
           },
           "400": {
             "description": "Missing parameters"
@@ -106,7 +126,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Teams"
+              "$ref": "#/definitions/TeamWJoinedMembers"
             }
           },
           "400": {
@@ -120,32 +140,122 @@
     }
   },
   "definitions": {
-    "User": {
-      "required": [
-        "uid"
-      ],
+    "Badge": {
       "properties": {
-        "uid": {
+        "criteria": {
+          "type": "string"
+        },
+        "criteriaValue": {
+          "type": "number"
+        },
+        "image": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "Statistics": {
+      "properties": {
+        "numberOfRides": {
+          "type": "number"
+        },
+        "totalDuration": {
+          "type": "number"
+        },
+        "totalKm": {
+          "type": "number"
+        },
+        "totalElevationGain": {
+          "type": "number"
+        },
+        "averageSpeed": {
+          "type": "number"
+        },
+        "averageDuration": {
+          "type": "number"
+        },
+        "averageKm": {
+          "type": "number"
+        },
+        "averageElevationGain": {
+          "type": "number"
+        }
+      }
+    },
+    "User": {
+      "properties": {
+        "userId": {
           "type": "string"
         },
         "points": {
           "type": "integer",
           "default": 0
+        },
+        "badges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Badge"
+          }
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TeamWJoinedMembers"
+          }
+        },
+        "statistics": {
+          "$ref": "#/definitions/Statistics"
+        },
+        "rewards": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RedeemedReward"
+          }
         }
       }
     },
-    "Team": {
-      "required": [
-        "team_id",
-        "admin_uid",
-        "name",
-        "members"
-      ],
+    "TeamWJoinedMembers": {
       "properties": {
-        "team_id": {
+        "_id": {
           "type": "string"
         },
-        "admin_uid": {
+        "adminId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "members": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/"
+          }
+        },
+        "active_events": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "event_requests": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "TeamWithoutJoinedMembers": {
+      "properties": {
+        "_id": {
+          "type": "string"
+        },
+        "adminId": {
           "type": "string"
         },
         "name": {
@@ -171,16 +281,36 @@
         }
       }
     },
-    "Users": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/User"
+    "Reward": {
+      "properties": {
+        "price": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        }
       }
     },
-    "Teams": {
-      "type": "array",
-      "items": {
-        "$ref": "#/definitions/Team"
+    "RedeemedReward": {
+      "properties": {
+        "price": {
+          "type": "number"
+        },
+        "description": {
+          "type": "string"
+        },
+        "image": {
+          "type": "string"
+        },
+        "redeemedDate": {
+          "type": "string"
+        },
+        "rewardContent": {
+          "type": "string"
+        }
       }
     }
   }
