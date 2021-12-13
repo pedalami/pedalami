@@ -5,7 +5,7 @@ const models = require('../schemas.js');
 const Team = models.Team;
 const User = models.User;
 const ObjectId = models.ObjectId;
-const connection = models.connection;
+const mongoose = require('mongoose');
 
 // POST /create
 app.post('/create', (req, res) => {
@@ -15,31 +15,32 @@ app.post('/create', (req, res) => {
     newTeam = new Team(req.body);
     User.findOne({ userId: req.body.adminId }, (error, admin) => {
       if (error) {
-        console.log('Error while searching for the user specified as admin!\n'+error);
+        console.log('Error while searching for the user specified as admin!\n' + error);
         res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
       }
       if (!admin) {
         console.log('Cannot find the user specified as admin!\n');
         res.status(500).send('Error while creating the team: the team admin specified does not exist!');
-      } 
+      }
       else {
         newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
-        connection.transaction( (session) => {
+        connection.transaction((session) => {
           return Promise.all([
-            newTeam.save({session}), 
-            admin.save({session})
-          ])})
-        .then(() => {
+            newTeam.save({ session }),
+            admin.save({ session })
+          ])
+        })
+          .then(() => {
             res.status(200).json({
               teamId: newTeam._id
             });
           })
-        .catch(error => {
-          console.log('Error while creating the team!\n'+error);
-          res.status(500).send('Error while creating the team!\n'+error);
-        }
-        );
+          .catch(error => {
+            console.log('Error while creating the team!\n' + error);
+            res.status(500).send('Error while creating the team!\n' + error);
+          }
+          );
       }
     });
   } else {
@@ -52,12 +53,12 @@ app.post('/create', (req, res) => {
 // GET /search?name=start_of_name
 app.get('/search', (req, res) => {
   const to_search = req.query.name;
-  console.log('Received search GET request with param '+req.query);
+  console.log('Received search GET request with param ' + req.query);
   if (to_search) {
     //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
-    Team.find({ name: {$regex: '.*'+to_search+".*", $options: 'i'}}, (error, teams) => {
+    Team.find({ name: { $regex: '.*' + to_search + ".*", $options: 'i' } }, (error, teams) => {
       if (error) {
-        console.log('Error finding the teams.\n'+error);
+        console.log('Error finding the teams.\n' + error);
         res.status(500).send('Error finding the teams!');
       } else {
         res.status(200).send(teams);
@@ -79,35 +80,37 @@ app.post('/join', (req, res) => {
       User.findOne({ userId: req.body.userId }).exec(),
       Team.findOne({ _id: req.body.teamId }).exec()
     ])
-    .then(([user, team]) => {
-      if (team.members.includes(req.body.userId)) {
-        console.log('Error: User already in team.');
-        res.status(500).send('Error: User already in team.');
-      } else {
-        if (user.teams == null) {
-          user.teams = [];
+      .then(([user, team]) => {
+        if (team.members.includes(req.body.userId)) {
+          console.log('Error: User already in team.');
+          res.status(500).send('Error: User already in team.');
+        } else {
+          if (user.teams == null) {
+            user.teams = [];
+          }
+          user.teams.push(req.body.teamId);
+          team.members.push(req.body.userId);
+          console.log(team.members);
+          user.save().then(() => {
+            team.save().then(() => {
+              res.status(200).send('Team joined successfully');
+            }).catch(error => {
+              user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
+              user.save();
+              console.log('Error while joining the team INTERNAL!\n' + error);
+              res.status(500).send('Error while joining the team!');
+            })
+          })
+            .catch((err) => {
+              console.log('Error while joining the team\n' + err);
+              res.status(500).send('Error while joining the team');
+            })
         }
-        user.teams.push(req.body.teamId);
-        team.members.push(req.body.userId);
-        connection.transaction( (session) => {
-          return Promise.all([
-            team.save({session}),
-            user.save({session})
-          ])
-        })
-        .then(() => {
-          res.status(200).send('Team joined successfully');
-        })
-        .catch((err) => {
-          console.log('Error while joining the team\n' + err);
-          res.status(500).send('Error while joining the team');
-        })
-      }
-    })
-    .catch((error) => {
-      console.log('Error finding the user or the team.\n' + error);
-      res.status(500).send('Error finding the user or the team!');
-    });
+      })
+      .catch((error) => {
+        console.log('Error finding the user or the team.\n' + error);
+        res.status(500).send('Error finding the user or the team!');
+      });
   }
   else {
     console.log('Error: Missing parameters.');
@@ -124,36 +127,38 @@ app.post('/leave', (req, res) => {
       User.findOne({ userId: req.body.userId }).exec(),
       Team.findOne({ _id: req.body.teamId }).exec()
     ])
-    .then(([user, team]) => {
-      if (!team.members.includes(req.body.userId)) {
-        console.log('Error: User not in team.');
-        res.status(500).send('Error: User not in team.');
-      } else 
-      if (team.adminId == req.body.userId) {
-        console.log('Error: User is the admin of the team.');
-        res.status(403).send('Forbidden: An admin cannot leave the team.');
-      } else {
-        user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
-        team.members.splice(team.members.indexOf(req.body.userId), 1);
-        connection.transaction( (session) => {
-          return Promise.all([
-            team.save({session}),
-            user.save({session})
-          ])
-        })
-        .then(() => {
-          res.status(200).send('Team left successfully');
-        })
-        .catch((err) => {
-          console.log('Error while leaving the team\n' + err);
-          res.status(500).send('Error while leaving the team');
-        })
-      }
-    })
-    .catch((error) => {
-      console.log('Error finding the user or the team.\n' + error);
-      res.status(500).send('Error finding the user or the team!');
-    });
+      .then(([user, team]) => {
+        if (!team.members.includes(req.body.userId)) {
+          console.log('Error: User not in team.');
+          res.status(500).send('Error: User not in team.');
+        } else
+          if (team.adminId == req.body.userId) {
+            console.log('Error: User is the admin of the team.');
+            res.status(403).send('Forbidden: An admin cannot leave the team.');
+          } else {
+            user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
+            team.members.splice(team.members.indexOf(req.body.userId), 1);
+                team.save().then(() => {
+                user.save()
+                  .then(() => {
+                    res.status(200).send('Team left successfully');
+                  }).catch(error => {
+                    team.members.push(req.body.userId);
+                    team.save();
+                    console.log('Error while leaving the team INTERNAL!\n' + error);
+                    res.status(500).send('Error while leaving the team!');
+                  })
+                })
+              .catch((err) => {
+                console.log('Error while leaving the team\n' + err);
+                res.status(500).send('Error while leaving the team');
+              })
+          }
+      })
+      .catch((error) => {
+        console.log('Error finding the user or the team.\n' + error);
+        res.status(500).send('Error finding the user or the team!');
+      });
   }
   else {
     console.log('Error: Missing parameters.');
@@ -174,23 +179,23 @@ app.get('/getTeam', (req, res) => {
       res.status(500).send('The specified teamId is not a valid objectId');
     }
     Team.aggregate([
-        {
-          $match: {
-            _id: teamIdObject
-          }
-        },
-        {
-          $lookup: {
-            from: "users", // collection name in db
-            localField: "members", // field of Team to make the lookup on (the field with the "foreign key")
-            foreignField: "userId", // the referred field in users 
-            as: "members" // name that the field of the join will have in the result/JSON
-          }
-        },
-        {
-          $unset: ["members.teams", "members._id", "members.__v", "__v", "members.rewards"]
+      {
+        $match: {
+          _id: teamIdObject
         }
-      ])
+      },
+      {
+        $lookup: {
+          from: "users", // collection name in db
+          localField: "members", // field of Team to make the lookup on (the field with the "foreign key")
+          foreignField: "userId", // the referred field in users 
+          as: "members" // name that the field of the join will have in the result/JSON
+        }
+      },
+      {
+        $unset: ["members.teams", "members._id", "members.__v", "__v", "members.rewards"]
+      }
+    ])
       .exec((error, teams) => {
         if (error) {
           console.log('Error finding the team.\n' + error);
