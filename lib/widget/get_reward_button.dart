@@ -115,14 +115,14 @@ class _GetRewardButtonState extends State<GetRewardButton> {
                                 LoggedUser.instance!.points! - reward.price;
                             if (LoggedUser.instance!.redeemedRewards == null) {
                               LoggedUser.instance!.redeemedRewards =
-                                  List.empty();
+                                  List.empty(growable: true);
                             }
                             LoggedUser.instance!.redeemedRewards!
                                 .add(redeemedReward);
                             LoggedUser.instance!.notifyListeners();
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                 content:
-                                    Text("You have redeemed you reward!")));
+                                    Text("You have redeemed your reward!")));
                             widget.notifyParent();
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
