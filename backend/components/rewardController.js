@@ -79,29 +79,53 @@ app.get("/getByUser", (req, res) => {
     console.log("Received rewards/getByUser GET request with param userId=" + req.query.userId);
     const userId = req.query.userId;
     if (userId) {
-      User
-        .aggregate([
-          {
-            $match: {
-              userId: userId
-            }
-          },
-          {
-            $lookup: {
-              from: "rewards", // collection name in db
-              localField: "rewards.rewardId", // field of User to make the lookup on (the foreign key)
-              foreignField: "_id", // the referred field in rewards
-              as: "rewards" // name that the field of the join will have in the result/JSON
-            }
-          }
-        ])
-        .exec((error, user) => {
-          console.log("User: " + user + " Error: " + error);
-          if (error || !user || user.length != 1) {
+      User.aggregate([
+        { $match: { userId: userId } },
+        { $unwind: {
+          path: "$rewards",
+          preserveNullAndEmptyArrays: true
+        }},
+        { $lookup: {
+          from: "rewards", // collection name in db
+          localField: "rewards.rewardId", // field of User to make the lookup on (the field with the "foreign key")
+          foreignField: "_id", // the referred field in rewards
+          as: "baseReward" // name that the field of the join will have in the result/JSON
+        }},
+        {$unwind: {
+          path: "$baseReward",
+          preserveNullAndEmptyArrays: true
+        }},
+        {$group: {
+          _id: "$_id",
+          userId: {$first: "$userId"},
+          badges: {$first: "$badges"},
+          statistics: {$first: "$statistics"},
+          points: {$first: "$points"},
+          teams: {$first: "$teams"},
+          rewards: {$push: {
+            $cond:[
+              { $eq: [ { "$ifNull": [ "$rewards", null ] }, null ] },
+              "$$REMOVE",
+              {
+                rewardId: "$rewards.rewardId",
+                redeemedDate: "$rewards.redeemedDate",
+                rewardContent: "$rewards.rewardContent",
+                description: "$baseReward.description",
+                image: "$baseReward.image",
+                price: "$baseReward.price"
+              }
+            ]
+          }}
+        }},
+        { $unset: [ "__v"] }
+      ])
+      .exec((error, users) => {
+          console.log("User: " + users + " Error: " + error);
+          if (error || !users) {
             console.log("Error finding the user and performing the join with rewards.\n" + error);
             res.status(500).send("Error finding the user and performing the join with rewards.\n" + error);
           } else {
-            res.status(200).send(user[0].rewards);
+            res.status(200).send(users[0].rewards);
           }
         });
     } else {
