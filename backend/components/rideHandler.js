@@ -15,7 +15,7 @@ app.post("/record", async (req, res) => {
   console.log(req.body);
   var ride = new Ride(req.body);
   if (req.body.userId) {
-    connection.transaction((session) => {
+    connection.transaction(async (session) => {
       ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) * 100) / 100;
       const user = await User.findOne({ userId: req.body.userId }).session(session).exec();
       if (user) {

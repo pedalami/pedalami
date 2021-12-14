@@ -13,7 +13,7 @@ app.post('/create', (req, res) => {
   console.log(req.body);
   if (req.body.name && req.body.adminId) {
     newTeam = new Team(req.body);
-    connection.transaction((session) => {
+    connection.transaction(async (session) => {
       const admin = await User.findOne({ userId: req.body.adminId }).session(session).exec()
       if (!admin) {
         console.log('Cannot find the user specified as admin!\n');

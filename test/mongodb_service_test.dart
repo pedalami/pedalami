@@ -20,7 +20,6 @@ void main() {
     bool res = await instance.initUser(uid);
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
-    print(LoggedUser.instance!.teams!.first.members);
     print(LoggedUser.instance!.redeemedRewards);
     assert(res == true);
   });
@@ -85,7 +84,7 @@ void main() {
 
   test('getTeam testing', () async {
     instance.localDebug();
-    Team? t = await instance.getTeam("61b62171060cfec3a916b9a8");
+    Team? t = await instance.getTeam("61b7a6d7d13fcf04e9955329");
     print(t?.members ?? "Null team");
     assert(t != null);
   });

@@ -6,7 +6,7 @@ const Reward = models.Reward;
 const User = models.User;
 
 // POST /redeem
-app.post('/redeem', (req, res) => {
+app.post('/redeem', async (req, res) => {
     console.log('Received redeem POST request:');
     console.log(req.body);
     if (req.body.rewardId && req.body.userId) {
@@ -99,7 +99,6 @@ app.get("/getByUser", (req, res) => {
       { $unset: [ "__v"] }
     ])
     .exec((error, users) => {
-      console.log("User: " + users + " Error: " + error);
       if (error || !users) {
         console.log("Error finding the user and performing the join with rewards.\n" + error);
         res.status(500).send("Error finding the user and performing the join with rewards.");
