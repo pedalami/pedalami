@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/widget/custom_alert_dialog.dart';
@@ -199,6 +200,7 @@ setState(() {
                               onPressed: () async{
                                 if(await MongoDB.instance.createTeam(FirebaseAuth.instance.currentUser!.uid, teamNameController.text, descriptionController.text)!=null)
                                   {
+                                    await MongoDB.instance.initUser(FirebaseAuth.instance.currentUser!.uid);
 
                                     showDialog<void>(
                                       context: context,

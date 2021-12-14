@@ -20,6 +20,8 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
   @override
   void initState() {
     teamsFound=widget.teamsFound;
+
+
     super.initState();
   }
 
