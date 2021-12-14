@@ -72,6 +72,7 @@ void main() {
 
   test('redeem a reward', () async {
     instance.localDebug();
+    LoggedUser.instance!.points = 300;
     RedeemedReward? newReward =
         await instance.redeemReward('61b0ce42c08e1dcc4daa29ab');
     assert(newReward != null);

@@ -20,6 +20,8 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
   @override
   void initState() {
     teamsFound=widget.teamsFound;
+
+
     super.initState();
   }
 
@@ -107,7 +109,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                     {
                                       if(LoggedUser.instance!.teams == null) {
                                         LoggedUser.instance!.teams =
-                                            List.empty();
+                                            List.empty(growable: true);
                                       }
                                       LoggedUser.instance!.teams!.add(teamsFound[i]);
                                       ScaffoldMessenger.of(context)
@@ -118,9 +120,7 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                                       teamsFound[i].membersId.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
                                       teamsFound.remove(teamsFound[i]);
                                       LoggedUser.instance!.notifyListeners();
-                                      setState(() {
-
-                                      });
+                                      setState(() {});
                                     }
                                   else
                                     {

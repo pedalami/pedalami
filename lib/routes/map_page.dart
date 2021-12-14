@@ -191,9 +191,9 @@ class _MapPageState extends State<MapPage> {
                   showContributorBadgeForOSM: false,
                   //trackMyPosition: trackingNotifier.value,
                   showDefaultInfoWindow: false,
-                  onLocationChanged: (myLocation) {
+                  /*onLocationChanged: (myLocation) {
                     print(myLocation);
-                  },
+                  },*/
                   onGeoPointClicked: (geoPoint) async {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
@@ -329,13 +329,17 @@ class _MapPageState extends State<MapPage> {
                                         500.0,
                                         path);
 
-                                    //TODO: Uncomment this line to debug the database
                                     Ride? response = await MongoDB.instance
                                         .recordRide(finishedRide);
-                                    print(response!.rideId);
-                                    MongoDB.instance.initUser(_miUser.userId);
-                                    showRideCompleteDialog(
-                                        context, size, response);
+                                    if (response != null) {
+                                      if (_miUser.rideHistory == null) {
+                                        _miUser.rideHistory = List.empty(growable: true);
+                                      }
+                                      _miUser.rideHistory!.add(response);
+                                      MongoDB.instance.initUser(_miUser.userId);
+                                      showRideCompleteDialog(
+                                          context, size, response);
+                                    }
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
@@ -416,24 +420,16 @@ class _MapPageState extends State<MapPage> {
 
                               Ride? response = await MongoDB.instance
                                   .recordRide(finishedRide);
+
                               if (response != null) {
-          MongoDB.instance.initUser(_miUser.userId);
-          showRideCompleteDialog(
-          context, size, response);
-          //sleep(Duration(seconds:20));
-
-
-                                /*MongoDB.instance.initUser(_miUser.userId);
-                                //showRideCompleteDialog(context, size, response);
-                                pushNewScreen(context,
-                                    screen: RideCompletePage(
-                                        finishedRide: response));
-                                _miUser.notifyListeners();
-                              setState(() {
-
-                              });*/
-
-
+                                if(_miUser.rideHistory == null){
+                                  _miUser.rideHistory = List.empty(growable: true);
+                                }
+                                _miUser.rideHistory!.add(response);
+                                MongoDB.instance.initUser(_miUser.userId);
+                                //_miUser.notifyListeners();
+                                showRideCompleteDialog(
+                                context, size, response);
                               }
                             },
                             icon: FaIcon(FontAwesomeIcons.bicycle),

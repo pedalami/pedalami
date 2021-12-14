@@ -266,7 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget> [
                                 Text(
-                                  LoggedUser.instance!.statistics!.totalKm.roundToDouble().toString(),
+                                  LoggedUser.instance!.statistics!.totalKm.toStringAsFixed(2),
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -354,7 +354,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget> [
                                 Text(
-                                  LoggedUser.instance!.statistics!.averageSpeed.roundToDouble().toString(),
+                                  LoggedUser.instance!.statistics!.averageSpeed.toStringAsFixed(2),
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
@@ -388,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: <Widget> [
                                 Text(
-                                  LoggedUser.instance!.statistics!.averageKm.roundToDouble().toString(),
+                                  LoggedUser.instance!.statistics!.averageKm.toStringAsFixed(2),
                                   style: TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.bold,
