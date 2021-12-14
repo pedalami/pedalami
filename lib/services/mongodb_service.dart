@@ -11,7 +11,6 @@ import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/reward.dart';
 import 'package:tuple/tuple.dart';
 
-
 class MongoDB {
   //Backend developers make the functions for the mongo api calls here,
   //Frontend developers can then use these functions in the flutter project
@@ -22,7 +21,6 @@ class MongoDB {
   String baseUri = "https://pedalami.herokuapp.com";
   static var _dateFormatter = DateFormat("yyyy-MM-ddTHH:mm:ss");
 
-
   Map<String, String> _headers = {
     'Content-type': 'application/json; charset=utf-8',
     'Accept': 'application/json',
@@ -31,7 +29,7 @@ class MongoDB {
   //Use to convert Dart DateTime object to a string whose format matches the one of the backend
   //returns the date in the following UTC format: 2021-12-03T03:30:40.000Z
   static String formatDate(DateTime date) {
-    return _dateFormatter.format(date.toUtc())+".000Z";
+    return _dateFormatter.format(date.toUtc()) + ".000Z";
   }
 
   //Use to convert a string matching the database date format to Dart DateTime.
@@ -57,10 +55,17 @@ class MongoDB {
         //print(decodedBody);
         var points = double.parse(decodedBody["points"].toString());
         Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
-        List<Team> teamList = decodedBody["teams"]?.map<Team>((team) => Team.fromJson(team)).toList();
-        List<Badge> badgeList = decodedBody["badges"]?.map<Badge>((badge) => Badge.fromJson(badge)).toList();
-        List<RedeemedReward> rewardsList = decodedBody["rewards"]?.map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward)).toList();
-        LoggedUser.completeInstance(points, teamList, stats, badgeList, rewardsList);
+        List<Team> teamList = decodedBody["teams"]
+            ?.map<Team>((team) => Team.fromJson(team))
+            .toList();
+        List<Badge> badgeList = decodedBody["badges"]
+            ?.map<Badge>((badge) => Badge.fromJson(badge))
+            .toList();
+        List<RedeemedReward> rewardsList = decodedBody["rewards"]
+            ?.map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward))
+            .toList();
+        LoggedUser.completeInstance(
+            points, teamList, stats, badgeList, rewardsList);
       } catch (ex, st) {
         print("The following exception occurred in the initUser:\n");
         print(ex);
@@ -96,7 +101,8 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      List<Team> teamList = decodedBody.map((team) => Team.fromJson(team)).toList();
+      List<Team> teamList =
+          decodedBody.map((team) => Team.fromJson(team)).toList();
       return teamList;
     } else
       return null;
@@ -117,7 +123,8 @@ class MongoDB {
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({'teamId': teamId, 'userId': userId}));
-    var returnTuple = Tuple2<bool, String>(response.statusCode == 200, response.body.toString());
+    var returnTuple = Tuple2<bool, String>(
+        response.statusCode == 200, response.body.toString());
     return returnTuple;
   }
 
@@ -130,14 +137,16 @@ class MongoDB {
       var decodedBody = json.decode(response.body) as List<dynamic>;
       //print("decoded body");
       //print(decodedBody);
-      List<Ride> ridesList = decodedBody.map<Ride>((ride) => Ride.fromJson(ride)).toList();
+      List<Ride> ridesList =
+          decodedBody.map<Ride>((ride) => Ride.fromJson(ride)).toList();
       return ridesList;
     } else
       return null;
   }
 
   Future<String> getUsername(String userId) async {
-    QuerySnapshot querySnapshot = await (FirebaseFirestore.instance.collection("Users")
+    QuerySnapshot querySnapshot = await (FirebaseFirestore.instance
+        .collection("Users")
         .where("userId", isEqualTo: userId)
         .get());
     return querySnapshot.docs.first.get("Username");
@@ -154,9 +163,11 @@ class MongoDB {
           "totalKm": toRecord.totalKm,
           "date": formatDate(toRecord.date),
           "elevationGain": toRecord.elevationGain,
-          "path": toRecord.path?.map((e) => {"latitude":e.latitude, "longitude":e.longitude}).toList()
+          "path": toRecord.path
+              ?.map((e) => {"latitude": e.latitude, "longitude": e.longitude})
+              .toList()
         }));
-    if (response.statusCode == 200){
+    if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);
       toRecord.pace = double.parse(decodedBody["pace"].toString());
       toRecord.points = double.parse(decodedBody["points"].toString());
@@ -181,46 +192,45 @@ class MongoDB {
   }
 
   //Gets all the available rewards
-  Future<List<Reward>?> getRewards() async{
+  Future<List<Reward>?> getRewards() async {
     var url = Uri.parse(baseUri + '/rewards/list');
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      List<Reward> rewardList = decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
+      List<Reward> rewardList =
+          decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
       return rewardList;
     } else
       return null; //TODO add verbose error
   }
 
   //Redeem a reward
-  Future<RedeemedReward?> redeemReward(String rewardId) async{
+  Future<RedeemedReward?> redeemReward(String rewardId) async {
     var url = Uri.parse(baseUri + '/rewards/redeem');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({
-          "userId": LoggedUser.instance!.userId,
-          "rewardId": rewardId
-        }));
+        body: json.encode(
+            {"userId": LoggedUser.instance!.userId, "rewardId": rewardId}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);
       RedeemedReward newReward = RedeemedReward.fromJson(decodedBody);
-    return newReward;
+      return newReward;
     } else
       return null; //TODO add more verbose error
   }
 
   // Get all rewards of a userId
-  Future<List<Reward>?> getAllRewardsFromUser(String userID) async {
+  Future<List<RedeemedReward>?> getAllRewardsFromUser(String userID) async {
     var url = Uri.parse(baseUri + '/rewards/getByUser')
         .replace(queryParameters: {'userId': userID});
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      List<Reward> rewardsList =
-          decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
+      List<RedeemedReward> rewardsList = decodedBody
+          .map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward))
+          .toList();
       return rewardsList;
     } else
       return null;
   }
-  
 }
