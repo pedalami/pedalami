@@ -330,11 +330,12 @@ class _MapPageState extends State<MapPage> {
                                         path);
 
                                     //TODO: Uncomment this line to debug the database
-                                    Ride? response = await MongoDB.instance.recordRide(finishedRide);
+                                    Ride? response = await MongoDB.instance
+                                        .recordRide(finishedRide);
                                     print(response!.rideId);
-
-                                    showRideCompleteDialog(context, size,
-                                        response);
+                                    MongoDB.instance.initUser(_miUser.userId);
+                                    showRideCompleteDialog(
+                                        context, size, response);
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
@@ -364,6 +365,81 @@ class _MapPageState extends State<MapPage> {
                             );
                           },
                         ))),
+                Positioned(
+                    bottom: size.height / 4,
+                    width: size.width / 0.6,
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: StatefulBuilder(builder: (context, internalState) {
+                        return ElevatedButton.icon(
+                            style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(
+                                    Size(size.width / 3, size.height / 15)),
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.amber),
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                ))),
+                            onPressed: () async {
+                              var road = await controller.drawRoad(
+                                  GeoPoint(
+                                      latitude: 45.47706577107621,
+                                      longitude: 9.225647327123237),
+                                  GeoPoint(
+                                      latitude: 45.47911197529172,
+                                      longitude: 9.22567362278855),
+                                  roadType: RoadType.bike,
+                                  roadOption: RoadOption(
+                                    roadWidth: 10,
+                                    roadColor: Colors.green,
+                                  ));
+
+                              Ride finishedRide = Ride(
+                                  nStringToNNString(_miUser.userId),
+                                  nStringToNNString(_miUser.username),
+                                  null,
+                                  road.duration,
+                                  road.distance,
+                                  null,
+                                  DateTime.now(),
+                                  totalElevation,
+                                  500.0, [
+                                GeoPoint(
+                                    latitude: 45.47706577107621,
+                                    longitude: 9.225647327123237),
+                                GeoPoint(
+                                    latitude: 45.47911197529172,
+                                    longitude: 9.22567362278855)
+                              ]);
+
+
+                              Ride? response = await MongoDB.instance
+                                  .recordRide(finishedRide);
+                              if (response != null) {
+          MongoDB.instance.initUser(_miUser.userId);
+          showRideCompleteDialog(
+          context, size, response);
+          //sleep(Duration(seconds:20));
+
+
+                                /*MongoDB.instance.initUser(_miUser.userId);
+                                //showRideCompleteDialog(context, size, response);
+                                pushNewScreen(context,
+                                    screen: RideCompletePage(
+                                        finishedRide: response));
+                                _miUser.notifyListeners();
+                              setState(() {
+
+                              });*/
+
+
+                              }
+                            },
+                            icon: FaIcon(FontAwesomeIcons.bicycle),
+                            label: Text("Demo"));
+                      }),
+                    ))
               ],
             ),
           );

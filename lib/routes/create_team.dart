@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -198,43 +199,30 @@ setState(() {
                               onPressed: () async{
                                 if(await MongoDB.instance.createTeam(FirebaseAuth.instance.currentUser!.uid, teamNameController.text, descriptionController.text)!=null)
                                   {
-
-                                    showDialog<void>(
-                                      context: context,
-                                      barrierDismissible: false, // user must tap button!
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          backgroundColor: Colors.white,
-                                          title: Text(
-                                            "Success",
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                          content: SingleChildScrollView(
-                                            child: ListBody(
-                                              children: <Widget>[
-                                                Text(
-                                                  "Your team has been created successfully!",
-                                                  style: TextStyle(color: Colors.black),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: Text(
-                                                'OK',
-                                                style: TextStyle(color: CustomColors.green),
+                                    final snackBar = SnackBar(
+                                        elevation: 20.0,
+                                        content: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Text(
+                                              "Success",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.bold,
                                               ),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                                Navigator.of(context).pop();
-                                              },
                                             ),
+                                            SizedBox(
+                                              height: 10,
+                                            ),
+                                            Text(
+                                              "Your team has been created successfully!",
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.normal,
+                                              ),
+                                            )
                                           ],
-                                        );
-
-                                      },
-                                    );
+                                        ));
+                                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                                    Navigator.pop(context);
                                   }
                                 else
                                   {

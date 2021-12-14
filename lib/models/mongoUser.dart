@@ -24,6 +24,6 @@ class MongoUser {
 
   @override
   String toString() {
-    return 'MongoUser{userId: $userId, points: $points, statistics: $statistics}';
+    return 'MongoUser{userId: $userId, username: $username, points: $points, statistics: $statistics}';
   }
 }

@@ -38,8 +38,13 @@ app.use('/rides', ridesRouter);
 app.use('/rewards', rewardsRoutes)
 app.use('/tests', require('./backend/components/genBadgesInfo.js'));
 
+var options = {
+    swaggerOptions: {
+        defaultModelsExpandDepth: -1
+    }
+};
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument,options));
 
 
 app.get('/', (req, res) => {
