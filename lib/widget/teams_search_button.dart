@@ -102,7 +102,6 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                             child: FittedBox(
                               fit: BoxFit.contain,
                               child:
-                              //TODO: check if user is already enrolled to this specific team. If so do not show the button but nothing (SizedBox())
                               ElevatedButton(
                                 onPressed: () async{
                                   if(await MongoDB.instance.joinTeam(teamsFound[i].id, FirebaseAuth.instance.currentUser!.uid))
