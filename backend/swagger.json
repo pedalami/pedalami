@@ -28,7 +28,7 @@
         "parameters": [
           {
             "in": "body",
-            "name": "user ID",
+            "name": "Request",
             "description": "ID of the user",
             "schema": {
               "properties": {
@@ -68,7 +68,7 @@
         "parameters": [
           {
             "in": "body",
-            "name": "team data",
+            "name": "Request",
             "description": "Data of the team that we want to create",
             "schema": {
               "properties": {
@@ -126,7 +126,212 @@
           "200": {
             "description": "OK",
             "schema": {
+              "$ref": "#/definitions/ArrayTeamWithoutJoinedMembers"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while searching the teams"
+          }
+        }
+      }
+    },
+    "/teams/join": {
+      "post": {
+        "summary": "Join team",
+        "tags": [
+          "Teams"
+        ],
+        "description": "Join team",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Team id and id of the user who wants to join",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Team saved correctly!"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error saving the team"
+          }
+        }
+      }
+    },
+    "/teams/leave": {
+      "post": {
+        "summary": "Leave team",
+        "tags": [
+          "Teams"
+        ],
+        "description": "Leave team",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Team id and id of the user who wants to leave",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Team leaved correctly"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error saving the team"
+          }
+        }
+      }
+    },
+    "/teams/getTeam": {
+      "get": {
+        "tags": [
+          "Teams"
+        ],
+        "summary": "Get all the info of a team given its identifier",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "teamId",
+            "type": "string",
+            "description": "Id of the team"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
               "$ref": "#/definitions/TeamWJoinedMembers"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while searching the teams"
+          }
+        }
+      }
+    },
+    "/rewards/redeem": {
+      "post": {
+        "summary": "Redeem a reward",
+        "tags": [
+          "Rewards"
+        ],
+        "description": "Redeem a reward",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the user redeem a reward if he has enough points",
+            "schema": {
+              "properties": {
+                "rewardId": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "Reward redeemed correctly",
+            "schema": {
+              "$ref": "#/definitions/RedeemedReward"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error saving the team"
+          }
+        }
+      }
+    },
+    "/rewards/list": {
+      "get": {
+        "tags": [
+          "Rewards"
+        ],
+        "summary": "Get the list of all the available rewards",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Reward"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while searching the teams"
+          }
+        }
+      }
+    },
+    "/rewards/getByUser": {
+      "get": {
+        "tags": [
+          "Rewards"
+        ],
+        "summary": "Get all the rewards that a user has redeemed",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "type": "string",
+            "description": "Id of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ArrayRedeemedRewards"
             }
           },
           "400": {
@@ -233,19 +438,7 @@
         "members": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/"
-          }
-        },
-        "active_events": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
-        "event_requests": {
-          "type": "array",
-          "items": {
-            "type": "string"
+            "$ref": "#/definitions/BasicUser"
           }
         }
       }
@@ -281,6 +474,26 @@
         }
       }
     },
+    "BasicUser": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "points": {
+          "type": "integer",
+          "default": 0
+        },
+        "badges": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Badge"
+          }
+        },
+        "statistics": {
+          "$ref": "#/definitions/Statistics"
+        }
+      }
+    },
     "Reward": {
       "properties": {
         "price": {
@@ -311,6 +524,18 @@
         "rewardContent": {
           "type": "string"
         }
+      }
+    },
+    "ArrayRedeemedRewards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/RedeemedReward"
+      }
+    },
+    "ArrayTeamWithoutJoinedMembers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/TeamWithoutJoinedMembers"
       }
     }
   }
