@@ -97,9 +97,15 @@ class _GetRewardButtonState extends State<GetRewardButton>{
                             style: TextStyle(color: CustomColors.green),
                           ),
                           onPressed: () async{
-                            if(await MongoDB.instance.redeemReward(reward.id)!=null)
+                            var redeemedReward = await MongoDB.instance.redeemReward(reward.id);
+                            if(redeemedReward != null)
                               {
                                 LoggedUser.instance!.points=LoggedUser.instance!.points!-reward.price;
+                                if(LoggedUser.instance!.redeemedRewards == null){
+                                  LoggedUser.instance!.redeemedRewards = List.empty();
+                                }
+                                LoggedUser.instance!.redeemedRewards!.add(redeemedReward);
+                                LoggedUser.instance!.notifyListeners();
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have redeemed you reward!")));
                                 widget.notifyParent();
                               }

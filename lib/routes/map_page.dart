@@ -331,6 +331,17 @@ class _MapPageState extends State<MapPage> {
 
                                     Ride? response = await MongoDB.instance
                                         .recordRide(finishedRide);
+                                    if (response != null) {
+                                      if (_miUser.rideHistory == null) {
+                                        _miUser.rideHistory = List.empty();
+                                      }
+                                      _miUser.rideHistory!.add(response);
+                                      await MongoDB.instance.initUser(
+                                          _miUser.userId);
+                                      _miUser.notifyListeners();
+                                      showRideCompleteDialog(
+                                          context, size, response);
+                                    }
                                     print(response!.rideId);
                                     await MongoDB.instance.initUser(_miUser.userId);
                                     _miUser.notifyListeners();
@@ -416,7 +427,12 @@ class _MapPageState extends State<MapPage> {
 
                               Ride? response = await MongoDB.instance
                                   .recordRide(finishedRide);
+
                               if (response != null) {
+                                if(_miUser.rideHistory == null){
+                                  _miUser.rideHistory = List.empty();
+                                }
+                                _miUser.rideHistory!.add(response);
           await MongoDB.instance.initUser(_miUser.userId);
           _miUser.notifyListeners();
           showRideCompleteDialog(

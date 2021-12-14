@@ -6,17 +6,17 @@ import 'package:pedala_mi/models/reward.dart';
 class RedeemedRewardItem extends StatefulWidget {
   const RedeemedRewardItem({
     Key? key,
-    required List<Reward> rewards,
+    required List<RedeemedReward> rewards,
   })  : rewards = rewards,
         super(key: key);
-  final List<Reward> rewards;
+  final List<RedeemedReward> rewards;
 
   @override
   _RedeemedRewardItemState createState() => _RedeemedRewardItemState();
 }
 
 class _RedeemedRewardItemState extends State<RedeemedRewardItem> {
-  late List<Reward> rewards;
+  late List<RedeemedReward> rewards;
 
   @override
   void initState() {
@@ -69,6 +69,15 @@ class _RedeemedRewardItemState extends State<RedeemedRewardItem> {
                     ),
                     Text(
                       rewards[i].description,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                    Text(
+                      "Content:",
+                      style:
+                      TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      rewards[i].rewardContent,
                       style: TextStyle(fontSize: 15),
                     ),
                   ],

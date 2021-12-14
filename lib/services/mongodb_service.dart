@@ -210,14 +210,14 @@ class MongoDB {
   }
 
   // Get all rewards of a userId
-  Future<List<Reward>?> getAllRewardsFromUser(String userID) async {
+  Future<List<RedeemedReward>?> getAllRewardsFromUser(String userID) async {
     var url = Uri.parse(baseUri + '/rewards/getByUser')
         .replace(queryParameters: {'userId': userID});
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
-      List<Reward> rewardsList =
-          decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
+      List<RedeemedReward> rewardsList =
+          decodedBody.map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward)).toList();
       return rewardsList;
     } else
       return null;

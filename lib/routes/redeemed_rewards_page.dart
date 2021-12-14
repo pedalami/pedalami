@@ -15,7 +15,7 @@ class RedeemedRewardsPage extends StatefulWidget {
 class _RedeemedRewardsPageState extends State<RedeemedRewardsPage> {
 
   late bool loading;
-  List<Reward> redeemedRewards=[];
+  List<RedeemedReward> redeemedRewards=[];
 
 
   @override
