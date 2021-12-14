@@ -41,7 +41,7 @@ class _GetRewardButtonState extends State<GetRewardButton>{
                             color: Colors.grey)))),
             child: Text(price+(price=="1"?" point":" points")),
             onPressed:(){
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You don\ 't have enogh points for "+reward.description+ "!")));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You don\'t have enogh points for "+reward.description+ "!")));
             }
         );
       }
@@ -99,7 +99,7 @@ class _GetRewardButtonState extends State<GetRewardButton>{
                             if(await MongoDB.instance.redeemReward(reward.id)!=null)
                               {
                                 LoggedUser.instance!.points=LoggedUser.instance!.points!-reward.price;
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have redeemed you reward!")));
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("You have redeemed your reward!")));
                                 widget.notifyParent();
                               }
                             else
