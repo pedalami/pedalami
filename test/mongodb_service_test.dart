@@ -35,11 +35,11 @@ void main() {
     print(MongoDB.parseDate("2021-12-03T00:00:00.000Z"));
   });
 
-  test('img testing', () async {
+  /*test('img testing', () async {
     final bytes = File("/Users/vi/Downloads/badges/totKm1.png").readAsBytesSync();
     String base64Image = "data:image/png;base64,"+base64Encode(bytes);
     print(base64Image);
-  });
+  });*/
 
 
 
@@ -72,6 +72,7 @@ void main() {
 
   test('redeem a reward', () async {
     instance.localDebug();
+    LoggedUser.instance!.points = 300;
     RedeemedReward? newReward = await instance.redeemReward(
         '61b0ce42c08e1dcc4daa29ab');
     assert (newReward != null);
