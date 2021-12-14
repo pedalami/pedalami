@@ -9,6 +9,7 @@ import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/widget/redeemed_reward_item.dart';
 import 'package:pedala_mi/widget/reward_item.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:widget_circular_animator/widget_circular_animator.dart';
 
 class RewardPage extends StatefulWidget {
   const RewardPage({Key? key}) : super(key: key);
@@ -81,9 +82,21 @@ class _RewardPageState extends State<RewardPage> {
                 ),
               ),
               loading
-                  ? Text("Loading...")
-                  : (rewards.length == 0
-                      ? Text("No rewards available")
+                  ? Column(
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).size.width*.5,),
+                      CircularProgressIndicator(color: Colors.green[600],),
+                      SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                      Text("Loading...", style: TextStyle(fontSize: 17),)
+                    ],
+                  )
+                  : (rewards.length == 0 ?
+              Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.width*.6,),
+                  Text("No rewards available.", style: TextStyle(fontSize: 17, color: Colors.grey),)
+                ],
+              )
                       : RewardItem(rewards: rewards, notifyParent: refresh)),
               SizedBox(
                 height: 50,
