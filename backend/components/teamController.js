@@ -5,52 +5,38 @@ const models = require('../schemas.js');
 const Team = models.Team;
 const User = models.User;
 const ObjectId = models.ObjectId;
-const mongoose = require('mongoose');
+const connection = models.connection;
 
 // POST /create
 app.post('/create', (req, res) => {
   console.log('Received create POST request:');
   console.log(req.body);
-  if (req.body.name) {
+  if (req.body.name && req.body.adminId) {
     newTeam = new Team(req.body);
-    User.findOne({ userId: req.body.adminId }, (error, admin) => {
-      if (error) {
-        console.log('Error while searching for the user specified as admin!\n' + error);
-        res.status(500).send('Error while creating the team!\nError while searching for the user specified as admin');
-      }
+    connection.transaction((session) => {
+      const admin = await User.findOne({ userId: req.body.adminId }).session(session).exec()
       if (!admin) {
         console.log('Cannot find the user specified as admin!\n');
         res.status(500).send('Error while creating the team: the team admin specified does not exist!');
-      }
-      else {
+      } else {
         newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
-        /*connection.transaction((session) => {
-          return Promise.all([
-            newTeam.save({ session }),
-            admin.save({ session })
-          ])
-        })
-        */
-        newTeam.save().then(() => {
-        admin.save()
-          .then(() => {
-            res.status(200).json({
-              teamId: newTeam._id
-            });
-          })
-          .catch(error => {
-            console.log('Error while creating the team!\n' + error);
-            res.status(500).send('Error while creating the team!\n' + error);
-          }
-          );
+        await Promise.all([
+          newTeam.save({ session }),
+          admin.save({ session })
+        ]);
       }
-    ).catch(error => {
-      console.log('Error while creating the team!\n' + error);
-      res.status(500).send('Error while creating the team!\n' + error);
+    })
+    .then(() => {
+      res.status(200).json({
+        teamId: newTeam._id
+      });
+    })
+    .catch((error) => {
+      console.log('Error while creating the team: ' + error);
+      res.status(500).send('Error while creating the team!');
     });
-  }});
- } else {
+  } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
   }
@@ -83,41 +69,32 @@ app.post('/join', (req, res) => {
   console.log('Received join POST request:');
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
-    Promise.all([
-      User.findOne({ userId: req.body.userId }).exec(),
-      Team.findOne({ _id: req.body.teamId }).exec()
-    ])
-      .then(([user, team]) => {
-        if (team.members.includes(req.body.userId)) {
-          console.log('Error: User already in team.');
-          res.status(500).send('Error: User already in team.');
-        } else {
-          if (user.teams == null) {
-            user.teams = [];
-          }
-          user.teams.push(req.body.teamId);
-          team.members.push(req.body.userId);
-          console.log(team.members);
-          user.save().then(() => {
-            team.save().then(() => {
-              res.status(200).send('Team joined successfully');
-            }).catch(error => {
-              user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
-              user.save();
-              console.log('Error while joining the team INTERNAL!\n' + error);
-              res.status(500).send('Error while joining the team!');
-            })
-          })
-            .catch((err) => {
-              console.log('Error while joining the team\n' + err);
-              res.status(500).send('Error while joining the team');
-            })
+    connection.transaction( async (session) => {
+      const [user, team] = await Promise.all([
+        User.findOne({ userId: req.body.userId }).session(session).exec(),
+        Team.findOne({ _id: req.body.teamId }).session(session).exec()
+      ]);
+      if (team.members.includes(req.body.userId)) {
+        throw new Error('Error: User already in team.');
+      } else {
+        if (user.teams == null) {
+          user.teams = [];
         }
-      })
-      .catch((error) => {
-        console.log('Error finding the user or the team.\n' + error);
-        res.status(500).send('Error finding the user or the team!');
-      });
+        user.teams.push(req.body.teamId);
+        team.members.push(req.body.userId);
+        await Promise.all([
+          team.save(),
+          user.save()
+        ])
+      }
+    })
+    .then(() => {
+      res.status(200).send('Team joined successfully');
+    })
+    .catch((err) => {
+      console.log('Error while joining the team\n' + err);
+      res.status(500).send('Error while joining the team');
+    })
   }
   else {
     console.log('Error: Missing parameters.');
@@ -130,42 +107,33 @@ app.post('/leave', (req, res) => {
   console.log('Received leave POST request:');
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
-    Promise.all([
-      User.findOne({ userId: req.body.userId }).exec(),
-      Team.findOne({ _id: req.body.teamId }).exec()
-    ])
-      .then(([user, team]) => {
-        if (!team.members.includes(req.body.userId)) {
-          console.log('Error: User not in team.');
-          res.status(500).send('Error: User not in team.');
-        } else
-          if (team.adminId == req.body.userId) {
-            console.log('Error: User is the admin of the team.');
-            res.status(403).send('Forbidden: An admin cannot leave the team.');
-          } else {
-            user.teams.splice(user.teams.indexOf(req.body.teamId), 1);
-            team.members.splice(team.members.indexOf(req.body.userId), 1);
-                team.save().then(() => {
-                user.save()
-                  .then(() => {
-                    res.status(200).send('Team left successfully');
-                  }).catch(error => {
-                    team.members.push(req.body.userId);
-                    team.save();
-                    console.log('Error while leaving the team INTERNAL!\n' + error);
-                    res.status(500).send('Error while leaving the team!');
-                  })
-                })
-              .catch((err) => {
-                console.log('Error while leaving the team\n' + err);
-                res.status(500).send('Error while leaving the team');
-              })
-          }
-      })
-      .catch((error) => {
-        console.log('Error finding the user or the team.\n' + error);
-        res.status(500).send('Error finding the user or the team!');
-      });
+    connection.transaction( async (session) => {
+      const [user, team] = await Promise.all([
+        User.findOne({ userId: req.body.userId }).session(session).exec(),
+        Team.findOne({ _id: req.body.teamId }).session(session).exec()
+      ]);
+      if (!team.members.includes(req.body.userId)) {
+        throw new Error('Error: User not in team.');
+      } else {
+        if (team.adminId == req.body.userId) {
+          throw new Error('Forbidden: An admin cannot leave the team.');
+        } else {
+          user.teams.splice(user.teams.indexOf(ObjectId(req.body.teamId)), 1);
+          team.members.splice(team.members.indexOf(req.body.userId), 1);
+          await Promise.all([
+            team.save(),
+            user.save()
+          ]);
+        }
+      }
+    })
+    .then(() => {
+      res.status(200).send('Team left successfully');
+    })
+    .catch((err) => {
+      console.log('Error while leaving the team\n' + err);
+      res.status(500).send('Error while leaving the team');
+    })
   }
   else {
     console.log('Error: Missing parameters.');

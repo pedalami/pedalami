@@ -9,44 +9,44 @@ remote_leave_url = "https://pedalami.herokuapp.com/teams/leave"
 
 remote = False
 
-remote = True
+#remote = True
 
 if remote:
     join_url = remote_join_url
     leave_url = remote_leave_url
 
 payload = {
-    "userId": "ObFqHd4U4xU1IktGXO9A1feii322",
-    "teamId": "61b67b63d5ba21ba7a232242"
+    "userId": "15MkgTwMyOST77sinqjCzBhaPyE3",
+    "teamId": "61b7a6d7d13fcf04e9955329"
 }
 
 def join_team():
     r = requests.post(join_url, json=payload)
-    return r.status_code
+    return r
 
 def leave_team():
     r = requests.post(leave_url, json=payload)
-    return r.status_code
+    return r
 
 for i in range(1000):
     print(i)
     r1 = join_team()
-    if r1 == 200:
+    if r1.status_code == 200:
         r2 = join_team()
-        if r2 == 200:
+        if r2.status_code == 200:
             print("SUPER ERROR IN JOIN")
             os._exit(1)
     else:
-        print("ERROR IN JOIN")
+        print("ERROR IN JOIN: "+r1.text)
         os._exit(1)
     r1 = leave_team()
-    if r1 == 200:
+    if r1.status_code == 200:
         r2 = leave_team()
-        if r2 == 200:
+        if r2.status_code == 200:
             print("SUPER ERROR IN LEAVE")
             os._exit(1)
     else:
-        print("ERROR IN LEAVE")
+        print("ERROR IN LEAVE: "+r1.text)
         os._exit(1)
 
 print("SUCCESS")
