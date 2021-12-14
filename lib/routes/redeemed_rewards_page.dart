@@ -23,6 +23,7 @@ class _RedeemedRewardsPageState extends State<RedeemedRewardsPage> {
     loading=true;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       redeemedRewards=(await MongoDB.instance.getAllRewardsFromUser(FirebaseAuth.instance.currentUser!.uid))!;
+      print(redeemedRewards.length);
       loading=false;
       setState(() {
 
@@ -53,7 +54,19 @@ class _RedeemedRewardsPageState extends State<RedeemedRewardsPage> {
                   ),
                 ),
               ),
-              loading?Text("Loading..."):(redeemedRewards.length==0?Text("No redeemed rewards"):
+              loading?Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.width*.5,),
+                  CircularProgressIndicator(color: Colors.green[600],),
+                  SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                  Text("Loading...", style: TextStyle(fontSize: 17),)
+                ],
+              ):(redeemedRewards.length==0?Column(
+                children: [
+                  SizedBox(height: MediaQuery.of(context).size.width*.6,),
+                  Text("No redeemed rewards.", style: TextStyle(fontSize: 17, color: Colors.grey),)
+                ],
+              ):
               RedeemedRewardItem(rewards: redeemedRewards))
             ],
           ),
