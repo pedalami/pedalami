@@ -33,16 +33,25 @@ class _ProfilePageState extends State<ProfilePage> {
 
   //Function that checks if time duration is less than a min returns in seconds
   String timeDuration(value) {
-    String norm = value.toString();
-    String timedur = (value / 60).round().toString();
-    return value > 60 ? timedur + " min" : norm + " sec";
+    double timemin = value / 60;
+    double timehour;
+
+    String hours(value) {
+      timehour = value / 3600;
+      return timehour.floor().toString();
+    }
+    if (value > 3600) {
+      timemin = ((value % 60) * 0.6).toDouble();
+    }
+
+    return value > 3600 ? (hours(value).toString() + " hours " + timemin.round().toString() + " min") : value > 60 ? timemin.round().toString() + " min" : value.toString() + " sec";
   }
 
   //Function that checks if distance is less than 1km returns in meters
   String meterDistance(value) {
-    String norm = value.toString();
-    String mdistance = (value / 1000).round().toString();
-    return value > 1000 ? mdistance + " km" : norm + " meters";
+    String meters = value.toString();
+    String kilometers = (value / 1000).round().toString();
+    return value > 1000 ? kilometers + " km" : meters + " meters";
   }
 
   Future<void> getRideHistory() async {
