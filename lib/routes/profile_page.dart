@@ -53,8 +53,8 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     _miUser.addListener(() => setState(() {}));
     print("userId of the logged user is: "+_miUser.userId);
-//    getRideHistory().then((value) => setState(() {}));
-    MongoDB.instance.initUser(_miUser.userId).then((value) => getRideHistory());
+    //MongoDB.instance.initUser(_miUser.userId).then((value) => getRideHistory());
+    getRideHistory();
     super.initState();
   }
 

@@ -279,9 +279,8 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                       Team selectedTeam = LoggedUser.instance!.teams![index];
                       if (selectedTeam.members == null) {
                         print("Getting team data");
-                        LoggedUser.instance!.teams![index] =
-                            (await MongoDB.instance.getTeam(selectedTeam.id))!;
-                        selectedTeam = LoggedUser.instance!.teams![index];
+                        selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
+                        LoggedUser.instance!.teams![index] = selectedTeam;
                       }
                       print("Showing team details");
                       pushNewScreen(

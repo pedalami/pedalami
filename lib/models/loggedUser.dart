@@ -43,4 +43,9 @@ class LoggedUser extends ChangeNotifier {
     this.rideHistory = rideHistory;
     this.notifyListeners();
   }
+
+  void addTeam(Team t) {
+    instance!.teams?.add(t);
+    notifyListeners();
+  }
 }

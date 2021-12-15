@@ -79,16 +79,15 @@ class MongoDB {
 
   //Returns the team_id if everything went fine
   //Returns null in case of error
-  Future<String?> createTeam(
+  Future<Team?> createTeam(
       String adminId, String name, String? description) async {
     var url = Uri.parse(baseUri + '/teams/create');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode(
             {'adminId': adminId, 'name': name, 'description': description}));
-    if (response.statusCode == 200 &&
-        json.decode(response.body)["teamId"] != null) {
-      return json.decode(response.body)["teamId"];
+    if (response.statusCode == 200 && json.decode(response.body)["teamId"] != null) {
+      return new Team(json.decode(response.body)["teamId"], adminId, name, description, [adminId], null);
     } else
       return null;
   }
