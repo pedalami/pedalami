@@ -13,7 +13,6 @@ const UserSchema = new Schema({
         numberOfRides: { type: Number, required: true, default: 0 },
         totalDuration: { type: Number, required: true, default: 0 },
         totalKm: { type: Number, required: true, default: 0 },
-        // The elevationGain of a ride is always positive
         totalElevationGain: { type: Number, required: true, default: 0 },
         averageSpeed: { type: Number, required: true, default: 0 },
         averageDuration: { type: Number, required: true, default: 0 },
@@ -25,8 +24,9 @@ const UserSchema = new Schema({
         _id: false,
         rewardId: { type: ObjectId, required: true, default: null },
         redeemedDate: { type: Date, required: true, default: null },
-        rewardContent: { type: String, required: true, default: null } //TODO must decide how to manage it in a secure way
-    })]
+        rewardContent: { type: String, required: true, default: null }
+    })],
+    joinedEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active events
 });
 
 const TeamSchema = new Schema({
@@ -34,7 +34,7 @@ const TeamSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: false },
     members: [{ type: String, required: true, default: null }], // At least the admin
-    activeEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active events
+    activeEvents: [{ type: ObjectId, required: false, default: null }], // USELESS?? IDs of active events
     eventRequests: [{ type: ObjectId, required: false, default: null }] // To better define once requests are defined
 });
 
@@ -77,19 +77,23 @@ const EventSchema = new Schema({
     description: { type: String, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
-    // The event can be team or individual
-    type: { type: String, required: true },
-    // The event can be public or private
-    visibility: { type: String, required: true },
-    // The event can be open or closed
-    status: { type: String, required: true }, //added to have faster checks and in order to avoid checking the end date
-    prize: { type: Number, required: false }, //the event must have a prize only if visibility is "public"
-    proposingTeam: { type: ObjectId, required: false }, //the team proposing the event
-    invitedTeams: [{type: ObjectId, required: false}], //the teams invited to the event
-    involvedTeams: [new Schema({ //the other opposing teams that are involved in the event
+    type: { type: String, required: true }, // The event can be team or individual
+    visibility: { type: String, required: true }, // The event can be public or private
+    prize: { type: Number, required: false }, // The event must have a prize only if visibility is "public"
+
+    // if it is a private team event
+    hostTeam: { type: ObjectId, required: false }, //the team proposing the event
+    guestTeam: { type: ObjectId, required: false }, //the teams invited to the event
+
+    //if it is a public team event
+    involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
+    
+    scoreboard: [new Schema({ 
         _id: false,
-        teamId: { type: ObjectId, required: false },
-        points: { type: Number, required: false, default: null }
+        //add indexes on teamId and userId
+        userId: { type: String, required: true },
+        teamId: { type: ObjectId, required: true, default: null }, //null if it is an individual event
+        points: { type: Number, required: true, default: 0 }
     })] 
 });
 
