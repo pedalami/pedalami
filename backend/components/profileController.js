@@ -93,7 +93,7 @@ function updateUserStatistics(user, ride) {
   user.statistics.totalDuration += ride.durationInSeconds;
   user.statistics.totalKm += ride.totalKm;
   user.statistics.totalElevationGain += ride.elevationGain;
-  user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
+  user.statistics.averageSpeed = user.statistics.totalKm / (user.statistics.totalDuration/3600);
   user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
   user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
   user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
