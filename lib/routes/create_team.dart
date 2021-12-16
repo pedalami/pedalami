@@ -1,12 +1,14 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/widget/custom_alert_dialog.dart';
-
 
 class TeamCreation extends StatefulWidget {
   TeamCreation({Key? key}) : super(key: key);
@@ -16,9 +18,8 @@ class TeamCreation extends StatefulWidget {
 }
 
 class _TeamCreationState extends State<TeamCreation> {
-
-  final teamNameController=TextEditingController();
-  final descriptionController=TextEditingController();
+  final teamNameController = TextEditingController();
+  final descriptionController = TextEditingController();
   FocusNode _focusName = new FocusNode();
   FocusNode _focusDescription = new FocusNode();
 
@@ -28,8 +29,9 @@ class _TeamCreationState extends State<TeamCreation> {
     _focusDescription.addListener(_onFocusChange);
     super.initState();
   }
+
   @override
-  void dispose(){
+  void dispose() {
     _focusName.removeListener(_onFocusChange);
     _focusName.dispose();
     _focusDescription.removeListener(_onFocusChange);
@@ -37,10 +39,8 @@ class _TeamCreationState extends State<TeamCreation> {
     super.dispose();
   }
 
-  void _onFocusChange(){
-setState(() {
-
-});
+  void _onFocusChange() {
+    setState(() {});
   }
 
   @override
@@ -63,20 +63,17 @@ setState(() {
                     children: <Widget>[
                       GestureDetector(
                           child: Container(
-
                             height: 11 * SizeConfig.heightMultiplier!,
                             width: 22 * SizeConfig.widthMultiplier!,
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                                color: Colors.white,
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: AssetImage("lib/assets/app_icon.png")
-                                )),
+                                    fit: BoxFit.cover,
+                                    image:
+                                        AssetImage("lib/assets/app_icon.png"))),
                           ),
-                          onTap: ()  {
-
-                          }),
+                          onTap: () {}),
                       SizedBox(
                         width: 5 * SizeConfig.widthMultiplier!,
                       ),
@@ -84,10 +81,12 @@ setState(() {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
                           Container(
-                            width: MediaQuery.of(context).size.width*.5,
+                            width: MediaQuery.of(context).size.width * .5,
                             child: Expanded(
                               child: Text(
-                                teamNameController.text.isEmpty?"Your new team":teamNameController.text,
+                                teamNameController.text.isEmpty
+                                    ? "Your new team"
+                                    : teamNameController.text,
                                 style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 3 * SizeConfig.textMultiplier!,
@@ -101,19 +100,18 @@ setState(() {
                           Row(
                             children: <Widget>[
                               Container(
-                                width: MediaQuery.of(context).size.width*.5,
+                                width: MediaQuery.of(context).size.width * .5,
                                 child: Expanded(
                                   child: Text(
                                     descriptionController.text,
                                     style: TextStyle(
                                       color: Colors.white60,
                                       fontSize:
-                                      1.5 * SizeConfig.textMultiplier!,
+                                          1.5 * SizeConfig.textMultiplier!,
                                     ),
                                   ),
                                 ),
                               ),
-
                             ],
                           )
                         ],
@@ -139,12 +137,9 @@ setState(() {
                     child: Column(
                       children: [
                         Padding(
-                            padding: EdgeInsets.only(
-                                left: 10.0,
-                                top: 25,
-                                right: 10),
+                            padding:
+                                EdgeInsets.only(left: 10.0, top: 25, right: 10),
                             child: TextField(
-
                               cursorColor: CustomColors.green,
                               decoration: InputDecoration(
                                   counterStyle: TextStyle(
@@ -152,25 +147,23 @@ setState(() {
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide:
-                                    BorderSide(color: CustomColors.silver),
+                                        BorderSide(color: CustomColors.silver),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderSide:
-                                    BorderSide(color: CustomColors.green),
+                                        BorderSide(color: CustomColors.green),
                                   ),
                                   hintText: "Insert the name of the team",
                                   hintStyle:
-                                  TextStyle(color: CustomColors.silver)),
+                                      TextStyle(color: CustomColors.silver)),
                               controller: teamNameController,
                               focusNode: _focusName,
                               maxLength: 20,
                               style: TextStyle(color: Colors.black),
                             )),
                         Padding(
-                            padding: EdgeInsets.only(
-                                left: 10.0,
-                                top: 10 ,
-                                right: 10),
+                            padding:
+                                EdgeInsets.only(left: 10.0, top: 10, right: 10),
                             child: TextField(
                               focusNode: _focusDescription,
                               cursorColor: CustomColors.green,
@@ -180,80 +173,72 @@ setState(() {
                                   ),
                                   enabledBorder: OutlineInputBorder(
                                     borderSide:
-                                    BorderSide(color: CustomColors.silver),
+                                        BorderSide(color: CustomColors.silver),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderSide:
-                                    BorderSide(color: CustomColors.green),
+                                        BorderSide(color: CustomColors.green),
                                   ),
                                   hintText: "Insert a brief description",
                                   hintStyle:
-                                  TextStyle(color: CustomColors.silver)),
+                                      TextStyle(color: CustomColors.silver)),
                               controller: descriptionController,
                               maxLength: 100,
                               style: TextStyle(color: Colors.black),
                             )),
                         Container(
                           child: ElevatedButton(
-                              onPressed: () async{
-                                if(await MongoDB.instance.createTeam(FirebaseAuth.instance.currentUser!.uid, teamNameController.text, descriptionController.text)!=null)
-                                  {
-
-                                    showDialog<void>(
-                                      context: context,
-                                      barrierDismissible: false, // user must tap button!
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                          backgroundColor: Colors.white,
-                                          title: Text(
+                              onPressed: () async {
+                                Team? newTeam = await MongoDB.instance.createTeam(
+                                    LoggedUser.instance!.userId,
+                                    teamNameController.text,
+                                    descriptionController.text);
+                                if (newTeam != null) {
+                                  LoggedUser.instance!.addTeam(newTeam);
+                                  final snackBar = SnackBar(
+                                      elevation: 20.0,
+                                      content: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
                                             "Success",
-                                            style: TextStyle(color: Colors.black),
-                                          ),
-                                          content: SingleChildScrollView(
-                                            child: ListBody(
-                                              children: <Widget>[
-                                                Text(
-                                                  "Your team has been created successfully!",
-                                                  style: TextStyle(color: Colors.black),
-                                                ),
-                                              ],
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
                                             ),
                                           ),
-                                          actions: <Widget>[
-                                            TextButton(
-                                              child: Text(
-                                                'OK',
-                                                style: TextStyle(color: CustomColors.green),
-                                              ),
-                                              onPressed: () {
-                                                Navigator.of(context).pop();
-                                                Navigator.of(context).pop();
-                                              },
+                                          SizedBox(
+                                            height: 10,
+                                          ),
+                                          Text(
+                                            "Your team has been created successfully!",
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.normal,
                                             ),
-                                          ],
-                                        );
-
-                                      },
-                                    );
-                                  }
-                                else
-                                  {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                        "An error occurred, please try again.",),
-                                    ));
-                                  }
+                                          )
+                                        ],
+                                      ));
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(snackBar);
+                                  Navigator.pop(context);
+                                } else {
+                                  ScaffoldMessenger.of(context)
+                                      .showSnackBar(SnackBar(
+                                    content: Text(
+                                      "An error occurred, please try again.",
+                                    ),
+                                  ));
+                                }
                               },
                               child: Text("Create team"),
                               style: ButtonStyle(
-                                  fixedSize: MaterialStateProperty.all(
-                                      Size(200, 35)),
+                                  fixedSize:
+                                      MaterialStateProperty.all(Size(200, 35)),
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.lightGreen),
                                   shape: MaterialStateProperty.all(
                                       RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(18.0))))),
+                                          borderRadius:
+                                              BorderRadius.circular(18.0))))),
                         ),
                         Padding(
                           padding: EdgeInsets.only(
