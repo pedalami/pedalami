@@ -4,6 +4,7 @@ import 'package:pedala_mi/routes/create_team.dart';
 import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/profile_editing.dart';
 import 'package:pedala_mi/routes/profile_page.dart';
+import 'package:pedala_mi/routes/rewards_page.dart';
 import 'package:pedala_mi/routes/sign_in.dart';
 import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/routes/splashscreen_page.dart';
@@ -41,11 +42,12 @@ class MyApp extends StatelessWidget {
               '/sign_in': (context) => SignInPage(),
               '/sign_in_page': (context) => SignInScreen(),
               '/switch_page': (context) => SwitchPage(),
-              '/team_members': (context) => TeamMembers(),
-              '/current_team': (context) => TeamProfile(),
+              //'/team_members': (context) => TeamMembers(),
+              //'/current_team': (context) => TeamProfile(),
               '/events': (context) => EventsPage(),
               '/search_team': (context) => TeamsSearchPage(),
               '/create_team': (context) => TeamCreation(),
+              'reward':(context)=>RewardPage()
             },
 
             home: SplashScreen(),

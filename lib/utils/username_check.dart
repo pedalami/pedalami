@@ -44,6 +44,7 @@ Future<void> checkUsername(String newUsername, BuildContext context,
         Map<String, Object> user = new HashMap();
         user["Mail"] = actualUser.email!;
         user["Username"] = newUsername.trim();
+        user["userId"] = actualUser.uid;
         File image = File(imageData);
         Reference imageRef = FirebaseStorage.instance.ref().child(uuid.toString() + ".jpg");
         await imageRef.putFile(image);

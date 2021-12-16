@@ -10,27 +10,59 @@ app.post('/initUser', (req, res) => {
   if (userId) {
     User.aggregate([
       { $match: { userId: userId } },
-      {
-        $lookup: {
-          from: "teams", // collection name in db
-          localField: "teams", // field of User to make the lookup on (the field with the "foreign key")
-          foreignField: "_id", // the referred field in teams
-          as: "teams" // name that the field of the join will have in the result/JSON
-        }
-      },
-      {
-        $lookup: {
-          from: "badges", // collection name in db
-          localField: "badges", // field of User to make the lookup on (the field with the "foreign key")
-          foreignField: "_id", // the referred field in badges
-          as: "badges" // name that the field of the join will have in the result/JSON
-        }
-      },
+      { $unwind: {
+        path: "$rewards",
+        preserveNullAndEmptyArrays: true
+      }},
+      { $lookup: {
+        from: "rewards", // collection name in db
+        localField: "rewards.rewardId", // field of User to make the lookup on (the field with the "foreign key")
+        foreignField: "_id", // the referred field in rewards
+        as: "baseReward" // name that the field of the join will have in the result/JSON
+      }},
+      {$unwind: {
+        path: "$baseReward",
+        preserveNullAndEmptyArrays: true
+      }},
+      {$group: {
+        _id: "$_id",
+        userId: {$first: "$userId"},
+        badges: {$first: "$badges"},
+        statistics: {$first: "$statistics"},
+        points: {$first: "$points"},
+        teams: {$first: "$teams"},
+        rewards: {$push: {
+          $cond:[
+            { $eq: [ { "$ifNull": [ "$rewards", null ] }, null ] },
+            "$$REMOVE",
+            {
+              rewardId: "$rewards.rewardId",
+              redeemedDate: "$rewards.redeemedDate",
+              rewardContent: "$rewards.rewardContent",
+              description: "$baseReward.description",
+              image: "$baseReward.image",
+              price: "$baseReward.price"
+            }
+          ]
+        }}
+      }},
+      { $lookup: {
+        from: "teams", // collection name in db
+        localField: "teams", // field of User to make the lookup on (the field with the "foreign key")
+        foreignField: "_id", // the referred field in teams
+        as: "teams" // name that the field of the join will have in the result/JSON
+      }},
+      { $lookup: {
+        from: "badges", // collection name in db
+        localField: "badges", // field of User to make the lookup on (the field with the "foreign key")
+        foreignField: "_id", // the referred field in badges
+        as: "badges" // name that the field of the join will have in the result/JSON
+      }},
       { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.__v", "__v"] }
     ])
     .exec((err, users) => {
       if (err) {
-        console.log('Error checking the User existence.');
+        console.log('Error checking the User existence.\n'+err);
         res.status(500).send('Error finding the user.');
       } else {
         if (users && users.length == 1) {
@@ -40,7 +72,7 @@ app.post('/initUser', (req, res) => {
           const newUser = new User({ userId: userId });
           newUser.save( (error) => {
             if (error) {
-              console.log('Error saving the user.');
+              console.log('Error saving the user. '+error);
               res.status(500).send('Error saving the user!');
             } else {
               console.log('The user has been saved.');
@@ -50,6 +82,9 @@ app.post('/initUser', (req, res) => {
         }
       }
     })
+  } else {
+    console.log('Missing userId parameter');
+    res.status(500).send('Missing userId parameter');
   }
 });
 
@@ -58,7 +93,7 @@ function updateUserStatistics(user, ride) {
   user.statistics.totalDuration += ride.durationInSeconds;
   user.statistics.totalKm += ride.totalKm;
   user.statistics.totalElevationGain += ride.elevationGain;
-  user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration;
+  user.statistics.averageSpeed = user.statistics.totalKm / (user.statistics.totalDuration/3600);
   user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
   user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
   user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;

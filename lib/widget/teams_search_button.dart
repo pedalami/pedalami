@@ -1,5 +1,8 @@
+import 'dart:collection';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
@@ -17,6 +20,8 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
   @override
   void initState() {
     teamsFound=widget.teamsFound;
+
+
     super.initState();
   }
 
@@ -97,33 +102,29 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                             child: FittedBox(
                               fit: BoxFit.contain,
                               child:
-                              //TODO: check if user is already enrolled to this specific team. If so do not show the button but nothing (SizedBox())
                               ElevatedButton(
-                                onPressed: () async{
-                                  if(await MongoDB.instance.joinTeam(teamsFound[i].id, FirebaseAuth.instance.currentUser!.uid))
-                                    {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                          "Joined "+teamsFound[i].name+" successfully!",),
-                                      ));
-                                      teamsFound[i].membersId.cast<String>().add(FirebaseAuth.instance.currentUser!.uid);
-                                      setState(() {
-
-                                      });
-                                    }
-                                  else
-                                    {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                        content: Text(
-                                          "Something wrong happened... Please try again.",),
-                                      ));
-                                    }
+                                onPressed: () async {
+                                  Team toJoin = teamsFound[i];
+                                  if (await MongoDB.instance.joinTeam(toJoin.id, LoggedUser.instance!.userId)) {
+                                    if (LoggedUser.instance!.teams == null)
+                                      LoggedUser.instance!.teams = List.empty(growable: true);
+                                    LoggedUser.instance!.teams!.add(toJoin);
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      content: Text("Joined "+toJoin.name+" successfully!"),
+                                    ));
+                                    toJoin.membersId.cast<String>().add(LoggedUser.instance!.userId);
+                                    teamsFound.remove(toJoin);
+                                    LoggedUser.instance!.notifyListeners();
+                                    setState(() {});
+                                  } else {
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text("Something wrong happened... Please try again."),
+                                    ));
+                                  }
                           },
                             child: Text("Join"),
                             style: ButtonStyle(
-
                                 backgroundColor: MaterialStateProperty.all(
                                     Colors.lightGreen),
                                 shape: MaterialStateProperty.all(

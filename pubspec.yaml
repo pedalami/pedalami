@@ -44,6 +44,8 @@ dependencies:
   persistent_bottom_nav_bar: ^4.0.2
   location: ^4.2.0
   intl: ^0.17.0
+  convert: ^3.0.1
+  tuple: ^2.0.0
 
 
 

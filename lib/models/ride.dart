@@ -14,11 +14,11 @@ class Ride {
   double? points;
   List<GeoPoint>? path;
 
-  Ride(this.userId, this.name, this.durationInSeconds, this.totalKm, this.pace,
+  Ride(this.userId, this.name, this.rideId, this.durationInSeconds, this.totalKm, this.pace,
       this.date, this.elevationGain, this.points, this.path);
 
   factory Ride.fromJson(dynamic json) {
-    List<GeoPoint> pathList = (json['path'] as List)
+    List<GeoPoint> pathList = (json['path'] as List<dynamic>)
         .map<GeoPoint>((e) => new GeoPoint(
             latitude: double.parse(e['latitude'].toString()),
             longitude: double.parse(e['longitude'].toString()))
@@ -26,6 +26,7 @@ class Ride {
     return Ride(
       json['userId'] as String,
       json['name'] as String,
+      json['_id'] as String,
       double.parse(json['durationInSeconds'].toString()),
       double.parse(json['totalKm'].toString()),
       double.parse(json['pace'].toString()),

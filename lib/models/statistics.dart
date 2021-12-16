@@ -5,7 +5,7 @@ class Statistics {
   int totalElevationGain;
   int averageSpeed;
   int averageDuration;
-  int averageKm;
+  double averageKm;
   int averageElevationGain;
 
 
@@ -20,14 +20,16 @@ class Statistics {
       this.averageElevationGain);
 
   factory Statistics.fromJson(dynamic json) {
+
     return Statistics(
+
       double.parse(json['numberOfRides'].toString()).round(),
       double.parse(json['totalDuration'].toString()).round(),
       double.parse(json['totalKm'].toString()).round(),
       double.parse(json['totalElevationGain'].toString()).round(),
       double.parse(json['averageSpeed'].toString()).round(),
       double.parse(json['averageDuration'].toString()).round(),
-      double.parse(json['averageKm'].toString()).round(),
+      double.parse(json['averageKm'].toString()),
       double.parse(json['averageElevationGain'].toString()).round()
     );
   }

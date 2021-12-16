@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/routes/events_page.dart';
+import 'package:pedala_mi/routes/rewards_page.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
@@ -43,6 +44,7 @@ class _SwitchPageState extends State<SwitchPage> {
         ProfilePage(),
         TeamsSearchPage(),
         EventsPage(),
+        RewardPage()
       ],
       items: [
         PersistentBottomNavBarItem(
@@ -53,12 +55,13 @@ class _SwitchPageState extends State<SwitchPage> {
             icon: FaIcon(FontAwesomeIcons.user), title: 'Profile'),
         PersistentBottomNavBarItem(
             activeColorPrimary: Colors.green,
-            activeColorSecondary: Colors.red,
             icon: FaIcon(FontAwesomeIcons.peopleArrows), title: 'Teams'),
         PersistentBottomNavBarItem(
             activeColorPrimary: Colors.green,
-            activeColorSecondary: Colors.red,
             icon: FaIcon(FontAwesomeIcons.star), title: 'Events'),
+        PersistentBottomNavBarItem(
+            activeColorPrimary: Colors.green,
+            icon: FaIcon(FontAwesomeIcons.dollarSign), title: 'Rewards')
       ],
     );
   }
