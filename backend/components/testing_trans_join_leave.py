@@ -16,8 +16,8 @@ if remote:
     leave_url = remote_leave_url
 
 payload = {
-    "userId": "15MkgTwMyOST77sinqjCzBhaPyE3",
-    "teamId": "61b7a6d7d13fcf04e9955329"
+    "userId": "transactionTest",
+    "teamId": "61bb2751808f23308d644c33" #TransactionTeamTest_toJoinAndLeave
 }
 
 def join_team():
@@ -28,7 +28,7 @@ def leave_team():
     r = requests.post(leave_url, json=payload)
     return r
 
-for i in range(1000):
+for i in range(5000):
     print(i)
     r1 = join_team()
     if r1.status_code == 200:
