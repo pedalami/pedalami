@@ -42,11 +42,10 @@ app.post('/create', (req, res) => {
   }
 });
 
-
-// GET /search?name=start_of_name
+// GET /search?name=portion_of_name
 app.get('/search', (req, res) => {
   const to_search = req.query.name;
-  console.log('Received search GET request with param ' + req.query);
+  console.log('Received search GET request with param name='+to_search);
   if (to_search) {
     //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
     Team.find({ name: { $regex: '.*' + to_search + ".*", $options: 'i' } }, (error, teams) => {
@@ -144,7 +143,7 @@ app.post('/leave', (req, res) => {
 // GET /getTeam?teamId=teamId
 app.get('/getTeam', (req, res) => {
   const teamId = req.query.teamId;
-  console.log('Received getTeam GET request with params ' + teamId);
+  console.log('Received getTeam GET request with params teamId=' + teamId);
   if (teamId) {
     var teamIdObject;
     try {

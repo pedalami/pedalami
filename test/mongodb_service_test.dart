@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/reward.dart';
 import 'package:pedala_mi/models/ride.dart';
@@ -15,11 +16,12 @@ MongoDB instance = MongoDB.instance;
 void main() {
   test('initUser testing', () async {
     instance.localDebug();
-    var uid = 'CO64i9QNqEewozGVxBfywjjwsFq2';
+    var uid = 'TrMO2au4MgO4uFmKFmOgV2rVuwG3';
     var lid = LoggedUser.instance!.userId;
     bool res = await instance.initUser(uid);
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
+    print(LoggedUser.instance!.joinedEvents);
     print("Num di rewards: " +
         LoggedUser.instance!.redeemedRewards!.length.toString());
     print(LoggedUser.instance!.redeemedRewards);
@@ -92,5 +94,17 @@ void main() {
     Team? t = await instance.getTeam("61b7a6d7d13fcf04e9955329");
     print(t?.members ?? "Null team");
     assert(t != null);
+  });
+
+  test('search event testing', () async {
+    instance.localDebug();
+    List<Event>? events = await instance.searchEvent("test");
+    print(events);
+    assert(events != null);
+  });
+
+  test('join event testing', () async {
+    instance.localDebug();
+    assert(await instance.joinEvent("61bb94576b373e2f76ddeec4", "TrMO2au4MgO4uFmKFmOgV2rVuwG3"));
   });
 }

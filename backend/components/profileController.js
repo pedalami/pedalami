@@ -28,6 +28,7 @@ app.post('/initUser', (req, res) => {
         _id: "$_id",
         userId: {$first: "$userId"},
         badges: {$first: "$badges"},
+        joinedEvents: {$first: "$joinedEvents"},
         statistics: {$first: "$statistics"},
         points: {$first: "$points"},
         teams: {$first: "$teams"},
@@ -53,12 +54,18 @@ app.post('/initUser', (req, res) => {
         as: "teams" // name that the field of the join will have in the result/JSON
       }},
       { $lookup: {
+        from: "events", // collection name in db
+        localField: "joinedEvents", // field of User to make the lookup on (the field with the "foreign key")
+        foreignField: "_id", // the referred field in events
+        as: "joinedEvents" // name that the field of the join will have in the result/JSON
+      }},
+      { $lookup: {
         from: "badges", // collection name in db
         localField: "badges", // field of User to make the lookup on (the field with the "foreign key")
         foreignField: "_id", // the referred field in badges
         as: "badges" // name that the field of the join will have in the result/JSON
       }},
-      { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.__v", "__v"] }
+      { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.__v", "joinedEvents.__v", "__v"] }
     ])
     .exec((err, users) => {
       if (err) {

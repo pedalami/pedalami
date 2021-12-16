@@ -9,30 +9,35 @@ const User = models.User;
 app.post('/redeem', async (req, res) => {
     console.log('Received redeem POST request:');
     console.log(req.body);
-    if (req.body.rewardId && req.body.userId) {
-      const [reward, user] = await Promise.all([
-        Reward.findOne({ _id: req.body.rewardId }).exec(),
-        User.findOne({ userId: req.body.userId }).exec()
-      ]);
-      if (!reward || !user)
-        res.status(500).send("Error while finding the review or the user");
-      if (user.points >= reward.price) {
-        user.points -= reward.price;
-        var newReward = {rewardId: reward._id, redeemedDate: new Date(), rewardContent: "Dummy Reward Content"}
-        user.rewards.push(newReward);
-        newReward.description = reward.description;
-        newReward.price = reward.price;
-        newReward.image = reward.image;
-        user.save()
-          .then(() => {
-            res.status(200).send(newReward);
-          })
+    const rewardId = req.body.rewardId;
+    const userId = req.body.userId;
+    if (rewardId && userId) {
+      try {
+        const [reward, user] = await Promise.all([
+          Reward.findOne({ _id: req.body.rewardId }).exec(),
+          User.findOne({ userId: req.body.userId }).exec()
+        ])
+        .catch(() => {
+          throw new Error('Error while finding the reward or the user');
+        });
+        if (user.points >= reward.price) {
+          user.points -= reward.price;
+          var newReward = {rewardId: reward._id, redeemedDate: new Date(), rewardContent: "Dummy Reward Content"}
+          user.rewards.push(newReward);
+          newReward.description = reward.description;
+          newReward.price = reward.price;
+          newReward.image = reward.image;
+          await user.save()
           .catch(err => {
-            console.log('Error in assigning the reward to the user: ' + err);
-            res.status(500).send('Error in assigning the reward to the user.');
-          })
-      } else {
-        res.status(500).send('Insufficient points.');
+            throw new Error('Error in assigning the reward to the user: ' + err);
+          });
+          res.status(200).send(newReward);
+        } else {
+          throw new Error('Insufficient points');
+        }
+      } catch (error) {
+        console.log(error);
+        res.status(500).send(error);
       }
     } else {
       console.log('Error: Missing parameters.');

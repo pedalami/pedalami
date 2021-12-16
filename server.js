@@ -28,6 +28,7 @@ var usersRouter = require('./backend/components/profileController').router;
 var teamsRouter = require('./backend/components/teamController');
 var ridesRouter = require('./backend/components/rideHandler');
 var rewardsRoutes = require('./backend/components/rewardController');
+var eventRoutes = require('./backend/components/eventHandler');
 
 var swaggerUi = require('swagger-ui-express');
 var swaggerDocument = require('./backend/swagger.json');
@@ -35,7 +36,9 @@ var swaggerDocument = require('./backend/swagger.json');
 app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
 app.use('/rides', ridesRouter);
-app.use('/rewards', rewardsRoutes)
+app.use('/rewards', rewardsRoutes);
+app.use('/events', eventRoutes);
+
 app.use('/tests', require('./backend/components/genBadgesInfo.js'));
 
 var options = {
