@@ -5,6 +5,7 @@ import string
 import json
 
 MODIFIED_DB = False
+MODIFIED_DB = True
 
 if not MODIFIED_DB:
     print('\033[93m' + "BEFORE RUNNING THIS TEST, YOU HAVE TO MODIFY THE DB\nTO DO SO, OPEN THE FILE schemas.js ")
