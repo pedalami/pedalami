@@ -8,13 +8,12 @@ const Event = models.Event;
 const ObjectId = models.ObjectId;
 const connection = models.connection;
 
-app.post("/create", (req, res) => {
+app.post("/create", async (req, res) => {
     var newEvent = new Event({
         name: req.body.name,
         description: req.body.description,
         startDate: req.body.startDate,
         endDate: req.body.endDate,
-        location: req.body.location,
         type: req.body.type,
         visibility: req.body.visibility
     });
@@ -73,6 +72,29 @@ app.post("/create", (req, res) => {
         res.status(500).send(error);
     }
 });
+
+
+//INTERNAL API for creating individual events
+app.post("/createIndividual", async (req, res) => {
+    var newEvent = new Event({
+        name: req.body.name,
+        description: req.body.description,
+        startDate: req.body.startDate,
+        endDate: req.body.endDate,
+        prize: req.body.prize,
+        type: "individual",
+        visibility: "public"
+    });
+    newEvent.save()
+        .then(() => {
+            res.status(200).send(newEvent);
+        })
+        .catch(err => {
+            console.log('The following error occurred in creating the newEvent: ' + err);
+            res.status(500).send('Error in creating the newEvent');
+        })
+});
+
 
 app.post('/join', (req, res) => {
     console.log('Received join POST request:');
@@ -152,4 +174,4 @@ app.get('/search', (req, res) => {
  */
 
 
-exports.app = app;
+module.exports = app;

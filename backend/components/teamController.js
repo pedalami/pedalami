@@ -42,7 +42,6 @@ app.post('/create', (req, res) => {
   }
 });
 
-
 // GET /search?name=portion_of_name
 app.get('/search', (req, res) => {
   const to_search = req.query.name;

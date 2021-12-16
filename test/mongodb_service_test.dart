@@ -15,11 +15,12 @@ MongoDB instance = MongoDB.instance;
 void main() {
   test('initUser testing', () async {
     instance.localDebug();
-    var uid = 'CO64i9QNqEewozGVxBfywjjwsFq2';
+    var uid = 'TrMO2au4MgO4uFmKFmOgV2rVuwG3';
     var lid = LoggedUser.instance!.userId;
     bool res = await instance.initUser(uid);
     print(LoggedUser.instance!.badges);
     print(LoggedUser.instance!.teams);
+    print(LoggedUser.instance!.joinedEvents);
     print("Num di rewards: " +
         LoggedUser.instance!.redeemedRewards!.length.toString());
     print(LoggedUser.instance!.redeemedRewards);

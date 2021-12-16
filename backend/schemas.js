@@ -92,7 +92,7 @@ const EventSchema = new Schema({
         _id: false,
         //add indexes on teamId and userId
         userId: { type: String, required: true },
-        teamId: { type: ObjectId, required: true, default: null }, //null if it is an individual event
+        teamId: { type: ObjectId, required: false, default: null }, //null if it is an individual event
         points: { type: Number, required: true, default: 0 }
     })] 
 });

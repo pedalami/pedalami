@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
+import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
@@ -51,21 +52,24 @@ class MongoDB {
     if (response.statusCode == 200) {
       try {
         var decodedBody = json.decode(response.body);
-        //print("Received json from the initUser");
-        //print(decodedBody);
+        print("Received events json from the initUser");
+        print(decodedBody["joinedEvents"]);
         var points = double.parse(decodedBody["points"].toString());
         Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
         List<Team> teamList = decodedBody["teams"]
             ?.map<Team>((team) => Team.fromJson(team))
-            .toList();
+            .toList() ?? [];
         List<Badge> badgeList = decodedBody["badges"]
             ?.map<Badge>((badge) => Badge.fromJson(badge))
-            .toList();
+            .toList() ?? [];
         List<RedeemedReward> rewardsList = decodedBody["rewards"]
             ?.map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward))
-            .toList();
+            .toList() ?? [];
+        List<Event> eventsList = decodedBody["joinedEvents"]
+            ?.map<Event>((event) => Event.fromJson(event))
+            .toList() ?? [];
         LoggedUser.completeInstance(
-            points, teamList, stats, badgeList, rewardsList);
+            points, teamList, stats, badgeList, rewardsList, eventsList);
       } catch (ex, st) {
         print("The following exception occurred in the initUser:\n");
         print(ex);
