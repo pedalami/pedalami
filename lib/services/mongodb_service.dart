@@ -236,4 +236,29 @@ class MongoDB {
     } else
       return null;
   }
+
+  //Returns an array of the events with the name matching the query if everything went fine
+  //Returns null in case of error
+  Future<List<Event>?> searchEvent(String name) async {
+    var url = Uri.parse(baseUri + '/events/search')
+        .replace(queryParameters: {'name': name});
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Event> eventList =
+      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+      return eventList;
+    } else
+      return null;
+  }
+
+  //Returns true if everything went fine, false otherwise
+  //teamId is not used at the moment
+  Future<bool> joinEvent(String eventId, String userId, {String? teamId}) async {
+    var url = Uri.parse(baseUri + '/events/join');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'userId': userId, 'eventId': eventId}));
+    return response.statusCode == 200 ? true : false;
+  }
 }
