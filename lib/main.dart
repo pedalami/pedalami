@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/routes/create_team.dart';
@@ -36,7 +37,8 @@ class MyApp extends StatelessWidget {
           SizeConfig().init(constraints, orientation);
           return MaterialApp(
             routes: {
-              '/profile': (context) => ProfilePage(),
+              'signInScreen':(context)=>SignInScreen(),
+              '/profile': (context) => ProfilePage(refreshBottomBar: (){},),
               '/edit': (context) => ProfileEditing(),
               '/start': (context) => StartPage(),
               '/sign_in': (context) => SignInPage(),
@@ -49,7 +51,6 @@ class MyApp extends StatelessWidget {
               '/create_team': (context) => TeamCreation(),
               'reward':(context)=>RewardPage()
             },
-
             home: SplashScreen(),
 
           );

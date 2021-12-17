@@ -20,8 +20,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key? key}) : super(key: key);
-
+  ProfilePage({Key? key,required this.refreshBottomBar}) : super(key: key);
+  final Function refreshBottomBar;
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -97,9 +97,13 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       onTap: () async {
                         await Authentication.signOut(context: context);
-                        Navigator.of(context).pushAndRemoveUntil(
-                            _routeToSignInScreen(),
-                                (Route<dynamic> route) => false);
+                        setState(() {
+                          widget.refreshBottomBar();
+                          Navigator.of(context).pushAndRemoveUntil(
+                              _routeToSignInScreen(),
+                                  (Route<dynamic> route) => false);
+                        });
+
                       },
                     ),
                     SizedBox(
@@ -647,6 +651,7 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Route _routeToSignInScreen() {
+
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) => SignInScreen(),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
