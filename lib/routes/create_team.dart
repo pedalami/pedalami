@@ -77,44 +77,32 @@ class _TeamCreationState extends State<TeamCreation> {
                       SizedBox(
                         width: 5 * SizeConfig.widthMultiplier!,
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Container(
-                            width: MediaQuery.of(context).size.width * .5,
-                            child: Expanded(
-                              child: Text(
-                                teamNameController.text.isEmpty
-                                    ? "Your new team"
-                                    : teamNameController.text,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 3 * SizeConfig.textMultiplier!,
-                                    fontWeight: FontWeight.bold),
-                              ),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              teamNameController.text.isEmpty
+                                  ? "Your new team"
+                                  : teamNameController.text,
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 3 * SizeConfig.textMultiplier!,
+                                  fontWeight: FontWeight.bold),
                             ),
-                          ),
-                          SizedBox(
-                            height: 1 * SizeConfig.heightMultiplier!,
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Container(
-                                width: MediaQuery.of(context).size.width * .5,
-                                child: Expanded(
-                                  child: Text(
-                                    descriptionController.text,
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize:
-                                          1.5 * SizeConfig.textMultiplier!,
-                                    ),
-                                  ),
-                                ),
+                            SizedBox(
+                              height: 1 * SizeConfig.heightMultiplier!,
+                            ),
+                            Text(
+                              descriptionController.text,
+                              style: TextStyle(
+                                color: Colors.white60,
+                                fontSize:
+                                    1.5 * SizeConfig.textMultiplier!,
                               ),
-                            ],
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       )
                     ],
                   ),

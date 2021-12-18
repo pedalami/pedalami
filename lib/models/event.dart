@@ -13,6 +13,7 @@ class ScoreboardEntry {
 }
 
 class Event{
+  String eventID;
   String name;
   String description;
   DateTime startDate;
@@ -23,7 +24,7 @@ class Event{
   List<ScoreboardEntry>? scoreboard;
 
 
-  Event(this.name, this.description, this.startDate, this.endDate, this._type,
+  Event(this.eventID,this.name, this.description, this.startDate, this.endDate, this._type,
       this._visibility, this.prize, this.scoreboard);
 
 
@@ -35,6 +36,7 @@ class Event{
         double.parse(e['points'].toString()))
       ).toList();
     return Event(
+      json['_id'] as String,
       json['name'] as String,
       json['description'] as String,
       MongoDB.parseDate(json['startDate'] as String), //parse server date format
