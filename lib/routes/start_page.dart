@@ -6,6 +6,7 @@ import "package:http/http.dart" as http;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart' as aIcon;
 
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:pedala_mi/utils/get_device_type.dart';
 
 class StartPage extends StatelessWidget {
   const StartPage({Key? key}) : super(key: key);
@@ -71,9 +72,18 @@ Widget signUpButton(context, result) {
             borderRadius: BorderRadius.circular(40),
           ))),
       onPressed: () {
-        result == null
-            ? Navigator.pushNamed(context, '/sign_in')
-            : Navigator.pushNamed(context, '/switch_page');
+
+        if(result == null){
+          Navigator.pushNamed(context, '/sign_in');
+        }
+        else{
+          if(getSmartPhoneOrTablet() == 'desktop'){
+            Navigator.pushNamed(context, '/web_dashboard');
+          }
+          else{
+            Navigator.pushNamed(context, '/switch_page');
+          }
+        }
       },
       child: Padding(
         padding: EdgeInsets.fromLTRB(0, 10, 0, 10),

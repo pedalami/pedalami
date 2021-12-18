@@ -47,6 +47,8 @@ dependencies:
   convert: ^3.0.1
   tuple: ^2.0.0
   date_format: ^2.0.4
+  universal_html: ^2.0.8
+  firebase_auth_web: ^3.3.5
 
 
 

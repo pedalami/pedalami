@@ -13,6 +13,8 @@
   -->
   <base href="/">
 
+  <meta name="google-signin-client_id" content="994561270607-dupc6gqjplns37nivmugds7jnk1q2fu0.apps.googleusercontent.com">
+
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
@@ -33,6 +35,26 @@
   <!-- This script installs service_worker.js to provide PWA functionality to
        application. For more information, see:
        https://developers.google.com/web/fundamentals/primers/service-workers -->
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyD9jCXLzUOxSsYMuLRgEw5elaqSdkPXb3M",
+    authDomain: "pedala-mi.firebaseapp.com",
+    projectId: "pedala-mi",
+    storageBucket: "pedala-mi.appspot.com",
+    messagingSenderId: "215517273270",
+    appId: "1:215517273270:web:27cc8bffe4902628329a17"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('flutter-first-frame', function () {
