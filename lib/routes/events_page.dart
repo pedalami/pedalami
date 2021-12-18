@@ -107,7 +107,14 @@ class _EventsPageState extends State<EventsPage> {
             !hasSearched
                 ? SizedBox()
                 : loading
-                    ? Text("loading")
+                    ? Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                CircularProgressIndicator(color: Colors.green[600],),
+                SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                Text("Loading", style: TextStyle(fontSize: 17),)
+              ],
+            )
                     : (events.length > 0
                         ? Column(
                           children: [Container(
@@ -152,7 +159,12 @@ class _EventsPageState extends State<EventsPage> {
                 shrinkWrap: true,
                 itemBuilder: (context, j) {
                   return EventItem(event: LoggedUser.instance!.joinedEvents![0], refresh: refresh,);
-                }):Text("Never joined an event."),
+                }):Column(
+              children: [
+                SizedBox(height: MediaQuery.of(context).size.height*.025,),
+                Text("Never joined and event.", style: TextStyle(fontSize: 15,),),
+              ],
+            ),
           ],
         ),
       ),

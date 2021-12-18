@@ -95,6 +95,12 @@ class _EventRankingPageState extends State<EventRankingPage> {
             child:
               Column(
                 children: [
+                  event.scoreboard!.length==0?Column(
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).size.height*.25,),
+                      Text("Nobody attends this event", style: TextStyle(fontSize: 25,color: Colors.grey),),
+                    ],
+                  ):SizedBox(),
                   event.scoreboard!.length>0?
                   displayTopPlayer("🥇", 0):SizedBox(),
                   event.scoreboard!.length>1?
@@ -105,7 +111,7 @@ class _EventRankingPageState extends State<EventRankingPage> {
                   userInCurrentEventPosition!=-1?Column(
                     children: [
                       Text("Your score: "+event.scoreboard![userInCurrentEventPosition].points.toStringAsFixed(0)+(event.scoreboard![userInCurrentEventPosition].points.toStringAsFixed(0)=="1"?" point":" points"),style: TextStyle(fontSize: 25)),
-                      Text("Your position: "+(userInCurrentEventPosition+1).toString(),style: TextStyle(fontSize: 25))
+                      Text("Your position: "+(position(userInCurrentEventPosition+1)).toString(),style: TextStyle(fontSize: 25))
                     ],
                   ):SizedBox()
                 ],
@@ -158,6 +164,21 @@ class _EventRankingPageState extends State<EventRankingPage> {
     );
   }
 
+  String position(double i)
+  {
+    var j = i % 10,
+        k = i % 100;
+    if (j == 1 && k != 11) {
+      return i.toStringAsFixed(0) + "st";
+    }
+    if (j == 2 && k != 12) {
+      return i.toStringAsFixed(0) + "nd";
+    }
+    if (j == 3 && k != 13) {
+      return i.toStringAsFixed(0) + "rd";
+    }
+    return i.toStringAsFixed(0) + "th";
+  }
 
 
 }
