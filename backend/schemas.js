@@ -26,7 +26,15 @@ const UserSchema = new Schema({
         redeemedDate: { type: Date, required: true, default: null },
         rewardContent: { type: String, required: true, default: null }
     })],
-    joinedEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active events
+    joinedEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active public events
+/*  IN MY OPINION (GIANCARLO) THIS IS WHAT WE HAVE TO DO IN ORDER TO NOT MESS THINGS UP
+    joinedIndividualEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active public events
+    joinedTeamEvents: [new Schema({
+        _id: false,
+        event: { type: ObjectId, required: false, default: null }, // IDs of active team events
+        teamId: { type: ObjectId, required: false, default: null }, //ID of the team the user is partecipating with
+        contribution: { type: Number, required: false, default: 0 } // contribution to the team event pool of points
+    })] */
 });
 
 const TeamSchema = new Schema({
@@ -67,9 +75,9 @@ const BadgeSchema = new Schema({
 });
 
 const RewardSchema = new Schema({
-    price : { type: Number, required: true },
-    description : { type: String, required: true },
-    image : { type: String, required: true },
+    price: { type: Number, required: true },
+    description: { type: String, required: true },
+    image: { type: String, required: true },
 });
 
 const EventSchema = new Schema({
@@ -87,14 +95,14 @@ const EventSchema = new Schema({
 
     //if it is a public team event
     involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
-    
-    scoreboard: [new Schema({ 
+
+    scoreboard: [new Schema({
         _id: false,
         //add indexes on teamId and userId
         userId: { type: String, required: true },
         teamId: { type: ObjectId, required: false, default: null }, //null if it is an individual event
         points: { type: Number, required: true, default: 0 }
-    })] 
+    })]
 });
 
 exports.User = mongoose.model("User", UserSchema);

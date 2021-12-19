@@ -157,7 +157,10 @@ app.get('/search', (req, res) => {
     }
 });
 
-
+async function getEvents(user) {
+    var events = await Event.find({ _id: { $in: user.joinedEvents } }).exec();
+    return events;
+}
 
 
 /* app.post("/acceptInvite", (req, res) => {
@@ -174,4 +177,4 @@ app.get('/search', (req, res) => {
  */
 
 
-module.exports = app;
+module.exports = {app:app, getEvents:getEvents};
