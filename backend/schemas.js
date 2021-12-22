@@ -93,7 +93,8 @@ const EventSchema = new Schema({
     hostTeam: { type: ObjectId, required: false }, //the team proposing the event
     guestTeam: { type: ObjectId, required: false }, //the teams invited to the event
 
-    //if it is a public team event
+    //if it is a public team event, involvedTeams is the list of teams that are partecipating to the event
+    //if it is a private team event, it is a singleton list with the invited team that has not accepted yet the invitation
     involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
 
     scoreboard: [new Schema({

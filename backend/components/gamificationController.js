@@ -15,10 +15,10 @@ async function assignPoints(user, ride, events) {
             if (event.type == "individual" && event.visibility == "public") {
                 individual_counter++;
             } else if (event.type == "team") {
+                if((event.visibility == "private" && event.guestTeam != null) || (event.visibility == "public" && event.involvedTeams.size>1))
                 team_counter++;
-            }
         }
-    });
+    }});
 
     if (individual_counter > 0) {
         events.forEach(event => {
