@@ -304,11 +304,6 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget stats() {
-    TextStyle headLine;
-    TextStyle sub;
-
-    List<Widget> allStats = [];
-
     return Column(
       children: [
         Padding(
