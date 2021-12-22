@@ -1,13 +1,12 @@
 const User = require('../schemas.js').User;
 const Badge = require('../schemas.js').Badge;
-const eventHandler = require("./eventHandler.js");
+const profileController = require("./profileController.js");
 
 
-async function assignPoints(user, ride) {
+async function assignPoints(user, ride, events) {
     //Calculate points
     var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10)); //add bonus if raining later on
     ride.points = points;
-    var events = await eventHandler.getEvents(user);
     var individual_counter = 0;
 
     var team_counter = 0;
@@ -28,7 +27,7 @@ async function assignPoints(user, ride) {
                 event.scoreboard.some(function (score) {
                     if (score.userId == user.userId) {
                         console.log(score);
-                        score.points += points;
+                        score.points += points/individual_counter;
                         found = true;
                         event.save(); //TO BE REMOVED FROM HERE!!!!!
                     }
@@ -44,6 +43,7 @@ async function assignPoints(user, ride) {
                 });
                 */
 
+                /* not needed by default
                 if (!found) {
                     event.scoreboard.push({
                         userId: user._id,
@@ -52,6 +52,7 @@ async function assignPoints(user, ride) {
                     event.save(); //TO BE REMOVED FROM HERE!!!!!
                     console.log("New user added to event scoreboard");
                 }
+                */
             }
         });
     }
