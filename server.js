@@ -37,7 +37,7 @@ app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
 app.use('/rides', ridesRouter);
 app.use('/rewards', rewardsRoutes);
-app.use('/events', eventRoutes);
+app.use('/events', eventRoutes.app);
 
 app.use('/tests', require('./backend/components/genBadgesInfo.js'));
 

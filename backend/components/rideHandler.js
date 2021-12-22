@@ -19,13 +19,18 @@ app.post("/record", async (req, res) => {
       ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) * 100) / 100;
       const user = await User.findOne({ userId: req.body.userId }).session(session).exec();
       if (user) {
-        gamificationController.assignPoints(user, ride);
+        var events = await profileController.getActiveEvents(user);
+        await gamificationController.assignPoints(user, ride, events);
         profileController.updateUserStatistics(user, ride);
         await gamificationController.checkNewBadgesAfterRide(user, ride);
-        await Promise.all([
+        var promiseArray = [
           user.save({ session }),
-          ride.save({ session })
-        ])
+          ride.save({ session }), 
+        ];
+        events.forEach(event => {
+          promiseArray.push(event.save({ session }));
+        });
+        await Promise.all(promiseArray);
       } else {
         throw new Error("Cannot find the user specified!");
       }
