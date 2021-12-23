@@ -195,7 +195,7 @@ app.post('/joinPublicTeam', async (req, res) => {
 }           
 );
 
-app.post('/joinPrivateTeam', async (req, res) => {
+app.post('/acceptPrivateTeamInvite', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
         const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
@@ -225,7 +225,7 @@ app.post('/joinPrivateTeam', async (req, res) => {
     }
 });
 
-app.post('/rejectPrivateTeam', async (req, res) => {
+app.post('/rejectPrivateTeamInvite', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
         const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
@@ -254,6 +254,35 @@ app.post('/rejectPrivateTeam', async (req, res) => {
         res.status(500).send('Error in rejecting the team event invite: missing parameters');
     }
 });
+
+app.post('/invitePrivateTeam', async (req, res) => {
+    if (req.body.eventId && req.body.teamId && req.body.userId && req.body.guestTeamId && req.body.guestTeamId != req.body.teamId) {
+        const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
+        const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
+        const guestTeam = await Team.findOne({ _id: ObjectId(req.body.guestTeamId) }).exec();
+        if (event && team && guestTeam && team.adminId == admin.userId && event.visibility == "private" && event.type == "team" 
+            && event.hostTean == team._id && event.involvedTeams == null && guestTeam == null) {
+                event.involvedTeams = [req.body.guestTeamId];
+                guestTeam.eventRequests.push(event._id);
+                connection.transaction(async (session) => {
+                    await Promise.all([
+                        guestTeam.save({ session }),
+                        event.save({ session })
+                        ])
+                    }
+                ).then(() => {
+                    res.status(200).send(event);
+                }
+                ).catch(err => {
+                    console.log('The following error occurred in inviting the team to the event: ' + err);
+                    res.status(500).send('Error in inviting the team to the event');
+                }
+            );
+
+            } else {res.status(500).send('Error in inviting the team ro rhe event: missing or incorrect parameters');}
+    }
+});
+
 
 app.post('/join', (req, res) => {
     console.log('Received join POST request:');
@@ -318,6 +347,47 @@ app.get('/search', (req, res) => {
         console.log('Error: Missing parameters.');
         res.status(400).send('Error: Missing parameters.');
     }
+});
+
+app.post('/getJoinableEvents', async(req, res) => {
+    console.log('Received getEvents POST request');
+    if(req.body.userId){
+        const user = await User.findOne({userId: req.body.userId}).exec();
+        if(user){
+            const events = await Event.find({$and: [
+                    {_id: {$nin: user.joinedEvents}}, //excludes the events the user has already joined
+                    {startDate: {$lte: new Date()}}, //excludes the events that have not started
+                    {endDate: {$gte: new Date()}}, //excludes the events that have already ended
+                    {$or:[
+                        {$and: [
+                            {hostTeam: {$in: user.teams}}, //if the user is in the host team and there is a guest team that has accepted the challenge
+                            {guestTeam: {$ne: null}}
+                        ]},
+                        {guestTeam: {$in: user.teams}}, //if the user is in the guest team of a private team event
+                        {$and:[ //if the user is in the involved teams of a public team event
+                            {visibility: 'public'}, 
+                            {type: 'team'},
+                            {involvedTeams: {$in: user.teams}}
+                        ]}, 
+                        {type: "individual"} //if the event is a public individual event
+                    ]}
+                ]}).exec();
+            if(events){
+                res.status(200).send(events);
+            }
+            else{
+                res.status(500).send('Error while getting the events');
+            }
+        } else{
+            console.log('Error: User not found');
+            res.status(500).send('Error: User not found');
+        }
+
+    } else {
+        console.log('Error: Missing userId.');
+        res.status(400).send('Error: Missing userId.');
+    }
+    
 });
 
 
