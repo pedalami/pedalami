@@ -114,7 +114,7 @@ app.post("/createPrivateTeam", async (req, res) => {
                 endDate: req.body.endDate,
                 type: "team",
                 visibility: "private",
-                hostTeam: req.body.hostTeam,
+                hostTeam: req.body.hostTeamId,
                 guestTeam: null,
                 involvedTeams: [req.body.guestTeamId]
             });
@@ -185,7 +185,7 @@ app.post('/joinPublicTeam', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
         const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
-        const admin = await User.findOne({ _id: ObjectId(req.body.userId) }).exec();
+        const admin = await User.findOne({ userId: req.body.userId }).exec();
         if (event && team && admin && team.adminId == admin.userId) {
             if (event.visibility == "public" && event.type == "team") {
                 //TO COMPLETE
@@ -199,9 +199,9 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
         const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
-        const admin = await User.findOne({ _id: ObjectId(req.body.userId) }).exec();
+        const admin = await User.findOne({ userId: req.body.userId }).exec();
         if (event && team && admin && team.adminId == admin.userId && event.visibility == "private" && event.type == "team" 
-            && event.involvedTeams.includes(team._id) && guestTeam == null) {
+            && event.involvedTeams!=null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                     event.involvedTeams = null;
                     event.guestTeam = team._id;
                     team.eventRequests.remove(event._id);
@@ -229,9 +229,9 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
         const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
-        const admin = await User.findOne({ _id: ObjectId(req.body.userId) }).exec();
+        const admin = await User.findOne({ userId: req.body.userId }).exec();
         if (event && team && admin && team.adminId == admin.userId && event.visibility == "private" && event.type == "team" 
-            && event.involvedTeams.includes(team._id) && guestTeam == null) {
+            && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                 event.involvedTeams = null;
                 team.eventRequests.remove(event._id);
                 connection.transaction(async (session) => {
@@ -241,7 +241,7 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
                         ])
                     }
                 ).then(() => {
-                    res.status(200).send(event);
+                    res.status(200).send("Invite rejected successfully");
                 }
                 ).catch(err => {
                     console.log('The following error occurred in rejecting the team event: ' + err);
@@ -256,12 +256,12 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
 });
 
 app.post('/invitePrivateTeam', async (req, res) => {
-    if (req.body.eventId && req.body.teamId && req.body.userId && req.body.guestTeamId && req.body.guestTeamId != req.body.teamId) {
+    if (req.body.eventId && req.body.hostTeamId && req.body.userId && req.body.guestTeamId && req.body.guestTeamId != req.body.hostTeamId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
-        const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
+        const hostTeam = await Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec();
         const guestTeam = await Team.findOne({ _id: ObjectId(req.body.guestTeamId) }).exec();
-        if (event && team && guestTeam && team.adminId == admin.userId && event.visibility == "private" && event.type == "team" 
-            && event.hostTean == team._id && event.involvedTeams == null && guestTeam == null) {
+        if (event && hostTeam && guestTeam && hostTeam.adminId == req.body.userId && event.visibility == "private" && event.type == "team" && 
+        event.hostTeam.equals(hostTeam._id) && event.involvedTeams == null && event.guestTeam == null) {
                 event.involvedTeams = [req.body.guestTeamId];
                 guestTeam.eventRequests.push(event._id);
                 connection.transaction(async (session) => {
@@ -278,9 +278,8 @@ app.post('/invitePrivateTeam', async (req, res) => {
                     res.status(500).send('Error in inviting the team to the event');
                 }
             );
-
-            } else {res.status(500).send('Error in inviting the team ro rhe event: missing or incorrect parameters');}
-    }
+            } else {res.status(500).send('Error in inviting the team to the event: incorrect parameters');}
+    }else {res.status(500).send('Error in inviting the team to the event: missing parameters');}
 });
 
 
@@ -389,22 +388,6 @@ app.post('/getJoinableEvents', async(req, res) => {
     }
     
 });
-
-
-
-
-/* app.post("/acceptInvite", (req, res) => {
-    newEvent.findOneAndUpdate({ _id: req.body.newEventId }, { $push: { acceptedTeams: req.body.teamId } }).
-        then(() => {
-            res.status(200).json({
-                message: 'Invite accepted successfully.'
-            });
-        }).catch(err => {
-            console.log('Error in accepting the invite' + err);
-            res.status(500).send('Error in accepting the invite');
-        })
-});
- */
 
 
 module.exports = { app: app };
