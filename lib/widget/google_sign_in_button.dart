@@ -8,6 +8,7 @@ import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:pedala_mi/services/web_authentication.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GoogleSignInButton extends StatefulWidget {
   @override
@@ -16,6 +17,29 @@ class GoogleSignInButton extends StatefulWidget {
 
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if(kIsWeb)
+    {
+      WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool loggedIn=prefs.getBool("loggedIn")??false;
+        if(loggedIn)
+          {
+            setState(() {
+              _isSigningIn=true;
+            });
+            await webSignInWithGoogle(context: context);
+            setState(() {
+              _isSigningIn=false;
+            });
+          }
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
