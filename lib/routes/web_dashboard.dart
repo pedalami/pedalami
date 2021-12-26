@@ -7,6 +7,7 @@ import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/services/web_authentication.dart';
 import 'package:pedala_mi/size_config.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WebDashBoard extends StatefulWidget {
@@ -99,17 +100,30 @@ class _WebDashBoardState extends State<WebDashBoard> {
               top: MediaQuery.of(context).size.height / 90,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    _miUser != null ? Text(_miUser!.username) : SizedBox(),
+                    _miUser != null
+                        ? Text(
+                            _miUser!.username,
+                            style: TextStyle(
+                                fontSize:
+                                    MediaQuery.of(context).size.width / 100),
+                          )
+                        : JumpingDotsProgressIndicator(
+                            fontSize: MediaQuery.of(context).size.width / 100,
+                            color: Colors.white,
+                          ),
                     SizedBox(
                       width: MediaQuery.of(context).size.width / 90,
                     ),
                     _miUser != null
                         ? Container(
-                            height: 50,
-                            width: 50,
+                            height: MediaQuery.of(context).size.width / 50,
+                            width: MediaQuery.of(context).size.width / 50,
                             decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 image: DecorationImage(
@@ -117,9 +131,14 @@ class _WebDashBoardState extends State<WebDashBoard> {
                                   image: _miUser!.image,
                                 )),
                           )
-                        : Container(
-                            height: 50,
-                            width: 50,
+                        : SizedBox(
+                            height: MediaQuery.of(context).size.width / 50,
+                            width: MediaQuery.of(context).size.width / 50,
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                              backgroundColor: Colors.transparent,
+                            ),
                           )
                   ],
                 ),
@@ -134,18 +153,21 @@ class _WebDashBoardState extends State<WebDashBoard> {
                     padding: EdgeInsets.only(
                         top: MediaQuery.of(context).size.height / 90),
                     child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
                           "Logout",
-                          style: TextStyle(color: Colors.green),
+                          style: TextStyle(
+                              color: Colors.green,
+                              fontSize:
+                                  MediaQuery.of(context).size.width / 120),
                         ),
                         SizedBox(
                           width: MediaQuery.of(context).size.width / 90,
                         ),
-                        FaIcon(
-                          FontAwesomeIcons.signOutAlt,
-                          color: Colors.green,
-                        )
+                        FaIcon(FontAwesomeIcons.signOutAlt,
+                            color: Colors.green,
+                            size: MediaQuery.of(context).size.width / 50)
                       ],
                     ),
                   ),
