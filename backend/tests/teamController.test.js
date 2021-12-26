@@ -155,13 +155,13 @@ describe("POST /join & /leave", () => {
             userId: testUser,
             teamId: team._id
         });
-        //expect(join_response.status).toBe(200);
+        expect(join_response.status).toBe(200);
         expect(join_response.text).toBe('Team joined successfully');
         const leave_response = await request(app).post('/teams/leave').send({
             userId: testUser,
             teamId: team._id
         });
-        //expect(leave_response.status).toBe(200);
+        expect(leave_response.status).toBe(200);
         expect(leave_response.text).toBe('Team left successfully');
         await User.deleteOne({userId: testUser});
     })
