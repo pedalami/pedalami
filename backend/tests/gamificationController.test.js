@@ -19,9 +19,9 @@ afterAll(async () => {
 var ride = Ride({
     "userId": "user_id",
     "name": "test_ride",
-    "durationInSeconds": 200,
-    "totalKm": 12,
-    "pace": 10,
+    "durationInSeconds": 3500,
+    "pace": 18.5,
+    "totalKm": 18,
     "date": "2021-12-03",
     "geoPoints": [
         {
@@ -33,8 +33,7 @@ var ride = Ride({
             "longitude": 10
         }
     ],
-    "elevationGain": 102,
-    "points": 100
+    "elevationGain": 102
 });
 
 describe("Testing assignPoints function", () => {
@@ -63,7 +62,7 @@ describe("Testing assignPoints function", () => {
 
 describe("Testing checkNewBadgesAfterRide function", () => {
     test("Checking ride type badges unlocking", async () => {
-        var user = User({
+        var user1 = User({
             "userId": "user_id",
             "badges": [],
             "teams": [],
@@ -79,10 +78,10 @@ describe("Testing checkNewBadgesAfterRide function", () => {
                 "averageElevationGain": 0
             }
         });
+        await checkBadge(user1, ride);
 
-        await checkBadge(user, ride);
-        // should unlock: pace 10, totalKm 1, totalKm 10, elevationGain 10, elevationGain 100
-        expect(user.badges.length).toBe(5);
+        // should unlock: pace 10, totalKm 1, totalKm 10, elevationGain 10, elevationGain 100, DurationInSeconds 1800
+        expect(user1.badges.length).toBe(6);
     })
 
     test("Checking userStat and ride type badges unlocking", async () => {
@@ -107,8 +106,8 @@ describe("Testing checkNewBadgesAfterRide function", () => {
         await checkBadge(user, ride);
 
         // should unlock:
-        // ride - pace 10, totalKm 1, totalKm 10, elevationGain 10, elevationGain 100
+        // ride - pace 10, totalKm 1, totalKm 10, elevationGain 10, elevationGain 100, DurationInSeconds 1800
         // userStat - numberOfRides 1, totalKm 10
-        expect(user.badges.length).toBe(7);
+        expect(user.badges.length).toBe(8);
     })
 })

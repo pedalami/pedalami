@@ -68,19 +68,38 @@ describe("POST /redeem", () => {
         expect(response.text).toBe('Insufficient points.');
         await User.deleteOne({userId: userId});
     })
-    test("With enough points you should redeem a reward successfully", async () => {
+    test("With enough points you can redeem a reward successfully", async () => {
 
         await request(app).post('/users/initUser').send({userId: userId});
         await request(app).post('/rides/record').send(ride_json);
+        //const user = await User.findOne({userId: userId})
         const reward = await Reward.findOne();
         const response = await request(app).post('/rewards/redeem').send({'userId': userId, 'rewardId': reward._id});
         expect(response.status).toBe(200);
         expect(response.body.message).toBe('Reward redeemed successfully.');
+        //expect(user.rewards.length).toBeGreaterThan(0);
         await User.deleteOne({userId: userId});
-        await Ride.deleteOne({userId: userId});
+        await Ride.deleteMany({userId: userId});
     })
 })
 
-describe("GET /list", () => {})
+describe("GET /list", () => {
+    test("Reward list should return successfully", async () => {
+        const response = await request(app).get('/rewards/list');
+        expect(response.status).toBe(200);
+    })
+})
 
-describe("GET /getByUser", () => {})
+describe("GET /getByUser", () => {
+    test("Without a correct userId 400 should return", async () => {
+        const response = await request(app).get('/rewards/getByUser').query({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error: Missing userId parameter!')
+    })
+    test("With a correct userId redeemed reward list is fetched", async () => {
+        await request(app).post('/users/initUser').send({userId: userId});
+        const response = await request(app).get('/rewards/getByUser').query({userId: userId});
+        expect(response.status).toBe(200);
+        await User.deleteOne({userId: userId});
+    })
+})

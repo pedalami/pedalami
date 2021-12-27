@@ -69,7 +69,6 @@ app.get("/list", async (req, res) => {
 });
 
 
-// USELESS
 // GET /getByUser?userId=userId
 app.get("/getByUser", (req, res) => {
     console.log("Received rewards/getByUser GET request with param userId=" + req.query.userId);
