@@ -33,26 +33,6 @@ async function assignPoints(user, ride, events) {
                     }
                     return found;
                 });
-                /*
-                .forEach(score => {
-                    if (score.userId == user._id) {
-                        score.points += points;
-                        found = true;
-                        break;
-                    }
-                });
-                */
-
-                /* not needed by default
-                if (!found) {
-                    event.scoreboard.push({
-                        userId: user._id,
-                        points: points
-                    })
-                    event.save(); //TO BE REMOVED FROM HERE!!!!!
-                    console.log("New user added to event scoreboard");
-                }
-                */
             }
         });
     }
