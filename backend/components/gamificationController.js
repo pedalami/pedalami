@@ -1,4 +1,3 @@
-const User = require('../schemas.js').User;
 const Badge = require('../schemas.js').Badge;
 const profileController = require("./profileController.js");
 
@@ -7,6 +6,8 @@ async function assignPoints(user, ride, events) {
     //Calculate points
     var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10)); //add bonus if raining later on
     ride.points = points;
+    console.log("Assigning " + points + " points to " + user.userId);
+    //user.points += points;
     var individual_counter = 0;
 
     var team_counter = 0;
@@ -84,11 +85,11 @@ async function assignPoints(user, ride, events) {
                     user.badges.push(badge);
                 if (badge.type === "ride" && ride[badge.criteria] >= badge.criteriaValue)
                     user.badges.push(badge);
-            }
+            }   
         });
     }
-
+    
     module.exports = {
         assignPoints: assignPoints,
         checkNewBadgesAfterRide: checkNewBadgesAfterRide
-    };
+    }
