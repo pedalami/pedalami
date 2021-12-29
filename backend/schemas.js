@@ -27,14 +27,6 @@ const UserSchema = new Schema({
         rewardContent: { type: String, required: true, default: null }
     })],
     joinedEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active public events
-/*  IN MY OPINION (GIANCARLO) THIS IS WHAT WE HAVE TO DO IN ORDER TO NOT MESS THINGS UP
-    joinedIndividualEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active public events
-    joinedTeamEvents: [new Schema({
-        _id: false,
-        event: { type: ObjectId, required: false, default: null }, // IDs of active team events
-        teamId: { type: ObjectId, required: false, default: null }, //ID of the team the user is partecipating with
-        contribution: { type: Number, required: false, default: 0 } // contribution to the team event pool of points
-    })] */
 });
 
 const TeamSchema = new Schema({

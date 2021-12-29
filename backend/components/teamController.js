@@ -27,15 +27,15 @@ app.post('/create', (req, res) => {
         ]);
       }
     })
-    .then(() => {
-      res.status(200).json({
-        teamId: newTeam._id
+      .then(() => {
+        res.status(200).json({
+          teamId: newTeam._id
+        });
+      })
+      .catch((error) => {
+        console.log('Error while creating the team: ' + error);
+        res.status(500).send('Error while creating the team!');
       });
-    })
-    .catch((error) => {
-      console.log('Error while creating the team: ' + error);
-      res.status(500).send('Error while creating the team!');
-    });
   } else {
     console.log('Error: Missing parameters.');
     res.status(400).send('Error: Missing parameters.');
@@ -45,7 +45,7 @@ app.post('/create', (req, res) => {
 // GET /search?name=portion_of_name
 app.get('/search', (req, res) => {
   const to_search = req.query.name;
-  console.log('Received search GET request with param name='+to_search);
+  console.log('Received search GET request with param name=' + to_search);
   if (to_search) {
     //Team.find({ name: {$regex: to_search} }, 'team_id name', (error, teams) => { //returns only team_id and name fields
     Team.find({ name: { $regex: '.*' + to_search + ".*", $options: 'i' } }, (error, teams) => {
@@ -68,7 +68,7 @@ app.post('/join', (req, res) => {
   console.log('Received join POST request:');
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
-    connection.transaction( async (session) => {
+    connection.transaction(async (session) => {
       const [user, team] = await Promise.all([
         User.findOne({ userId: req.body.userId }).session(session).exec(),
         Team.findOne({ _id: req.body.teamId }).session(session).exec()
@@ -87,13 +87,13 @@ app.post('/join', (req, res) => {
         ])
       }
     })
-    .then(() => {
-      res.status(200).send('Team joined successfully');
-    })
-    .catch((err) => {
-      console.log('Error while joining the team\n' + err);
-      res.status(500).send('Error while joining the team');
-    })
+      .then(() => {
+        res.status(200).send('Team joined successfully');
+      })
+      .catch((err) => {
+        console.log('Error while joining the team\n' + err);
+        res.status(500).send('Error while joining the team');
+      })
   }
   else {
     console.log('Error: Missing parameters.');
@@ -106,7 +106,7 @@ app.post('/leave', (req, res) => {
   console.log('Received leave POST request:');
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
-    connection.transaction( async (session) => {
+    connection.transaction(async (session) => {
       const [user, team] = await Promise.all([
         User.findOne({ userId: req.body.userId }).session(session).exec(),
         Team.findOne({ _id: req.body.teamId }).session(session).exec()
@@ -126,13 +126,13 @@ app.post('/leave', (req, res) => {
         }
       }
     })
-    .then(() => {
-      res.status(200).send('Team left successfully');
-    })
-    .catch((err) => {
-      console.log('Error while leaving the team\n' + err);
-      res.status(500).send('Error while leaving the team');
-    })
+      .then(() => {
+        res.status(200).send('Team left successfully');
+      })
+      .catch((err) => {
+        console.log('Error while leaving the team\n' + err);
+        res.status(500).send('Error while leaving the team');
+      })
   }
   else {
     console.log('Error: Missing parameters.');

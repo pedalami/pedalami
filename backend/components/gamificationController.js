@@ -15,10 +15,11 @@ async function assignPoints(user, ride, events) {
             if (event.type == "individual" && event.visibility == "public") {
                 individual_counter++;
             } else if (event.type == "team") {
-                if((event.visibility == "private" && event.guestTeam != null) || (event.visibility == "public" && event.involvedTeams.size>1))
-                team_counter++;
+                if ((event.visibility == "private" && event.guestTeam != null) || (event.visibility == "public" && event.involvedTeams.size >= 2))
+                    team_counter++;
+            }
         }
-    }});
+    });
 
     if (individual_counter > 0) {
         events.forEach(event => {
@@ -27,9 +28,8 @@ async function assignPoints(user, ride, events) {
                 event.scoreboard.some(function (score) {
                     if (score.userId == user.userId) {
                         console.log(score);
-                        score.points += points/individual_counter;
+                        score.points += points / individual_counter;
                         found = true;
-                        event.save(); //TO BE REMOVED FROM HERE!!!!!
                     }
                     return found;
                 });
@@ -57,38 +57,42 @@ async function assignPoints(user, ride, events) {
         });
     }
 
-       /*
     if (team_counter > 0) {
-        points = points / team_counter;
+        points = points / (team_counter + 1);
         events.forEach(event => {
             if (event.type == "team") {
-                event.scoreboard.push({
-                    userId: user._id,
-                    //teamId: event.hostTeam, //TO BE CHANGED!!!!!!!
-                    points: points
-                });
+                if ((event.visibility == "private" && event.guestTeam != null) || (event.visibility == "public" && event.involvedTeams.size >= 2)) {
+                    var found = false;
+                    event.scoreboard.some(function (score) {
+                        if (score.userId == user.userId) {
+                            console.log(score);
+                            score.points += points;
+                            found = true;
+                        }
+                        return found;
+                    });
+                }
+
             }
+        })
+    }
+    console.log("Assigning " + points + " points to " + user.userId + " and to its events");
+    user.points += points;
+}
+
+async function checkNewBadgesAfterRide(user, ride) {
+    const badgeList = await Badge.find({});
+    badgeList.forEach(badge => {
+        if (!user.badges.includes(badge._id)) {
+            if (badge.type == "userStat" && user.statistics[badge.criteria] > badge.criteriaValue)
+                user.badges.push(badge);
+            if (badge.type == "ride" && ride[badge.criteria] > badge.criteriaValue)
+                user.badges.push(badge);
         }
-    }
-    */
+    });
+}
 
-        console.log("Assigning " + points + " points to " + user.userId+ " and to its events");
-        user.points += points;
-    }
-
-    async function checkNewBadgesAfterRide(user, ride) {
-        const badgeList = await Badge.find({});
-        badgeList.forEach(badge => {
-            if (!user.badges.includes(badge._id)) {
-                if (badge.type == "userStat" && user.statistics[badge.criteria] > badge.criteriaValue)
-                    user.badges.push(badge);
-                if (badge.type == "ride" && ride[badge.criteria] > badge.criteriaValue)
-                    user.badges.push(badge);
-            }
-        });
-    }
-
-    module.exports = {
-        assignPoints: assignPoints,
-        checkNewBadgesAfterRide: checkNewBadgesAfterRide
-    };
+module.exports = {
+    assignPoints: assignPoints,
+    checkNewBadgesAfterRide: checkNewBadgesAfterRide
+};
