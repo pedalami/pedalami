@@ -86,7 +86,7 @@ describe("POST /join & /leave", () => {
             teamId: "n0n3x1st1ngT3@m"
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error finding the user or the team!');
+        expect(response.text).toBe('Error while joining the team');
     })
 
     test("A join request with a fake userId should return 500", async () =>{
@@ -97,7 +97,7 @@ describe("POST /join & /leave", () => {
             teamId: team._id
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error finding the user or the team!');
+        expect(response.text).toBe('Error while joining the team');
     })
 
     test("Joining with a member of the team should return 500", async () =>{
@@ -108,7 +108,7 @@ describe("POST /join & /leave", () => {
             teamId: team._id
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error: User already in team.');
+        expect(response.text).toBe('Error while joining the team');
     })
     test("A leave request without userId and teamId field should return 400", async () =>{
         const response = await request(app).post('/teams/leave').send({});
@@ -121,7 +121,7 @@ describe("POST /join & /leave", () => {
             teamId: "n0n3x1st1ngT3@m"
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error finding the user or the team!');
+        expect(response.text).toBe('Error while leaving the team');
     })
 
     test("A leave request with a fake userId should return 500", async () =>{
@@ -132,7 +132,7 @@ describe("POST /join & /leave", () => {
             teamId: team._id
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe("Error: User not in team.");
+        expect(response.text).toBe("Error while leaving the team");
     })
 
     test("Leaving a team where the user is the admin should return 500", async () =>{
@@ -143,7 +143,7 @@ describe("POST /join & /leave", () => {
             teamId: team._id
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe("Error: User is the admin of the team. An admin cannot leave the team.");
+        expect(response.text).toBe("Error while leaving the team");
     })
 
     test("Joining a team where the user is not a member and then leaving it should return 200", async () =>{

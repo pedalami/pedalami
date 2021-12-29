@@ -40,7 +40,7 @@ describe("POST /initUser", ()=>{
   test("The response should be 400 if no userId is sent", async () =>{
     const response = await request(app).post('/users/initUser').send({});
     expect(response.status).toBe(400);
-    expect(response.text).toBe('Missing parameters');
+    expect(response.text).toBe('Missing userId parameter');
   })
 
   test("Sending a request with userId should return 200 and the User", async () => {

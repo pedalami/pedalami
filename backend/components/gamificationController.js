@@ -7,7 +7,7 @@ async function assignPoints(user, ride, events) {
     var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10)); //add bonus if raining later on
     ride.points = points;
     console.log("Assigning " + points + " points to " + user.userId);
-    user.points += points;
+    //user.points += points;
     var individual_counter = 0;
 
     var team_counter = 0;

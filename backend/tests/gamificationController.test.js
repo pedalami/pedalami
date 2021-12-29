@@ -55,7 +55,7 @@ describe("Testing assignPoints function", () => {
             }
         });
         const oldPoints = user.points;
-        assign(user, ride);
+        assign(user, ride, []);
         expect(user.points).toBe((ride.totalKm * 100) + (oldPoints + ride.elevationGain * 10));
     })
 })
