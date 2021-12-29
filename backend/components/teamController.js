@@ -17,7 +17,7 @@ app.post('/create', (req, res) => {
       const admin = await User.findOne({ userId: req.body.adminId }).session(session).exec()
       if (!admin) {
         console.log('Cannot find the user specified as admin!\n');
-        res.status(500).send('Error while creating the team: the team admin specified does not exist!');
+        throw new Error('the team admin specified does not exist!');
       } else {
         newTeam.members.push(req.body.adminId);
         admin.teams.push(newTeam._id);
@@ -34,7 +34,7 @@ app.post('/create', (req, res) => {
     })
     .catch((error) => {
       console.log('Error while creating the team: ' + error);
-      res.status(500).send('Error while creating the team!');
+      res.status(500).send('Error while creating the team. ' + error);
     });
   } else {
     console.log('Error: Missing parameters.');

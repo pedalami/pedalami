@@ -27,7 +27,7 @@ describe("POST /create", () => {
             adminId: "n0t3x1st"
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error while creating the team: the team admin specified does not exist!');
+        expect(response.text).toBe('Error while creating the team. Error: the team admin specified does not exist!');
     })
 
     test("A request with a real userId and a name field should return successfully", async () =>{
