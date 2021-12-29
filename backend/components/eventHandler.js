@@ -116,15 +116,60 @@ app.post('/joinPublicTeam', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {
         const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
         const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
-        const admin = await User.findOne({ userId: req.body.userId }).exec();
-        if (event && team && admin && team.adminId == admin.userId) {
+        const user = await User.findOne({ userId: req.body.userId }).exec();
+        if (event && team && user) {
             if (event.visibility == "public" && event.type == "team") {
-                //TO COMPLETE
+                if (event.involvedTeams.includes(team._id)) {
+                    user.joinedEvents.push(event._id);
+                    //TODO COMPLETE
+                }
+
             }
         }
     }
 }           
 );
+
+app.post('/enrollTeamPublic', async (req, res) => {
+    if (req.body.eventId && req.body.teamId && req.body.adminId) {
+        const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
+        const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
+        const admin = await User.findOne({ adminId: req.body.adminId }).exec();
+        if (event && team && admin && team.adminId == admin.userId) {
+            if (event.visibility == "public" && event.type == "team"){
+                if(!event.involvedTeams.includes(team._id)) {
+                    event.involvedTeams.push(team._id);
+                    team.activeEvents.push(event._id);
+                    if(event.involvedTeams.length == 1) {
+                        event.involvedTeams.push(event.hostTeam); //the host team is put in the list of involved teams only if there is at least an opposing team   
+                    }
+                    connection.transaction(async (session) => {
+                        await Promise.all([
+                            event.save({ session }),
+                            team.save({ session })
+                            ])
+                        }
+                    ).then(() => {
+                        res.status(200).send(event);
+                    }
+                    ).catch(err => {
+                        console.log('The following error occurred in enrolling the team to the event: ' + err);
+                        res.status(500).send('Error in enrolling the team to the event: ' + err);
+                    })
+            } else {
+                res.status(500).send('The team is already enrolled in the event');
+            }
+            
+        } else {
+            res.status(500).send('The event is not public or is not a team event');
+        }
+    } else {
+        res.status(500).send('Error in enrolling the team to the event: user, event or team not found');
+    }
+} else {
+    res.status(500).send('Error in enrolling the team to the event: missing parameters');
+}
+});
 
 app.post('/acceptPrivateTeamInvite', async (req, res) => {
     if (req.body.eventId && req.body.teamId && req.body.userId) {

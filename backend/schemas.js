@@ -87,7 +87,7 @@ const EventSchema = new Schema({
     endDate: { type: Date, required: true },
     type: { type: String, required: true }, // The event can be team or individual
     visibility: { type: String, required: true }, // The event can be public or private
-    prize: { type: Number, required: false }, // The event must have a prize only if visibility is "public"
+    prize: { type: Number, required: false }, // The event must have a prize only if visibility is "public" and type is "individual"
 
     // if it is a private team event
     hostTeam: { type: ObjectId, required: false }, //the team proposing the event
