@@ -36,6 +36,13 @@ class CustomController extends MapController {
 class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
   late CustomController controller;
 
+  @override
+  void initState() {
+
+    controller = CustomController(initMapWithUserPosition: true);
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +55,15 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
                 OSMFlutter(
                   controller: controller,
                   onMapIsReady: (isReady) {
+                    controller.drawRoad(
+                        widget.path.first, widget.path.last,
+                        intersectPoint:
+                        widget.path.sublist(1, widget.path.length - 1),
+                        roadType: RoadType.bike,
+                        roadOption: RoadOption(
+                          roadWidth: 10,
+                          roadColor: Colors.green,
+                        ));
                   },
                   mapIsLoading: Center(
                     child: Column(

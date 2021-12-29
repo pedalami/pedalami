@@ -33,6 +33,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 ),
               ),
               onPressed: () async {
+
                 setState(() {
                   _isSigningIn = true;
                 });
@@ -42,15 +43,20 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                   _isSigningIn = false;
                 });
                 if (user != null) {
+                  print(user.displayName);
                   CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
                   QuerySnapshot querySnapshot = await usersCollection
                       .where("Mail", isEqualTo: user.email)
                       .get();
                   if (querySnapshot.docs.isNotEmpty) {
                     String? username = querySnapshot.docs[0].get("Username");
+
                       if (username != null) {
                         LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
                         await MongoDB.instance.initUser(user.uid);
+
+                        
+
                         Navigator.pushNamedAndRemoveUntil(
                             context, '/switch_page', (route) => false);
                       } else {
@@ -68,6 +74,7 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                                   InsertUsernameScreen(user: user)));
                     }
                 }
+
                 setState(() {
                   _isSigningIn = false;
                 });

@@ -1,62 +1,21 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
-import "dart:math";
+import 'package:pedala_mi/models/team.dart';
 
 class TeamMembers extends StatefulWidget {
-  TeamMembers({Key? key}) : super(key: key);
+  TeamMembers({Key? key, required this.team}) : super(key: key);
+  final Team team;
 
   @override
   _TeamMembersState createState() => _TeamMembersState();
 }
 
 class _TeamMembersState extends State<TeamMembers> {
-  //User? user = FirebaseAuth.instance.currentUser;
   bool check = false;
   final usernameController = TextEditingController();
-  LoggedUser _miUser = LoggedUser.instance!;
-
-  // TODO : Make Dynamic read from users enrolled to team
-  List<String> names = [
-    "Panos", "Giancarlo", "Vincenzo", "Massimiliano", "David", "Emanuele", "Marcus", "Lorenzo", "Dimitra",
-    "Michaelangelo", "Thaleia", "Raffaela", "Alessio", "Luke", "Jade", "Sarah", "Abrar", "Elsa", "Ferzeneh", "Gezim", "Gabriel", "Riccardo"
-  ];
-
-  // TODO : Make Dynamic read from teams joined to
-  List<String> teams = [
-    "Polimi", "FER", "MDH", "TUDublin", "Random team", " \"For The Win\" team"
-  ];
-
-  final _random = new Random();
 
   @override
   void initState() {
-    /*
-    OLD. See the above new declaration of _miUser LoggedUser for reference.
-    CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection("Users");
-    usersCollection
-        .where("Mail", isEqualTo: user!.email)
-        .get()
-        .then((QuerySnapshot querySnapshot) async {
-      setState(() {
-        _miUser = new LoggedUser(
-            querySnapshot.docs[0].id,
-            querySnapshot.docs[0].get("Image"),
-            querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"), 0.0);
-        usernameController.value =
-            usernameController.value.copyWith(text: _miUser.username);
-        //emailController.value =
-        //   emailController.value.copyWith(text: _miUser.mail);
-        //TODO - Comment added by Vincenzo:
-        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
-        //My suggestion is to have a single shared MiUser to use in the whole application.
-      });
-    });
-     */
     super.initState();
   }
 
@@ -73,60 +32,26 @@ class _TeamMembersState extends State<TeamMembers> {
               padding: EdgeInsets.only(
                   left: 30.0,
                   right: 30.0,
-                  top: 10 * SizeConfig.heightMultiplier!),
-              child: Column(
+              top: 15.0 * SizeConfig.heightMultiplier!),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  Row(
-                    children: <Widget>[
-
-                      SizedBox(
-                        width: 5 * SizeConfig.widthMultiplier!,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
+                  Column(
+                    children: <Widget> [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           Text(
-                            nStringToNNString(_miUser.username),
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 3 * SizeConfig.textMultiplier!,
-                                fontWeight: FontWeight.bold),
+                          // Team's Name Goes here
+                          widget.team.name,
+                          style: TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 4 * SizeConfig.textMultiplier!,
+                              decoration: TextDecoration.underline),
                           ),
-                          SizedBox(
-                            height: 1 * SizeConfig.heightMultiplier!,
-                          ),
-                          Container(
-                            height: 11 * SizeConfig.heightMultiplier!,
-                            width: 22 * SizeConfig.widthMultiplier!,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: _miUser.image,
-                                )),
-                          ),
-                          Row(
-                            children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Text(
-                                    nStringToNNString(
-                                        nStringToNNString(_miUser.mail)),
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize:
-                                      1.5 * SizeConfig.textMultiplier!,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(
-                                width: 3 * SizeConfig.widthMultiplier!,
-                              ),
-                            ],
-                          )
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ],
@@ -134,7 +59,7 @@ class _TeamMembersState extends State<TeamMembers> {
             ),
           ),
           Padding(
-              padding: EdgeInsets.only(top: 35 * SizeConfig.heightMultiplier!),
+              padding: EdgeInsets.only(top: 25 * SizeConfig.heightMultiplier!),
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
@@ -142,143 +67,63 @@ class _TeamMembersState extends State<TeamMembers> {
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(30.0),
                       topLeft: Radius.circular(30.0),
-                    )),
-                child: Container(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 3 * SizeConfig.heightMultiplier!),
-                          child: Text(
-                            // Team's Name Goes here
-                            randomTeam(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 3.5 * SizeConfig.textMultiplier!,
-                                decoration: TextDecoration.underline
-                                ),
-                             ),
-                        ),
-
-                        // Team Members
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                            child: Text(
-                              randomName(),
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                                ),
-                            ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.all(3),
-                          child: Text(
-                            randomName(),
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 10,
-                              top: 3 * SizeConfig.heightMultiplier!,
-                              right: 10.0),
-                        ),
-                        SizedBox(
-                          height: 30 * SizeConfig.heightMultiplier!,
-                        ),
-                        Container(
-                          height: 20 * SizeConfig.heightMultiplier!,
-                        ),
-                        Divider(
-                          color: Colors.grey,
-                        )
-                      ],
-                    ),
-                  ),
+                    )
                 ),
-              ))
+                        // Team Members
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: ListView.builder(
+                      itemCount: widget.team.membersId.length,
+                      itemBuilder: (BuildContext context, int index) {
+                        return Padding(
+                          padding: EdgeInsets.only(
+                              top: 1 * SizeConfig.heightMultiplier!),
+                          child: Column(
+                            children: <Widget>[
+                              Text(
+                                "Member username",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      2 * SizeConfig.textMultiplier!,
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                    1 * SizeConfig.heightMultiplier!,
+                              ),
+                              Text(
+                                getUsername(index),
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize:
+                                      2 * SizeConfig.textMultiplier!,
+                                ),
+                              ),
+                              SizedBox(
+                                height:
+                                    2 * SizeConfig.heightMultiplier!,
+                              ),
+                            ],
+                          ),
+                        );
+                      }),
+                    ),
+              ),
+          ),
         ],
       ),
     );
-  }
-
-  String randomName()
-  {
-    var element = names[_random.nextInt(names.length)];
-    return element;
-  }
-
-  String randomTeam()
-  {
-    var element = teams[_random.nextInt(teams.length)];
-    return element;
   }
 
   String nStringToNNString(String? str) {
     return str ?? "";
   }
 
+  String getUsername(int index) {
+    return widget.team.members!.values.elementAt(index).username ??
+        "Error while getting username";
+  }
 }

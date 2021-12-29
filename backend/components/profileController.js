@@ -2,6 +2,7 @@ var express = require('express');
 var app = express();
 app.use(express.json());
 const User = require('../schemas.js').User;
+const Event = require('../schemas.js').Event;
 
 app.post('/initUser', (req, res) => {
   console.log('Received initUser POST request:');
@@ -10,6 +11,53 @@ app.post('/initUser', (req, res) => {
   if (userId) {
     User.aggregate([
       { $match: { userId: userId } },
+      {
+        $unwind: {
+          path: "$rewards",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $lookup: {
+          from: "rewards", // collection name in db
+          localField: "rewards.rewardId", // field of User to make the lookup on (the field with the "foreign key")
+          foreignField: "_id", // the referred field in rewards
+          as: "baseReward" // name that the field of the join will have in the result/JSON
+        }
+      },
+      {
+        $unwind: {
+          path: "$baseReward",
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
+        $group: {
+          _id: "$_id",
+          userId: { $first: "$userId" },
+          badges: { $first: "$badges" },
+          joinedEvents: { $first: "$joinedEvents" },
+          statistics: { $first: "$statistics" },
+          points: { $first: "$points" },
+          teams: { $first: "$teams" },
+          rewards: {
+            $push: {
+              $cond: [
+                { $eq: [{ "$ifNull": ["$rewards", null] }, null] },
+                "$$REMOVE",
+                {
+                  rewardId: "$rewards.rewardId",
+                  redeemedDate: "$rewards.redeemedDate",
+                  rewardContent: "$rewards.rewardContent",
+                  description: "$baseReward.description",
+                  image: "$baseReward.image",
+                  price: "$baseReward.price"
+                }
+              ]
+            }
+          }
+        }
+      },
       {
         $lookup: {
           from: "teams", // collection name in db
@@ -20,38 +68,47 @@ app.post('/initUser', (req, res) => {
       },
       {
         $lookup: {
+          from: "events", // collection name in db
+          localField: "joinedEvents", // field of User to make the lookup on (the field with the "foreign key")
+          foreignField: "_id", // the referred field in events
+          as: "joinedEvents" // name that the field of the join will have in the result/JSON
+        }
+      },
+      {
+        $lookup: {
           from: "badges", // collection name in db
           localField: "badges", // field of User to make the lookup on (the field with the "foreign key")
           foreignField: "_id", // the referred field in badges
           as: "badges" // name that the field of the join will have in the result/JSON
         }
       },
-      { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.__v", "__v"] }
+      { $unset: ["badges.criteria", "badges.type", "badges._id", "badges.__v", "teams.__v", "joinedEvents.__v", "__v"] }
     ])
-    .exec((err, users) => {
-      if (err) {
-        console.log('Error checking the User existence.');
-        res.status(500).send('Error finding the user.');
-      } else {
-        if (users && users.length === 1) {
-          console.log('The user already exist. Returning it');
-          res.status(200).send(users[0]);
-        } else { // user doesn't exist
-          const newUser = new User({ userId: userId });
-          newUser.save( (error) => {
-            if (error) {
-              console.log('Error saving the user.');
-              res.status(500).send('Error saving the user!');
-            } else {
-              console.log('The user has been saved.');
-              res.status(200).send(newUser);
-            }
-          });
+      .exec((err, users) => {
+        if (err) {
+          console.log('Error checking the User existence.\n' + err);
+          res.status(500).send('Error finding the user.');
+        } else {
+          if (users && users.length === 1) {
+            console.log('The user already exist. Returning it');
+            res.status(200).send(users[0]);
+          } else { // user doesn't exist
+            const newUser = new User({ userId: userId });
+            newUser.save((error) => {
+              if (error) {
+                console.log('Error saving the user. ' + error);
+                res.status(500).send('Error saving the user!');
+              } else {
+                console.log('The user has been saved.');
+                res.status(200).send(newUser);
+              }
+            });
+          }
         }
-      }
-    })
+      })
   } else {
-    res.status(400).send('Missing parameters');
+    console.log('Missing userId parameter');
+    res.status(400).send('Missing userId parameter');
   }
 });
 
@@ -60,15 +117,32 @@ function updateUserStatistics(user, ride) {
   user.statistics.totalDuration += ride.durationInSeconds;
   user.statistics.totalKm += ride.totalKm;
   user.statistics.totalElevationGain += ride.elevationGain;
-  user.statistics.averageSpeed = user.statistics.totalKm / user.statistics.totalDuration * 3600;
+  user.statistics.averageSpeed = user.statistics.totalKm / (user.statistics.totalDuration / 3600);
   user.statistics.averageKm = user.statistics.totalKm / user.statistics.numberOfRides;
   user.statistics.averageDuration = user.statistics.totalDuration / user.statistics.numberOfRides;
   user.statistics.averageElevationGain = user.statistics.totalElevationGain / user.statistics.numberOfRides;
 }
 
+async function getEvents(user) {
+  var events = await Event.find({ _id: { $in: user.joinedEvents } }).exec();
+  return events;
+}
+
+async function getActiveEvents(user) {
+  var events = await Event.find({
+    _id: { $in: user.joinedEvents },
+    startDate: { $lt: new Date() },
+    endDate: { $gt: new Date() }
+  }).exec();
+  return events;
+}
+
+
 module.exports = {
   router: app,
-  updateUserStatistics: updateUserStatistics
+  updateUserStatistics: updateUserStatistics,
+  getEvents: getEvents,
+  getActiveEvents: getActiveEvents
 }
 
 
