@@ -41,7 +41,7 @@ async function assignPoints(user, ride, events) {
     if (team_counter > 0) {
         points = points / (team_counter + 1);
         events.forEach(event => {
-            if (event.type == "team") {
+            if (event.type == "team" && ride.date <= event.endDate && ride.date >= event.startDate) {
                 if ((event.visibility == "private" && event.guestTeam != null) || (event.visibility == "public" && event.involvedTeams.size >= 2)) {
                     var found = false;
                     event.scoreboard.some(function (score) {

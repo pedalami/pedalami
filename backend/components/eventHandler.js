@@ -140,7 +140,6 @@ app.post('/enrollTeamPublic', async (req, res) => {
                 } else {
                     res.status(500).send('The team is already enrolled in the event');
                 }
-
             } else {
                 res.status(500).send('The event is not public or is not a team event');
             }
@@ -386,9 +385,6 @@ app.post('/getJoinableEvents', async (req, res) => {
     }
 
 });
-
-
-
 
 module.exports = { app: app };
 
