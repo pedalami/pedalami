@@ -318,12 +318,43 @@ app.post('/leave', (req, res) => {
 });
 
 
-// GET /search?name=portion_of_name
-app.get('/search', (req, res) => {
-    const to_search = req.query.name;
-    console.log('Received search GET request with param name=' + to_search);
-    if (to_search) {
-        Event.find({ name: { $regex: '.*' + to_search + ".*", $options: 'i' } }, (error, events) => {
+//Team admins specify their team and the event they want to search. Empty name means all teams.
+app.post('/search', (req, res) => {
+    const to_search = req.body.name;
+    const userId = req.body.userId;
+    const teamId = req.body.teamId;
+
+    console.log('Received search POST request');
+    if (!(to_search && userId && teamId)) {
+        res.status(500).send('Error while searching for events: missing parameters');
+        return;
+    }
+    const user = await User.findOne({ userId: userId }).exec();
+    const team = await Team.findOne({ _id: teamId }).exec();
+    if (!user || !team) {
+        res.status(500).send('Error while searching for events: user or team not found');
+        return;
+    }
+    if (user.userId != team.adminId) {
+        res.status(500).send('Error while searching for events: user is not the team admin');
+        return;
+    }
+    Event.find(
+        {
+            $and: [
+                { name: { $regex: '.*' + to_search + ".*", $options: 'i' } },
+                { _id: { $nin: team.activeEvents } }, //excludes the events team is already enrolled in
+                { startDate: { $lte: new Date() } }, //excludes the events that have not started
+                { endDate: { $gte: new Date() } }, //excludes the events that have already ended
+                { type: 'team' },
+                {
+                    $or: [
+                        { visibility: 'public' }, //if the event is public
+                        { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
+                    ]
+                }
+            ]
+        }, (error, events) => {
             if (error) {
                 console.log('Error finding the events.\n' + error);
                 res.status(500).send('Error finding the events!');
@@ -331,10 +362,7 @@ app.get('/search', (req, res) => {
                 res.status(200).send(events);
             }
         });
-    } else {
-        console.log('Error: Missing parameters.');
-        res.status(400).send('Error: Missing parameters.');
-    }
+ 
 });
 
 app.post('/getJoinableEvents', async (req, res) => {
