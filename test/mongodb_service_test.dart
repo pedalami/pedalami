@@ -106,7 +106,7 @@ void main() {
         "create private team event testing", "create private team event testing",
         DateTime.now(), DateTime.now().add(Duration(days: 4))
     );
-    print(e ?? "Null event");
+    print(e?.id ?? "Null event");
     assert(e != null);
   });
 
@@ -119,7 +119,7 @@ void main() {
         "create public team event testing", "create public team event testing",
         DateTime.now(), DateTime.now().add(Duration(days: 4))
     );
-    print(e ?? "Null event");
+    print(e?.id ?? "Null event");
     assert(e != null);
   });
 
@@ -131,15 +131,45 @@ void main() {
     assert(await instance.enrollTeamToPublicEvent(eventId, adminId, teamId));
   });
 
+  test('accept private team event invite testing', () async {
+    instance.localDebug();
+    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
+    String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
+    assert(await instance.acceptInvite(eventId, adminId, teamId));
+  });
+
+  test('reject private team event invite testing', () async {
+    instance.localDebug();
+    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
+    String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
+    assert(await instance.rejectInvite(eventId, adminId, teamId));
+  });
+
+  test('send private team event invite testing', () async {
+    instance.localDebug();
+    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince userId
+    String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
+    String invitedTeamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
+    assert(await instance.sendInvite(eventId, adminId, hostTeamId, invitedTeamId));
+  });
+
   test('search event testing', () async {
     instance.localDebug();
-    List<Event>? events = await instance.searchEvent("test");
+    String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince userId
+    String teamId = "61b64efb747c3add24055e25"; //teamvince
+    List<Event>? events = await instance.searchEvent("private", teamId, adminId);
     print(events);
     assert(events != null);
   });
 
   test('join event testing', () async {
     instance.localDebug();
-    assert(await instance.joinEvent("61bb94576b373e2f76ddeec4", "TrMO2au4MgO4uFmKFmOgV2rVuwG3"));
+    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
+    String? teamId = "61b7e246f34ee1e975875025";
+    assert(await instance.joinEvent(eventId, userId, teamId: teamId));
   });
 }

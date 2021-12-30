@@ -13,7 +13,7 @@ class ScoreboardEntry {
 }
 
 class Event{
-  String eventID;
+  String id;
   String name;
   String description;
   DateTime startDate;
@@ -24,7 +24,7 @@ class Event{
   List<ScoreboardEntry>? scoreboard;
 
 
-  Event(this.eventID,this.name, this.description, this.startDate, this.endDate, this._type,
+  Event(this.id,this.name, this.description, this.startDate, this.endDate, this._type,
       this._visibility, this.prize, this.scoreboard);
 
 
@@ -65,7 +65,7 @@ class Event{
 
   @override
   String toString() {
-    return 'Event{ name: $name, description: $description, start: '+displayStartDate()+
+    return 'Event{ id: $id, name: $name, description: $description, start: '+displayStartDate()+
         ', end: '+displayEndDate()+', $_visibility, $_type';
   }
 

@@ -255,10 +255,11 @@ class MongoDB {
 
   //Returns an array of the events with the name matching the query if everything went fine
   //Returns null in case of error
-  Future<List<Event>?> searchEvent(String name) async {
-    var url = Uri.parse(baseUri + '/events/search')
-        .replace(queryParameters: {'name': name});
-    var response = await _serverClient.get(url, headers: _headers);
+  Future<List<Event>?> searchEvent(String name, String teamId, String adminId) async {
+    var url = Uri.parse(baseUri + '/events/search');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'adminId': adminId, 'name': name}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
@@ -330,6 +331,36 @@ class MongoDB {
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+    return response.statusCode == 200 ? true : false;
+  }
+
+  //Returns true if everything went fine, false otherwise.
+  //Used by team admins to accept an invite to an event.
+  Future<bool> acceptInvite(String eventId, String adminId, String teamId) async {
+    var url = Uri.parse(baseUri + '/events/acceptPrivateTeamInvite');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+    return response.statusCode == 200 ? true : false;
+  }
+
+  //Returns true if everything went fine, false otherwise.
+  //Used by team admins to reject an invite to an event.
+  Future<bool> rejectInvite(String eventId, String adminId, String teamId) async {
+    var url = Uri.parse(baseUri + '/events/rejectPrivateTeamInvite');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+    return response.statusCode == 200 ? true : false;
+  }
+
+  //Returns true if everything went fine, false otherwise.
+  //Used by team admins to reject an invite to an event.
+  Future<bool> sendInvite(String eventId, String adminId, String hostTeamId, String invitedTeamId) async {
+    var url = Uri.parse(baseUri + '/events/invitePrivateTeam');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'hostTeamId': hostTeamId, 'invitedTeamId': invitedTeamId, 'adminId': adminId, 'eventId': eventId}));
     return response.statusCode == 200 ? true : false;
   }
 
