@@ -43,7 +43,7 @@ class Event{
       MongoDB.parseDate(json['endDate'] as String),   //parse server date format
       json['type'] as String,
       json['visibility'] as String,
-      double.parse(json['prize'].toString()),
+      double.tryParse(json['prize'].toString()),
       scoreboard
     );
   }

@@ -34,7 +34,7 @@ const TeamSchema = new Schema({
     name: { type: String, required: true },
     description: { type: String, required: false },
     members: [{ type: String, required: true, default: null }], // At least the admin
-    activeEvents: [{ type: ObjectId, required: false, default: null }], // USELESS?? IDs of active events
+    activeEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active events
     eventRequests: [{ type: ObjectId, required: false, default: null }] // To better define once requests are defined
 });
 

@@ -29,15 +29,17 @@ app.post("/createIndividual", async (req, res) => {
         })
 });
 
-app.post("/createPrivateTeam", async (req, res) => {
-    if (req.body.hostTeamId && req.body.guestTeamId && req.body.userId) {
 
+// APIs USED BY TEAM ADMINS TO CREATE TEAM EVENTS
+app.post("/createPrivateTeam", async (req, res) => {
+    console.log('Received createPrivateTeam POST request:');
+    console.log(req.body);
+    if (req.body.hostTeamId && req.body.invitedTeamId && req.body.adminId) {
         var [guestTeam, hostTeam] = await Promise.all([
-            Team.findOne({ _id: ObjectId(req.body.guestTeamId) }).exec(),
+            Team.findOne({ _id: ObjectId(req.body.invitedTeamId) }).exec(),
             Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec()
         ])
-
-        if (guestTeam && hostTeam && hostTeam.adminId == req.body.userId) {
+        if (guestTeam && hostTeam && hostTeam.adminId == req.body.adminId) {
             var newEvent = new Event({
                 name: req.body.name,
                 description: req.body.description,
@@ -47,7 +49,7 @@ app.post("/createPrivateTeam", async (req, res) => {
                 visibility: "private",
                 hostTeam: req.body.hostTeamId,
                 guestTeam: null,
-                involvedTeams: [req.body.guestTeamId]
+                involvedTeams: [req.body.invitedTeamId]
             });
             hostTeam.activeEvents.push(newEvent._id);
             guestTeam.eventRequests.push(newEvent._id);
@@ -58,23 +60,27 @@ app.post("/createPrivateTeam", async (req, res) => {
                     newEvent.save({ session })
                 ])
             })
-                .then(() => {
-                    res.status(200).send(newEvent);
-                })
-                .catch(err => {
-                    console.log('The following error occurred in creating the new Private Event: ' + err);
-                    res.status(500).send('Error in creating the new Private Event');
-                })
+            .then(() => {
+                console.log('Event created!');
+                res.status(200).send(newEvent);
+            })
+            .catch(err => {
+                console.log('The following error occurred in creating the new Private Event: ' + err);
+                res.status(500).send('Error in creating the new Private Event');
+            })
         } else {
-            res.status(500).send('Could not find host team or guest team');
+            console.log('Could not find host team or guest team or admin');
+            res.status(500).send('Could not find host team or guest team or admin');
         }
-    }
-    else {
-        res.status(500).send('Error in creating the newEvent: missing host or guest team');
+    } else {
+        console.log('Error in creating the newEvent: missing host or guest team or adminId');
+        res.status(500).send('Error in creating the newEvent: missing host or guest team or adminId');
     }
 });
 
 app.post("/createPublicTeam", async (req, res) => {
+    console.log('Received createPublicTeam POST request:');
+    console.log(req.body);
     if (req.body.hostTeamId && req.body.adminId) {
         var hostTeam = await Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec();
         if (hostTeam) {
@@ -85,7 +91,7 @@ app.post("/createPublicTeam", async (req, res) => {
                 endDate: req.body.endDate,
                 type: "team",
                 visibility: "public",
-                hostTeam: req.body.hostTeam,
+                hostTeam: req.body.hostTeamId,
                 involvedTeams: [] //empty until an opponent team joins the event
             });
             hostTeam.activeEvents.push(newEvent._id);
@@ -95,59 +101,75 @@ app.post("/createPublicTeam", async (req, res) => {
                     newEvent.save({ session })
                 ])
             })
-                .then(() => {
-                    res.status(200).send(newEvent);
-                })
-                .catch(err => {
-                    console.log('The following error occurred in creating the new Public Team Event: ' + err);
-                    res.status(500).send('Error in creating the new Public Team Event');
-                })
+            .then(() => {
+                res.status(200).send(newEvent);
+            })
+            .catch(err => {
+                console.log('The following error occurred in creating the new Public Team Event: ' + err);
+                res.status(500).send('Error in creating the new Public Team Event');
+            })
         } else {
-            res.status(500).send('Could not find host team');
+            console.log('Could not find host team or admin');
+            res.status(500).send('Could not find host team or admin');
         }
     }
     else {
+        console.log('Missing host team or adminId');
         res.status(500).send('Error in creating the new Public Team Event: missing host team');
     }
 });
 
-app.post('/enrollTeamPublic', async (req, res) => {
-    if (req.body.eventId && req.body.teamId && req.body.adminId) {
-        const event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec();
-        const team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec();
-        const admin = await User.findOne({ adminId: req.body.adminId }).exec();
-        if (event && team && admin && team.adminId == admin.userId) {
-            if (event.visibility == "public" && event.type == "team") {
-                if (!event.involvedTeams.includes(team._id)) {
-                    event.involvedTeams.push(team._id);
-                    team.activeEvents.push(event._id);
-                    if (event.involvedTeams.length == 1) {
-                        event.involvedTeams.push(event.hostTeam); //the host team is put in the list of involved teams only if there is at least an opposing team   
-                    }
-                    connection.transaction(async (session) => {
-                        await Promise.all([
-                            event.save({ session }),
-                            team.save({ session })
-                        ])
-                    }
-                    ).then(() => {
-                        res.status(200).send(event);
-                    }
-                    ).catch(err => {
-                        console.log('The following error occurred in enrolling the team to the event: ' + err);
-                        res.status(500).send('Error in enrolling the team to the event: ' + err);
-                    })
-                } else {
-                    res.status(500).send('The team is already enrolled in the event');
-                }
 
+// APIs USED BY TEAM ADMINS TO MANAGE TEAM EVENTS
+app.post('/enrollTeamPublic', async (req, res) => {
+    console.log('Received enrollTeamPublic POST request:');
+    console.log(req.body);
+    if (req.body.eventId && req.body.teamId && req.body.adminId) {
+        var [event, team, admin] = await Promise.all([
+            Event.findOne({ _id: ObjectId(req.body.eventId) }).exec(),
+            Team.findOne({ _id: ObjectId(req.body.teamId) }).exec(),
+            User.findOne({ userId: req.body.adminId }).exec()
+        ]);
+        if (event && team && admin) {
+            if (team.adminId == admin.userId) {
+                if (event.visibility == "public" && event.type == "team") {
+                    if (!event.involvedTeams.includes(team._id)) {
+                        event.involvedTeams.push(team._id);
+                        team.activeEvents.push(event._id);
+                        if (event.involvedTeams.length == 1) {
+                            event.involvedTeams.push(event.hostTeam); //the host team is put in the list of involved teams only if there is at least an opposing team   
+                        }
+                        connection.transaction(async (session) => {
+                            await Promise.all([
+                                event.save({ session }),
+                                team.save({ session })
+                            ])
+                        })
+                        .then(() => {
+                            res.status(200).send(event);
+                        })
+                        .catch(err => {
+                            console.log('The following error occurred in enrolling the team to the event: ' + err);
+                            res.status(500).send('Error in enrolling the team to the event: ' + err);
+                        })
+                    } else {
+                        console.log('The team is already enrolled in the event');
+                        res.status(500).send('The team is already enrolled in the event');
+                    }
+                } else {
+                    console.log('The event is not public or is not a team event');
+                    res.status(500).send('The event is not public or is not a team event');
+                }
             } else {
-                res.status(500).send('The event is not public or is not a team event');
+                console.log('Specified admin is not an admin of the specified team');
+                res.status(500).send('Specified admin is not an admin of the specified team');
             }
         } else {
+            console.log('Error in enrolling the team to the event: user, event or team not found');
             res.status(500).send('Error in enrolling the team to the event: user, event or team not found');
         }
     } else {
+        console.log('Error in enrolling the team to the event: missing params');
         res.status(500).send('Error in enrolling the team to the event: missing parameters');
     }
 });
@@ -168,11 +190,11 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
                     team.save({ session }),
                     event.save({ session })
                 ])
-            }
-            ).then(() => {
+            })
+            .then(() => {
                 res.status(200).send(event);
-            }
-            ).catch(err => {
+            })
+            .catch(err => {
                 console.log('The following error occurred in joining the team event: ' + err);
                 res.status(500).send('Error in joining the team event');
             });
@@ -196,15 +218,13 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
                     team.save({ session }),
                     event.save({ session })
                 ])
-            }
-            ).then(() => {
+            }).then(() => {
                 res.status(200).send("Invite rejected successfully");
             }
             ).catch(err => {
                 console.log('The following error occurred in rejecting the team event: ' + err);
                 res.status(500).send('Error in rejecting the team event');
-            }
-            );
+            });
 
         } else { res.status(500).send('Error in rejecting the team event invite: missing event or team'); }
     } else {
@@ -226,20 +246,21 @@ app.post('/invitePrivateTeam', async (req, res) => {
                     guestTeam.save({ session }),
                     event.save({ session })
                 ])
-            }
-            ).then(() => {
+            })
+            .then(() => {
                 res.status(200).send(event);
-            }
-            ).catch(err => {
+            })
+            .catch(err => {
                 console.log('The following error occurred in inviting the team to the event: ' + err);
                 res.status(500).send('Error in inviting the team to the event');
-            }
-            );
+            });
         } else { res.status(500).send('Error in inviting the team to the event: incorrect parameters'); }
     } else { res.status(500).send('Error in inviting the team to the event: missing parameters'); }
 });
 
 
+
+// API used by a user to join an event
 app.post('/join', (req, res) => {
     console.log('Received join POST request:');
     console.log(req.body);
@@ -261,7 +282,6 @@ app.post('/join', (req, res) => {
             if (!team)
                 throw new Error('Team not found');
             scoreboardEntry = { userId: userId, teamId: teamId, points: 0 };
-
         } else if (event.type == 'individual') {
             scoreboardEntry = { userId: userId, teamId: null, points: 0 };
         } else {
@@ -276,15 +296,16 @@ app.post('/join', (req, res) => {
             user.save({ session: session })
         ]);
     })
-        .then(() => {
-            res.status(200).send('Event joined successfully');
-        })
-        .catch((err) => {
-            console.log('Error while joining the event\n' + err);
-            res.status(500).send('Error while joining the event');
-        });
+    .then(() => {
+        res.status(200).send('Event joined successfully');
+    })
+    .catch((err) => {
+        console.log('Error while joining the event\n' + err);
+        res.status(500).send('Error while joining the event');
+    });
 });
 
+// API used by a user to leave an event
 app.post('/leave', (req, res) => {
     console.log('Received leave POST request:');
     console.log(req.body);
@@ -319,6 +340,7 @@ app.post('/leave', (req, res) => {
 });
 
 
+// API used by a team admin to search an event that he wants his team to enroll
 // GET /search?name=portion_of_name
 app.get('/search', (req, res) => {
     const to_search = req.query.name;
@@ -338,6 +360,8 @@ app.get('/search', (req, res) => {
     }
 });
 
+
+// API used by a user to get the list of all the events that he can join
 app.post('/getJoinableEvents', async (req, res) => {
     console.log('Received getEvents POST request');
     if (req.body.userId) {

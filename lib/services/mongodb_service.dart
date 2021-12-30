@@ -81,10 +81,22 @@ class MongoDB {
       return false;
   }
 
+  //Returns from Firebase the username of a user with id = userId
+  Future<String> getUsername(String userId) async {
+    QuerySnapshot querySnapshot = await (FirebaseFirestore.instance
+        .collection("Users")
+        .where("userId", isEqualTo: userId)
+        .get());
+    return querySnapshot.docs.first.get("Username");
+  }
+
+
+
+  //TEAMS
+
   //Returns the team_id if everything went fine
   //Returns null in case of error
-  Future<Team?> createTeam(
-      String adminId, String name, String? description) async {
+  Future<Team?> createTeam(String adminId, String name, String? description) async {
     var url = Uri.parse(baseUri + '/teams/create');
     var response = await _serverClient.post(url,
         headers: _headers,
@@ -131,6 +143,24 @@ class MongoDB {
     return returnTuple;
   }
 
+  //Given the id of a Team, it returns the entire team
+  Future<Team?> getTeam(String teamId) async {
+    var url = Uri.parse(baseUri + '/teams/getTeam')
+        .replace(queryParameters: {'teamId': teamId});
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      Team t = Team.fromJson(decodedBody, parseMembers: true);
+      t.retrieveUsernames();
+      return t;
+    } else
+      return null;
+  }
+
+
+
+  // RIDES
+
   //To get the history of rides of a user
   Future<List<Ride>?> getAllRidesFromUser(String userID) async {
     var url = Uri.parse(baseUri + '/rides/getAllByUserId')
@@ -138,8 +168,6 @@ class MongoDB {
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List<dynamic>;
-      //print("decoded body");
-      //print(decodedBody);
       List<Ride> ridesList =
           decodedBody.map<Ride>((ride) => Ride.fromJson(ride)).toList();
       return ridesList;
@@ -147,14 +175,7 @@ class MongoDB {
       return null;
   }
 
-  Future<String> getUsername(String userId) async {
-    QuerySnapshot querySnapshot = await (FirebaseFirestore.instance
-        .collection("Users")
-        .where("userId", isEqualTo: userId)
-        .get());
-    return querySnapshot.docs.first.get("Username");
-  }
-
+  //Returns the recorded ride
   Future<Ride?> recordRide(Ride toRecord) async {
     var url = Uri.parse(baseUri + '/rides/record');
     var response = await _serverClient.post(url,
@@ -180,19 +201,9 @@ class MongoDB {
       return null;
   }
 
-  //Given the id of a Team, it returns the entire team
-  Future<Team?> getTeam(String teamId) async {
-    var url = Uri.parse(baseUri + '/teams/getTeam')
-        .replace(queryParameters: {'teamId': teamId});
-    var response = await _serverClient.get(url, headers: _headers);
-    if (response.statusCode == 200) {
-      var decodedBody = json.decode(response.body);
-      Team t = Team.fromJson(decodedBody, parseMembers: true);
-      t.retrieveUsernames();
-      return t;
-    } else
-      return null;
-  }
+
+
+  // REWARDS
 
   //Gets all the available rewards
   Future<List<Reward>?> getRewards() async {
@@ -204,7 +215,7 @@ class MongoDB {
           decodedBody.map<Reward>((reward) => Reward.fromJson(reward)).toList();
       return rewardList;
     } else
-      return null; //TODO add verbose error
+      return null;
   }
 
   //Redeem a reward
@@ -237,6 +248,11 @@ class MongoDB {
       return null;
   }
 
+
+
+
+  // EVENTS
+
   //Returns an array of the events with the name matching the query if everything went fine
   //Returns null in case of error
   Future<List<Event>?> searchEvent(String name) async {
@@ -252,8 +268,8 @@ class MongoDB {
       return null;
   }
 
-  //Returns true if everything went fine, false otherwise
-  //teamId is not used at the moment
+  //Returns true if everything went fine, false otherwise.
+  //Used by users to join events. teamId required if the event to join is a team event
   Future<bool> joinEvent(String eventId, String userId, {String? teamId}) async {
     var url = Uri.parse(baseUri + '/events/join');
     var response = await _serverClient.post(url,
@@ -261,4 +277,60 @@ class MongoDB {
         body: json.encode({'teamId': teamId, 'userId': userId, 'eventId': eventId}));
     return response.statusCode == 200 ? true : false;
   }
+
+  //Returns the event if everything went fine, null otherwise.
+  //Used by team admins to create private team events.
+  Future<Event?> createPrivateTeamEvent(String adminId, String hostTeamId, String invitedTeamId,
+      String name, String? description, DateTime startDate, DateTime endDate) async {
+    var url = Uri.parse(baseUri + '/events/createPrivateTeam');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({
+          'hostTeamId': hostTeamId,
+          'invitedTeamId': invitedTeamId,
+          'adminId': adminId,
+          'name': name,
+          'description': description,
+          'startDate': formatDate(startDate),
+          'endDate': formatDate(endDate)
+        }));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      return Event.fromJson(decodedBody);
+    } else
+      return null;
+  }
+
+  //Returns the event if everything went fine, null otherwise.
+  //Used by team admins to create public team events.
+  Future<Event?> createPublicTeamEvent(String adminId, String hostTeamId,
+      String name, String? description, DateTime startDate, DateTime endDate) async {
+    var url = Uri.parse(baseUri + '/events/createPublicTeam');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({
+          'hostTeamId': hostTeamId,
+          'adminId': adminId,
+          'name': name,
+          'description': description,
+          'startDate': formatDate(startDate),
+          'endDate': formatDate(endDate)
+        }));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      return Event.fromJson(decodedBody);
+    } else
+      return null;
+  }
+
+  //Returns true if everything went fine, false otherwise.
+  //Used by team admins to subscribe one of their teams to a public event.
+  Future<bool> enrollTeamToPublicEvent(String eventId, String adminId, String teamId) async {
+    var url = Uri.parse(baseUri + '/events/enrollTeamPublic');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+    return response.statusCode == 200 ? true : false;
+  }
+
 }
