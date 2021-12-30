@@ -86,7 +86,8 @@ app.post("/createPublicTeam", async (req, res) => {
                 type: "team",
                 visibility: "public",
                 hostTeam: req.body.hostTeam,
-                involvedTeams: [] //empty until an opponent team joins the event
+                involvedTeams: [], //empty until an opponent team joins the event
+                status = "pending"
             });
             hostTeam.activeEvents.push(newEvent._id);
             connection.transaction(async (session) => {
@@ -349,7 +350,11 @@ app.post('/search', (req, res) => {
                 { type: 'team' },
                 {
                     $or: [
-                        { visibility: 'public' }, //if the event is public
+                        {
+                            $and: [{ visibility: 'public' },
+                            { atatus: 'active' }]
+                        }, //if the event is public and active
+                        ,
                         { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
                     ]
                 }
@@ -362,7 +367,7 @@ app.post('/search', (req, res) => {
                 res.status(200).send(events);
             }
         });
- 
+
 });
 
 app.post('/getJoinableEvents', async (req, res) => {
@@ -484,3 +489,67 @@ app.post("/create", async (req, res) => {
     }
 });
 */
+
+app.post('approvePublicTeam', async (req, res) => {
+    const eventId = req.body.eventId;
+    if (!eventId) {
+        res.status(400).send('Missing eventId');
+        return;
+    }
+    const event = await Event.findOne({ _id: eventId }).exec();
+    if (!event) {
+        res.status(400).send('Event not found');
+        return;
+    }
+    if (event.type != 'team') {
+        res.status(400).send('Event is not a team event');
+        return;
+    }
+    if (event.visibility != 'public') {
+        res.status(400).send('Event is not public');
+        return;
+    }
+    if (event.status != 'pending') {
+        res.status(400).send('Event is not pending');
+        return;
+    }
+    event.status = 'approved';
+    event.save().then(() => {
+        res.status(200).send(event);
+    }).catch(err => {
+        res.status(500).send('Error in approving the event');
+    });
+
+});
+
+app.post('rejectPublicTeam', async (req, res) => {
+    const eventId = req.body.eventId;
+    if (!eventId) {
+        res.status(400).send('Missing eventId');
+        return;
+    }
+    const event = await Event.findOne({ _id: eventId }).exec();
+    if (!event) {
+        res.status(400).send('Event not found');
+        return;
+    }
+    if (event.type != 'team') {
+        res.status(400).send('Event is not a team event');
+        return;
+    }
+    if (event.visibility != 'public') {
+        res.status(400).send('Event is not public');
+        return;
+    }
+    if (event.status != 'pending') {
+        res.status(400).send('Event is not pending');
+        return;
+    }
+    event.status = 'rejected';
+    event.save().then(() => {
+        res.status(200).send(event);
+    }).catch(err => {
+        res.status(500).send('Error in rejecting the event');
+    });
+
+});
