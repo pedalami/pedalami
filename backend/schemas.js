@@ -89,6 +89,8 @@ const EventSchema = new Schema({
     //if it is a private team event, it is a singleton list with the invited team that has not accepted yet the invitation
     involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
 
+    status:{ type: String, required: false }, // It is set only if the event is a public team event, it can be "pending", "accepted", "rejected"
+
     scoreboard: [new Schema({
         _id: false,
         //add indexes on teamId and userId
