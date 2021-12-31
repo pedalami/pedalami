@@ -423,7 +423,6 @@ app.post('/search', async (req, res) => {
                         {
                             $and: [{ visibility: 'public' }, { status: 'active' }]
                         }, //if the event is public and active
-                        ,
                         { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
                     ]
                 }
@@ -441,11 +440,11 @@ app.post('/search', async (req, res) => {
 
 
 // API used by a user to get the list of all the events that he can join
-app.post('/getJoinableEvents', async (req, res) => {
-    console.log('Received getEvents POST request');
-    console.log(req.body);
-    if (req.body.userId) {
-        const user = await User.findOne({ userId: req.body.userId }).exec();
+app.get('/getJoinableEvents', async (req, res) => {
+    const userId = req.query.userId;
+    console.log('Received getEvents GET request with param userId=' + userId);
+    if (userId) {
+        const user = await User.findOne({ userId: userId }).exec();
         if (user) {
             const events = await Event.find({
                 $and: [
@@ -475,15 +474,14 @@ app.post('/getJoinableEvents', async (req, res) => {
             }).exec();
             if (events) {
                 res.status(200).send(events);
-            }
-            else {
+            } else {
+                console.log('Error while getting the events');
                 res.status(500).send('Error while getting the events');
             }
         } else {
             console.log('Error: User not found');
             res.status(500).send('Error: User not found');
         }
-
     } else {
         console.log('Error: Missing userId.');
         res.status(400).send('Error: Missing userId.');

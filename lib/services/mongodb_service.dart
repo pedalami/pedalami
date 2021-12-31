@@ -230,13 +230,13 @@ class MongoDB {
       RedeemedReward newReward = RedeemedReward.fromJson(decodedBody);
       return newReward;
     } else
-      return null; //TODO add more verbose error
+      return null;
   }
 
   // Get all rewards of a userId
-  Future<List<RedeemedReward>?> getAllRewardsFromUser(String userID) async {
+  Future<List<RedeemedReward>?> getAllRewardsFromUser(String userId) async {
     var url = Uri.parse(baseUri + '/rewards/getByUser')
-        .replace(queryParameters: {'userId': userID});
+        .replace(queryParameters: {'userId': userId});
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
@@ -254,12 +254,29 @@ class MongoDB {
   // EVENTS
 
   //Returns an array of the events with the name matching the query if everything went fine
-  //Returns null in case of error
+  //Returns null in case of error.
+  //Used by team admins to search an event in which enroll the team identified by teamId
   Future<List<Event>?> searchEvent(String name, String teamId, String adminId) async {
     var url = Uri.parse(baseUri + '/events/search');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({'teamId': teamId, 'adminId': adminId, 'name': name}));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Event> eventList =
+      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+      return eventList;
+    } else
+      return null;
+  }
+
+  //Returns an array of the events with the name matching the query if everything went fine
+  //Returns null in case of error
+  //Used by a user to retrieve the list of joinable events
+  Future<List<Event>?> getJoinableEvents(String userId) async {
+    var url = Uri.parse(baseUri + '/events/getJoinableEvents')
+        .replace(queryParameters: {'userId': userId});
+    var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =

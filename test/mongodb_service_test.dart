@@ -103,7 +103,7 @@ void main() {
     String invitedTeamId = "61b7e246f34ee1e975875025"; //Lorenzo's team - adminId: bRyLXZg1VNQIAq4fSC1REbaXMhi1
     Event? e = await instance.createPrivateTeamEvent(
         adminId, hostTeamId, invitedTeamId,
-        "create private team event testing", "create private team event testing",
+        "private team event 2", "create private team event testing",
         DateTime.now(), DateTime.now().add(Duration(days: 4))
     );
     print(e?.id ?? "Null event");
@@ -117,7 +117,7 @@ void main() {
     Event? e = await instance.createPublicTeamEvent(
         adminId, hostTeamId,
         "create public team event testing", "create public team event testing",
-        DateTime.now(), DateTime.now().add(Duration(days: 4))
+        DateTime.now(), DateTime.now().add(Duration(days: 10))
     );
     print(e?.id ?? "Null event");
     assert(e != null);
@@ -158,8 +158,8 @@ void main() {
 
   test('search event testing', () async {
     instance.localDebug();
-    String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince userId
-    String teamId = "61b64efb747c3add24055e25"; //teamvince
+    String teamId = "61b7e246f34ee1e975875025"; //Lorenzo's team -
+    String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo
     List<Event>? events = await instance.searchEvent("private", teamId, adminId);
     print(events);
     assert(events != null);
@@ -171,5 +171,13 @@ void main() {
     String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
     String? teamId = "61b7e246f34ee1e975875025";
     assert(await instance.joinEvent(eventId, userId, teamId: teamId));
+  });
+
+  test('get joinable events testing', () async {
+    instance.localDebug();
+    String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
+    List<Event>? events = await instance.getJoinableEvents(userId);
+    print(events);
+    assert(events != null);
   });
 }
