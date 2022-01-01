@@ -51,7 +51,7 @@ app.post("/createPrivateTeam", async (req, res) => {
                 guestTeam: null,
                 involvedTeams: [req.body.invitedTeamId]
             });
-            hostTeam.activeEvents.push(newEvent._id);
+            hostTeam.activeEvents.push(newEvent._id); //TODO: we should control that it is really an active event
             guestTeam.eventRequests.push(newEvent._id);
             connection.transaction(async (session) => {
                 await Promise.all([
@@ -83,7 +83,7 @@ app.post("/createPublicTeam", async (req, res) => {
     console.log(req.body);
     if (req.body.hostTeamId && req.body.adminId) {
         var hostTeam = await Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec();
-        if (hostTeam) {
+        if (hostTeam && req.body.adminId == hostTeam.adminId){
             var newEvent = new Event({
                 name: req.body.name,
                 description: req.body.description,
@@ -116,7 +116,7 @@ app.post("/createPublicTeam", async (req, res) => {
     }
     else {
         console.log('Missing host team or adminId');
-        res.status(500).send('Error in creating the new Public Team Event: missing host team');
+        res.status(500).send('Error in creating the new Public Team Event: missing host team or adminId');
     }
 });
 
@@ -393,7 +393,7 @@ app.post('/search', async (req, res) => {
     const teamId = req.body.teamId;
     if (!(to_search && adminId && teamId)) {
         console.log('Error while searching for events: missing parameters');
-        res.status(500).send('Error while searching for events: missing parameters');
+        res.status(400).send('Error while searching for events: missing parameters');
         return;
     }
     var [user, team] = await Promise.all([
@@ -560,7 +560,7 @@ app.post("/create", async (req, res) => {
 });
 */
 
-app.post('approvePublicTeam', async (req, res) => {
+app.post('/approvePublicTeam', async (req, res) => {
     const eventId = req.body.eventId;
     if (!eventId) {
         res.status(400).send('Missing eventId');
@@ -568,22 +568,22 @@ app.post('approvePublicTeam', async (req, res) => {
     }
     const event = await Event.findOne({ _id: eventId }).exec();
     if (!event) {
-        res.status(400).send('Event not found');
+        res.status(500).send('Event not found');
         return;
     }
-    if (event.type != 'team') {
-        res.status(400).send('Event is not a team event');
+    if (event.type !== 'team') {
+        res.status(500).send('Event is not a team event');
         return;
     }
-    if (event.visibility != 'public') {
-        res.status(400).send('Event is not public');
+    if (event.visibility !== 'public') {
+        res.status(500).send('Event is not public');
         return;
     }
-    if (event.status != 'pending') {
-        res.status(400).send('Event is not pending');
+    if (event.status !== 'pending') {
+        res.status(500).send('Event is not pending');
         return;
     }
-    event.status = 'approved';
+    event.status = 'active';
     event.save().then(() => {
         res.status(200).send(event);
     }).catch(err => {
@@ -592,7 +592,7 @@ app.post('approvePublicTeam', async (req, res) => {
 
 });
 
-app.post('rejectPublicTeam', async (req, res) => {
+app.post('/rejectPublicTeam', async (req, res) => {
     const eventId = req.body.eventId;
     if (!eventId) {
         res.status(400).send('Missing eventId');
@@ -600,19 +600,19 @@ app.post('rejectPublicTeam', async (req, res) => {
     }
     const event = await Event.findOne({ _id: eventId }).exec();
     if (!event) {
-        res.status(400).send('Event not found');
+        res.status(500).send('Event not found');
         return;
     }
     if (event.type != 'team') {
-        res.status(400).send('Event is not a team event');
+        res.status(500).send('Event is not a team event');
         return;
     }
     if (event.visibility != 'public') {
-        res.status(400).send('Event is not public');
+        res.status(500).send('Event is not public');
         return;
     }
     if (event.status != 'pending') {
-        res.status(400).send('Event is not pending');
+        res.status(500).send('Event is not pending');
         return;
     }
     event.status = 'rejected';
