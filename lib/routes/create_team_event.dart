@@ -17,6 +17,7 @@ class CreateTeamEvent extends StatefulWidget {
 class _CreateTeamEventState extends State<CreateTeamEvent> {
   final eventNameController=TextEditingController();
   final descriptionNameController=TextEditingController();
+  bool uploadingToDB=false;
   Team? selectedTeam;
 
   DateTime selectedStartDate = DateTime.now();
@@ -279,15 +280,21 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                 ):SizedBox(),
                 Padding(
                   padding: EdgeInsets.only(bottom: 3*SizeConfig.heightMultiplier!),
-                  child: ElevatedButton(
+                  child: !uploadingToDB?ElevatedButton(
                     onPressed: () async{
                       if(eventNameController.text.trim()!="")
                         {
                           if(descriptionNameController.text.trim()!="")
                             {
+                              setState(() {
+                                uploadingToDB=true;
+                              });
                               if(publicOrPrivateEvent[0])
                               {
                                 Event? event=await MongoDB.instance.createPublicTeamEvent(actualTeam.adminId, actualTeam.id, eventNameController.text.trim(), descriptionNameController.text.trim(), selectedStartDate, selectedEndDate);
+                                setState(() {
+                                  uploadingToDB=false;
+                                });
                                 if(event!=null)
                                 {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -307,6 +314,9 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                                 if(selectedTeam!=null)
                                 {
                                   Event? event=await MongoDB.instance.createPrivateTeamEvent(actualTeam.adminId, actualTeam.id, selectedTeam!.id, eventNameController.text.trim(), descriptionNameController.text.trim(), selectedStartDate, selectedEndDate);
+                                  setState(() {
+                                    uploadingToDB=false;
+                                  });
                                   if(event!=null)
                                   {
                                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -357,6 +367,8 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                                 borderRadius: BorderRadius.circular(18.0),
                                 side: BorderSide(
                                     color: Colors.lightGreen)))),
+                  ):CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(CustomColors.green),
                   ),
                 ),
               ],
