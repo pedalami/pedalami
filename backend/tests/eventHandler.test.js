@@ -237,7 +237,6 @@ describe("POST /createIndividual", () => {
     })
 })
 
-
 describe("POST /approvePublic", () => {
 
     test("Approving without eventId should return 400", async () => {
@@ -511,15 +510,15 @@ describe("POST /search", () => {
         });
         await Event.deleteOne({'name': name});
         expect(response.status).toBe(200);
-        expect(response.body.length).toBeGreaterThanOrEqual(1); //deve essere attivato prima
+        expect(response.body.length).toBeGreaterThanOrEqual(1);
 
     })
 })
 
-describe("POST /join", () => {
+/*describe("POST /join", () => {
     test("An individual event with missing parameters should return 500", async () => {
         const response = await request(app).post('/events/join').send(event_miss);
         expect(response.status).toBe(500);
         expect(response.text).toBe('Error while joining the event');
     })
-})
+})*/
