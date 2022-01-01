@@ -15,6 +15,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
   DateTime selectedStartDate = DateTime.now();
   DateTime selectedEndDate=DateTime.now().add(Duration(days: 30));
   List<bool> isSelected=[true,false];
+  String opposingTeam="Choose an opposing team...";
 
   @override
   Widget build(BuildContext context) {
@@ -151,6 +152,49 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                       ),
                     ),
                   ],
+                ),
+                isSelected[1]?Row(
+                  children: [
+                    Expanded(flex:3,child: Text("Opposing team: ", style: TextStyle(fontSize: 18),),),
+                    Expanded(
+                      flex: 5,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if(isSelected[1])
+                            {
+
+                            }
+                        },
+                        child: Text(opposingTeam, textAlign: TextAlign.center,),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                Colors.lightGreen),
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(
+                                        color: Colors.lightGreen)))),
+                      ),
+                    ),
+                  ],
+                ):SizedBox(),
+                ElevatedButton(
+                  onPressed: () {
+
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                      width: MediaQuery.of(context).size.width*.15,
+                      height: MediaQuery.of(context).size.width*.1,
+                      child: Text("Confirm")),
+                  style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                          Colors.lightGreen),
+                      shape: MaterialStateProperty.all(
+                          RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(18.0),
+                              side: BorderSide(
+                                  color: Colors.lightGreen)))),
                 ),
               ],
             ))
