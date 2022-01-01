@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
+import 'package:pedala_mi/models/team.dart';
+import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/utils/date_time_ext.dart';
+import 'package:search_choices/search_choices.dart';
 
 class CreateTeamEvent extends StatefulWidget {
-  const CreateTeamEvent({Key? key}) : super(key: key);
-
+  const CreateTeamEvent({Key? key, required this.actualTeam}) : super(key: key);
+  final Team actualTeam;
   @override
   _CreateTeamEventState createState() => _CreateTeamEventState();
 }
@@ -16,6 +19,15 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
   DateTime selectedEndDate=DateTime.now().add(Duration(days: 30));
   List<bool> isSelected=[true,false];
   String opposingTeam="Choose an opposing team...";
+  late Team actualTeam;
+  var selectedValueSingleDialogFuture;
+
+
+  @override
+  void initState() {
+    actualTeam=widget.actualTeam;
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -158,7 +170,80 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                     Expanded(flex:3,child: Text("Opposing team: ", style: TextStyle(fontSize: 18),),),
                     Expanded(
                       flex: 5,
-                      child: ElevatedButton(
+                      child:
+                      SearchChoices.single(
+                        value: selectedValueSingleDialogFuture,
+                        hint: "Choose an opposing team...",
+                        searchHint: "Write an opposing team...",
+                        onChanged:  (value) {
+                          setState(() {
+                            selectedValueSingleDialogFuture = value;
+                          });
+                        },
+                        isExpanded: true,
+                        selectedValueWidgetFn: (item) {
+                          return (Center(
+                              child: Padding(
+                                padding: const EdgeInsets.all(6),
+                                child: Text((item as Team).name),
+                              )));
+                        },
+                        futureSearchFn: (String? keyword, String? orderBy, bool? orderAsc,
+                            List<Tuple2<String, String>>? filters, int? pageNb) async {
+                          int nbResults=0;
+                          List<DropdownMenuItem> results=[];
+                          if(keyword!="")
+                            {
+                              List<Team>? teamsFound=await MongoDB.instance.searchTeam(keyword!);
+                              int sameTeamIndex=-1;
+                              for(int i=0;i<teamsFound!.length;i++)
+                                {
+                                  if(teamsFound[i].id==actualTeam.id)
+                                    {
+                                      sameTeamIndex=i;
+                                    }
+                                }
+                              if(sameTeamIndex!=-1)
+                                {
+                                  teamsFound.removeAt(sameTeamIndex);
+                                }
+                              nbResults=teamsFound.length;
+                              results=teamsFound.map<DropdownMenuItem>((item) => DropdownMenuItem(
+                                value: item,
+                                child: Card(
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(4),
+                                    side: BorderSide(
+                                      color: Colors.blue,
+                                      width: 1,
+                                    ),
+                                  ),
+                                  margin: EdgeInsets.all(1),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(6),
+                                    child: Text(item.name),
+                                  ),
+                                ),
+                              )).toList();
+
+
+                            }
+
+
+
+                          return (Tuple2<List<DropdownMenuItem>, int>(results, nbResults));
+                        },
+                        emptyListWidget: () => Text(
+                          "No result",
+                          style: TextStyle(
+                            fontStyle: FontStyle.italic,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+
+
+                      /*ElevatedButton(
                         onPressed: () {
                           if(isSelected[1])
                             {
@@ -174,7 +259,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                                     borderRadius: BorderRadius.circular(18.0),
                                     side: BorderSide(
                                         color: Colors.lightGreen)))),
-                      ),
+                      )*/,
                     ),
                   ],
                 ):SizedBox(),
@@ -198,8 +283,6 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                 ),
               ],
             ))
-
-
           ],
         ),
       ),

@@ -274,7 +274,7 @@ class _TeamProfileState extends State<TeamProfile> {
                                 onPressed: () {
                                   pushNewScreen(
                                     context,
-                                    screen: CreateTeamEvent(),
+                                    screen: CreateTeamEvent(actualTeam: widget.team,),
                                     pageTransitionAnimation: PageTransitionAnimation.cupertino,
                                   );
                                 },
