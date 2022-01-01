@@ -4,4 +4,7 @@ extension DateTimeExt on DateTime {
   String get formatIT =>
       formatDate(this, [dd, "/", MM.substring(1,2), "/" , yyyy , " " , hh , ":" , nn],
           locale: EnglishDateLocale()).toUpperCase();
+  String get formatITShort =>
+      formatDate(this, [dd, "/", MM.substring(1,2), "/" , yyyy ,],
+          locale: EnglishDateLocale()).toUpperCase();
 }

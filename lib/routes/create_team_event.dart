@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/size_config.dart';
+import 'package:pedala_mi/utils/date_time_ext.dart';
 
 class CreateTeamEvent extends StatefulWidget {
   const CreateTeamEvent({Key? key}) : super(key: key);
@@ -11,7 +12,9 @@ class CreateTeamEvent extends StatefulWidget {
 
 class _CreateTeamEventState extends State<CreateTeamEvent> {
   final eventNameController=TextEditingController();
-  DateTime selectedDate = DateTime.now();
+  DateTime selectedStartDate = DateTime.now();
+  DateTime selectedEndDate=DateTime.now().add(Duration(days: 30));
+  List<bool> isSelected=[true,false];
 
   @override
   Widget build(BuildContext context) {
@@ -68,13 +71,14 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                     )),
                 Row(
                   children: [
-                    Expanded(child: Text("Start Date: ")),
+                    Expanded(flex:3,child: Text("Start Date: ",style: TextStyle(fontSize: 18))),
                     Expanded(
+                      flex: 5,
                       child: ElevatedButton(
                         onPressed: () {
-                          _selectDate(context);
+                          _selectStartDate(context);
                         },
-                        child: Text(selectedDate.toString()),
+                        child: Text(selectedStartDate.formatITShort),
                         style: ButtonStyle(
                             backgroundColor: MaterialStateProperty.all(
                                 Colors.lightGreen),
@@ -86,7 +90,68 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                       ),
                     ),
                   ],
-                )
+                ),
+                Row(
+                  children: [
+                    Expanded(flex:3,child: Text("End Date: ", style: TextStyle(fontSize: 18),),),
+                    Expanded(
+                      flex: 5,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          _selectEndDate(context);
+                        },
+                        child: Text(selectedEndDate.formatITShort),
+                        style: ButtonStyle(
+                            backgroundColor: MaterialStateProperty.all(
+                                Colors.lightGreen),
+                            shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(
+                                        color: Colors.lightGreen)))),
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Expanded(flex:3,child: Text("Event type: ", style: TextStyle(fontSize: 18),),),
+                    Expanded(
+                      flex: 4,
+                      child: ToggleButtons(
+                        borderRadius: BorderRadius.circular(18),
+                        splashColor: Colors.grey,
+                        color: Colors.grey,
+                        textStyle: TextStyle(fontWeight: FontWeight.bold),
+                        selectedColor: Colors.green,
+                        borderColor: Colors.green,
+                        selectedBorderColor: Colors.green,
+                        children: <Widget>[
+                          Container(
+                            width:(MediaQuery.of(context).size.width-20*SizeConfig.widthMultiplier!)/10*2.5,
+                              alignment: Alignment.center,
+                              child: Text("Public", )),
+                          Container(
+                              width:(MediaQuery.of(context).size.width-20*SizeConfig.widthMultiplier!)/10*2.5,
+                              alignment: Alignment.center,
+                              child: Text("Private",)),
+                        ],
+                        onPressed: (int index) {
+                          setState(() {
+                            for (int buttonIndex = 0; buttonIndex < isSelected.length; buttonIndex++) {
+                              if (buttonIndex == index) {
+                                isSelected[buttonIndex] = true;
+                              } else {
+                                isSelected[buttonIndex] = false;
+                              }
+                            }
+                          });
+                        },
+                        isSelected: isSelected,
+                      ),
+                    ),
+                  ],
+                ),
               ],
             ))
 
@@ -97,15 +162,47 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
     );
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectStartDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         context: context,
-        initialDate: selectedDate,
-        firstDate: DateTime(2015, 8),
-        lastDate: DateTime(2101));
-    if (picked != null && picked != selectedDate)
-      setState(() {
-        selectedDate = picked;
-      });
+        initialDate: selectedStartDate,
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(Duration(days: 30)));
+    if (picked != null && picked != selectedStartDate)
+      if(picked.isBefore(selectedEndDate))
+        {
+          setState(() {
+            selectedStartDate = picked;
+          });
+        }
+      else
+        {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content:
+              Text("You cannot select the start date after the end date!")));
+        }
+
+  }
+
+  Future<void> _selectEndDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: selectedEndDate,
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(Duration(days: 30)));
+    if (picked != null && picked != selectedEndDate)
+      if(picked.isAfter(selectedStartDate))
+        {
+          setState(() {
+            selectedEndDate = picked;
+          });
+        }
+    else
+      {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content:
+            Text("You cannot select the end date before the start date!")));
+      }
+
   }
 }
