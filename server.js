@@ -7,24 +7,21 @@ const MONGO_URI = process.env.MONGO_URI;
 
 const connectionParams = {
     useNewUrlParser: true,
-    useUnifiedTopology: true 
+    useUnifiedTopology: true
 };
-
+mongoose.connect(MONGO_URI, connectionParams)
+    .then(() => {
+        console.log('Connected to database!')
+    })
+    .catch((err) => {
+        console.error(`Error connecting to the database.\n${err}`);
+    })
+mongoose.Promise = Promise;
 const app = express();
 app.use(express.json());
-if (process.env.NODE_ENV !== 'test') {
-    mongoose.connect(MONGO_URI,connectionParams)
-        .then( () => {
-            console.log('Connected to database!')
-        })
-        .catch( (err) => {
-            console.error(`Error connecting to the database.\n${err}`);
-        })
-    mongoose.Promise = Promise;
-    var listener = app.listen(PORT, () => {
-        console.log('Listening on port ' + listener.address().port);
-    });
-}
+var listener = app.listen(PORT, () => {
+    console.log('Listening on port ' + listener.address().port);
+});
 
 
 var usersRouter = require('./backend/components/profileController').router;
@@ -50,11 +47,9 @@ var options = {
     }
 };
 
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument,options));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
 
 app.get('/', (req, res) => {
     res.send('<h1>Welcome to PedalaMi!<h1>');
 });
-
-module.exports = app;

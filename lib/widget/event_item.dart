@@ -154,7 +154,7 @@ class _EventItemState extends State<EventItem> {
                       onPressed: () async{
                           if(!_joined)
                             {
-                              if(await MongoDB.instance.joinEvent(event.eventID, FirebaseAuth.instance.currentUser!.uid))
+                              if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid))
                                 {
                                   ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, null, 0);
                                   event.scoreboard!.add(s);
