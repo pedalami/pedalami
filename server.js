@@ -1,7 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-
+var cors = require('cors');
 const PORT = process.env.PORT || 8000;
 const MONGO_URI = process.env.MONGO_URI;
 
@@ -21,6 +21,11 @@ if (process.env.NODE_ENV !== 'test') {
             console.error(`Error connecting to the database.\n${err}`);
         })
     mongoose.Promise = Promise;
+    app.use(cors());
+    app.use(function(req, res, next) {
+        res.header("Access-Control-Allow-Origin", '*');
+        next();
+    });
     var listener = app.listen(PORT, () => {
         console.log('Listening on port ' + listener.address().port);
     });
