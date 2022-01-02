@@ -20,6 +20,10 @@ mongoose.Promise = Promise;
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", '*');
+  next();
+});
 var listener = app.listen(PORT, () => {
     console.log('Listening on port ' + listener.address().port);
 });
