@@ -8,6 +8,7 @@ import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
 import 'create_team_event.dart';
+import 'events_enroll.dart';
 
 
 class TeamProfile extends StatefulWidget {
@@ -231,7 +232,11 @@ class _TeamProfileState extends State<TeamProfile> {
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
-
+                                  pushNewScreen(
+                                    context,
+                                    screen: EnrollEvent(actualTeam: widget.team,),
+                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                  );
                                 },
                                 child: Text("Enroll to event"),
                                 style: ButtonStyle(
