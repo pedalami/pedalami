@@ -385,7 +385,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                           "Average Duration: ",
                           timeDuration(
                               LoggedUser.instance!.statistics!.averageDuration),
-                          'unit'),
+                          ''),
                     ),
                     Expanded(
                       child: singleStat(

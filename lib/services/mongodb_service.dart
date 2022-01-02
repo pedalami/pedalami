@@ -25,6 +25,7 @@ class MongoDB {
   Map<String, String> _headers = {
     'Content-type': 'application/json; charset=utf-8',
     'Accept': 'application/json',
+    'Host': 'pedalami.herokuapp.com'
   };
 
   //Use to convert Dart DateTime object to a string whose format matches the one of the backend

@@ -391,7 +391,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           "Average Duration: ",
                           timeDuration(
                               LoggedUser.instance!.statistics!.averageDuration),
-                          'unit'),
+                          ''),
                     ),
                     Expanded(
                       child: singleStat(
