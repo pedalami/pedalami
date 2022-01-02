@@ -633,6 +633,7 @@ async function terminateEvents() {
             }
             ).catch(err => {
                 console.log('Error in closing events:' + err);
+                throw err;
             }
             );
         });
@@ -691,6 +692,15 @@ app.post("/getTeamEventRequests", async (req, res) => {
     }
 })
 
+app.get("/closeEvents", async (req, res) => {
+    try{ terminateEvents();
+    }
+    catch(err){
+        res.status(500).send('Error in closing events');
+        return;
+    }
+    res.status(200).send('Events closed');
+    });
 
 module.exports = { app: app, terminateEvents: terminateEvents };
 
