@@ -2,6 +2,7 @@ var express = require("express");
 var app = express.Router();
 app.use(express.json());
 const models = require('../schemas.js');
+const gamificationController = require("./gamificationController.js");
 const User = models.User;
 const Team = models.Team;
 const Event = models.Event;
@@ -51,7 +52,7 @@ app.post("/createPrivateTeam", async (req, res) => {
                 guestTeam: null,
                 involvedTeams: [req.body.invitedTeamId]
             });
-            hostTeam.activeEvents.push(newEvent._id);
+            hostTeam.activeEvents.push(newEvent._id); //TODO: we should control that it is really an active event
             guestTeam.eventRequests.push(newEvent._id);
             connection.transaction(async (session) => {
                 await Promise.all([
@@ -132,8 +133,8 @@ app.post('/enrollTeamPublic', async (req, res) => {
             User.findOne({ userId: req.body.adminId }).exec()
         ]);
         if (event && team && admin) {
-            if (team.adminId === admin.userId) {
-                if (event.visibility === "public" && event.type === "team") {
+            if (team.adminId == admin.userId) {
+                if (event.visibility == "public" && event.type == "team") {
                     if (!event.involvedTeams.includes(team._id)) {
                         event.involvedTeams.push(team._id);
                         team.activeEvents.push(event._id);
@@ -171,7 +172,7 @@ app.post('/enrollTeamPublic', async (req, res) => {
         }
     } else {
         console.log('Error in enrolling the team to the event: missing params');
-        res.status(400).send('Error in enrolling the team to the event: missing parameters');
+        res.status(500).send('Error in enrolling the team to the event: missing parameters');
     }
 });
 
@@ -228,7 +229,7 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
             User.findOne({ userId: req.body.adminId }).exec()
         ]);
         if (event && team && admin) {
-            if (team.adminId === admin.userId && event.visibility === "private" && event.type === "team"
+            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
                 && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                 event.involvedTeams = null;
                 team.eventRequests.remove(event._id);
@@ -316,14 +317,14 @@ app.post('/join', (req, res) => {
             User.findOne({ userId: userId }).session(session).exec(),
             Event.findOne({ _id: eventId }).session(session).exec()
         ]);
-        if (event.type === 'team') {
+        if (event.type == 'team') {
             if (!teamId)
                 throw new Error('Missing teamId');
             var team = await Team.findOne({ _id: teamId }).session(session).exec();
             if (!team)
                 throw new Error('Team not found');
             scoreboardEntry = { userId: userId, teamId: teamId, points: 0 };
-        } else if (event.type === 'individual') {
+        } else if (event.type == 'individual') {
             scoreboardEntry = { userId: userId, teamId: null, points: 0 };
         } else {
             throw new Error('Unknown event type');
@@ -378,8 +379,8 @@ app.post('/leave', (req, res) => {
         }
     }
     else {
-        console.log('Missing parameters');
-        res.status(400).send('Error while leaving the event: missing parameters');
+        console.log('Missing params');
+        res.status(500).send('Error while leaving the event: missing parameters');
     }
 });
 
@@ -421,7 +422,7 @@ app.post('/search', async (req, res) => {
                 {
                     $or: [
                         {
-                            $and: [{ visibility: 'public' }, { status: 'approved' }]
+                            $and: [{ visibility: 'public' }, { status: 'active' }]
                         }, //if the event is public and active
                         { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
                     ]
@@ -583,7 +584,7 @@ app.post('/approvePublicTeam', async (req, res) => {
         res.status(500).send('Event is not pending');
         return;
     }
-    event.status = 'approved';
+    event.status = 'active';
     event.save().then(() => {
         res.status(200).send(event);
     }).catch(err => {
@@ -623,3 +624,146 @@ app.post('/rejectPublicTeam', async (req, res) => {
     });
 
 });
+
+async function terminateEvents() {
+    const events = await Event.find({
+        $and: [
+            { endDate: { $lt: new Date() } },
+            { closed: false }
+        ]
+    }).exec();
+    if (events) {
+        connection.transaction(async (session) => {
+            var promiseArray = [];
+            events.forEach(async event => {
+                event.closed = true;
+                if (event.type == 'team') {
+                    var hostTeam = await Team.findOne({ _id: event.hostTeam }).exec();
+                        if (hostTeam) { //removes the event from the host team
+                            hostTeam.activeEvents = hostTeam.activeEvents.filter(e => e != event._id);
+                            promiseArray.append(hostTeam.save({ session }));
+                        }
+                    if (event.visibility == 'public') {
+                        if (event.involvedTeams.length >= 2) {
+                            event.involvedTeams.forEach(async teamId => {
+                                var team = await Team.findOne({ _id: teamId }).exec();
+                                if (team) {
+                                    team.activeEvents = team.activeEvents.filter(e => e != event._id);
+                                    promiseArray.append(team.save({ session }));
+                                }
+                            })
+                        }
+                    } else if (event.visibility == 'private') {
+                        if (event.guestTeam) { //removes the active event from the guest team
+                            const guestTeam = await Team.findOne({ _id: event.guestTeam }).exec();
+                            if (guestTeam) {
+                                guestTeam.activeEvents = guestTeam.activeEvents.filter(e => e != event._id);
+                                promiseArray.append(guestTeam.save({ session }));
+                            }
+                        } else {
+                            event.involvedTeams.forEach(async teamId => { //removes the unaccepted event request from the involved teams
+                                var team = await Team.findOne({ _id: teamId }).exec();
+                                if (team) {
+                                    team.eventRequests = team.eventRequests.filter(e => e != event._id);
+                                    promiseArray.append(team.save({ session }));
+                                }
+                            })
+
+                        }
+                    }
+                } else if (event.type == 'individual') {
+                    var bestPlayer = gamificationController.getBestPlayerIndividualEvent(event);
+                    if (bestPlayer){
+                        var user = await User.findOne({ _id: bestPlayer.userId }).exec();
+                        if (user) {
+                            gamificationController.assignPrizeIndividualEvent(user, event);
+                            promiseArray.append(user.save({ session }));
+                        }
+                    }
+                }
+                const users = await User.find({ joinedEvents: { $in: event._id } }).exec();
+                if (users) {
+                    users.forEach(async user => {
+                        user.joinedEvents = user.joinedEvents.filter(e => e != event._id);
+                        if(event.type == 'team')
+                            assignPrizeTeamEvent(user, event);
+                        promiseArray.append(user.save({ session }));
+                    });
+
+                }
+                promiseArray.append(event.save({ session }));
+            });
+            Promise.all(promiseArray).then(() => {
+                console.log('Events up to ' + new Date() + 'closed');
+            }
+            ).catch(err => {
+                console.log('Error in closing events:' + err);
+                throw err;
+            }
+            );
+        });
+    }
+
+
+}
+
+app.post("/getUsersEvents", async (req, res) => {
+    var userId = req.body.userId;
+
+    if (userId){
+        var user = await User.findOne({ _id: ObjectId(userId) }).exec();
+        if (user) {
+            var events = await Event.find({ _id: { $in: user.joinedEvents } }).exec();
+            res.status(200).send(events);
+        } else {
+            res.status(500).send('Error in getting the user events: event not found');
+        }
+    } else {
+        res.status(400).send('Error in getting the user events: missing parameter');
+    }
+});
+
+app.post("/getTeamActiveEvents", async (req, res) => {
+    var teamId = req.body.teamId;
+
+    if (teamId){
+        var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
+        if (team) {
+            var events = await Event.find({ _id: { $in: team.activeEvents } }).exec();
+            res.status(200).send(events);
+        } else {
+            res.status(500).send('Error in getting the team events: event not found');
+        }
+    } else {
+        res.status(400).send('Error in getting the team events: missing parameter');
+    }
+
+});
+
+app.post("/getTeamEventRequests", async (req, res) => {
+    var teamId = req.body.teamId;
+
+    if (teamId){
+        var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
+        if (team) {
+            var events = await Event.find({ _id: { $in: team.eventRequests } }).exec();
+            res.status(200).send(events);
+        } else {
+            res.status(500).send('Error in getting the team events: event not found');
+        }
+    } else {
+        res.status(400).send('Error in getting the team events: missing parameter');
+    }
+})
+
+app.get("/closeEvents", async (req, res) => {
+    try{ terminateEvents();
+    }
+    catch(err){
+        res.status(500).send('Error in closing events');
+        return;
+    }
+    res.status(200).send('Events closed');
+    });
+
+module.exports = { app: app, terminateEvents: terminateEvents };

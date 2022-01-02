@@ -77,6 +77,7 @@ const EventSchema = new Schema({
     description: { type: String, required: true },
     startDate: { type: Date, required: true },
     endDate: { type: Date, required: true },
+    closed: { type: Boolean, required: true, default: false },
     type: { type: String, required: true }, // The event can be team or individual
     visibility: { type: String, required: true }, // The event can be public or private
     prize: { type: Number, required: false }, // The event must have a prize only if visibility is "public" and type is "individual"
@@ -85,11 +86,13 @@ const EventSchema = new Schema({
     hostTeam: { type: ObjectId, required: false }, //the team proposing the event
     guestTeam: { type: ObjectId, required: false }, //the teams invited to the event
 
-    //if it is a public team event, involvedTeams is the list of teams that are partecipating to the event
+    //if it is a public team event, involvedTeams is the list of teams that are partecipating to the event, including the host
     //if it is a private team event, it is a singleton list with the invited team that has not accepted yet the invitation
     involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
+    winningTeam: { type: ObjectId, required: false }, //the team that wins the event
 
-    status: { type: String, required: false }, // It is set only if the event is a public team event, it can be "pending", "accepted", "rejected"
+    status: { type: String, required: false }, //It is set only if the event is a public team event, it can be "pending", "approved", "rejected".
+
 
     scoreboard: [new Schema({
         _id: false,
@@ -97,6 +100,12 @@ const EventSchema = new Schema({
         userId: { type: String, required: true },
         teamId: { type: ObjectId, required: false, default: null }, //null if it is an individual event
         points: { type: Number, required: true, default: 0 }
+    })],
+
+    teamScoreboard: [new Schema({ //if it's a team event, the scoreboard contains the teamId and the sum of the points collected by the team
+        _id: false,
+        teamId: { type: ObjectId, required: false },
+        points: { type: Number, required: false, default: 0 }
     })]
 });
 
