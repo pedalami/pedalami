@@ -209,8 +209,6 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                         flex: 5,
                         child:
                         SearchChoices.single(
-                          iconDisabledColor: Colors.green,
-                          iconEnabledColor: Colors.green,
                           value: selectedValueSingleDialogFuture,
                           hint: "Choose an opposing team...",
                           searchHint: "Write an opposing team...",
@@ -254,7 +252,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(4),
                                       side: BorderSide(
-                                        color: Colors.blue,
+                                        color: Colors.green,
                                         width: 1,
                                       ),
                                     ),

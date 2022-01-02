@@ -184,7 +184,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                   Align(alignment: Alignment.centerRight),
                   FloatingActionButton.extended(
                     backgroundColor: Colors.lightGreen,
-                    label: FaIcon(FontAwesomeIcons.plus),
+                    label: FaIcon(FontAwesomeIcons.plus, color: Colors.white,),
                     onPressed: () {
                       pushNewScreen(
                         context,
