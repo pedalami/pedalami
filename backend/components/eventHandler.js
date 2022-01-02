@@ -2,6 +2,7 @@ var express = require("express");
 var app = express.Router();
 app.use(express.json());
 const models = require('../schemas.js');
+const gamificationController = require("./gamificationController.js");
 const User = models.User;
 const Team = models.Team;
 const Event = models.Event;
@@ -60,14 +61,14 @@ app.post("/createPrivateTeam", async (req, res) => {
                     newEvent.save({ session })
                 ])
             })
-            .then(() => {
-                console.log('Event created!');
-                res.status(200).send(newEvent);
-            })
-            .catch(err => {
-                console.log('The following error occurred in creating the new Private Event: ' + err);
-                res.status(500).send('Error in creating the new Private Event');
-            })
+                .then(() => {
+                    console.log('Event created!');
+                    res.status(200).send(newEvent);
+                })
+                .catch(err => {
+                    console.log('The following error occurred in creating the new Private Event: ' + err);
+                    res.status(500).send('Error in creating the new Private Event');
+                })
         } else {
             console.log('Could not find host team or guest team or admin');
             res.status(500).send('Could not find host team or guest team or admin');
@@ -83,7 +84,7 @@ app.post("/createPublicTeam", async (req, res) => {
     console.log(req.body);
     if (req.body.hostTeamId && req.body.adminId) {
         var hostTeam = await Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec();
-        if (hostTeam && req.body.adminId == hostTeam.adminId){
+        if (hostTeam && req.body.adminId == hostTeam.adminId) {
             var newEvent = new Event({
                 name: req.body.name,
                 description: req.body.description,
@@ -102,13 +103,13 @@ app.post("/createPublicTeam", async (req, res) => {
                     newEvent.save({ session })
                 ])
             })
-            .then(() => {
-                res.status(200).send(newEvent);
-            })
-            .catch(err => {
-                console.log('The following error occurred in creating the new Public Team Event: ' + err);
-                res.status(500).send('Error in creating the new Public Team Event');
-            })
+                .then(() => {
+                    res.status(200).send(newEvent);
+                })
+                .catch(err => {
+                    console.log('The following error occurred in creating the new Public Team Event: ' + err);
+                    res.status(500).send('Error in creating the new Public Team Event');
+                })
         } else {
             console.log('Could not find host team or admin');
             res.status(500).send('Could not find host team or admin');
@@ -146,13 +147,13 @@ app.post('/enrollTeamPublic', async (req, res) => {
                                 team.save({ session })
                             ])
                         })
-                        .then(() => {
-                            res.status(200).send(event);
-                        })
-                        .catch(err => {
-                            console.log('The following error occurred in enrolling the team to the event: ' + err);
-                            res.status(500).send('Error in enrolling the team to the event: ' + err);
-                        })
+                            .then(() => {
+                                res.status(200).send(event);
+                            })
+                            .catch(err => {
+                                console.log('The following error occurred in enrolling the team to the event: ' + err);
+                                res.status(500).send('Error in enrolling the team to the event: ' + err);
+                            })
                     } else {
                         console.log('The team is already enrolled in the event');
                         res.status(500).send('The team is already enrolled in the event');
@@ -186,7 +187,7 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
         ]);
         if (event && team && admin) {
             if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
-            && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
+                && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                 event.involvedTeams = null;
                 event.guestTeam = team._id;
                 team.eventRequests.remove(event._id);
@@ -197,20 +198,20 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
                         event.save({ session })
                     ])
                 })
-                .then(() => {
-                    res.status(200).send(event);
-                })
-                .catch(err => {
-                    console.log('The following error occurred in joining the team event: ' + err);
-                    res.status(500).send('Error in joining the team event');
-                });
+                    .then(() => {
+                        res.status(200).send(event);
+                    })
+                    .catch(err => {
+                        console.log('The following error occurred in joining the team event: ' + err);
+                        res.status(500).send('Error in joining the team event');
+                    });
             } else {
                 console.log('Conditions not matched');
                 res.status(500).send('Conditions not matched');
             }
         } else {
             console.log('Error in joining the team event: event or team or admin not found');
-            res.status(500).send('Error in joining the team event: event or team or admin not found'); 
+            res.status(500).send('Error in joining the team event: event or team or admin not found');
         }
     } else {
         console.log('Missing params');
@@ -248,9 +249,9 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
                 console.log('Conditions not matched');
                 res.status(500).send('Conditions not matched');
             }
-        } else { 
+        } else {
             console.log('Error in rejecting the team invite: event or team or admin not found');
-            res.status(500).send('Error in rejecting the team invite: event or team or admin not found'); 
+            res.status(500).send('Error in rejecting the team invite: event or team or admin not found');
         }
     } else {
         console.log('Missing params');
@@ -278,24 +279,24 @@ app.post('/invitePrivateTeam', async (req, res) => {
                         event.save({ session })
                     ])
                 })
-                .then(() => {
-                    res.status(200).send(event);
-                })
-                .catch(err => {
-                    console.log('The following error occurred in inviting the team to the event: ' + err);
-                    res.status(500).send('Error in inviting the team to the event');
-                });
+                    .then(() => {
+                        res.status(200).send(event);
+                    })
+                    .catch(err => {
+                        console.log('The following error occurred in inviting the team to the event: ' + err);
+                        res.status(500).send('Error in inviting the team to the event');
+                    });
             } else {
-                console.log('Conditions not matched'); 
-                res.status(500).send('Error in inviting the team to the event: conditions not matched'); 
+                console.log('Conditions not matched');
+                res.status(500).send('Error in inviting the team to the event: conditions not matched');
             }
         } else {
-            console.log('Teams or event not found'); 
-            res.status(500).send('Error in inviting the team to the event: teams or event not found'); 
+            console.log('Teams or event not found');
+            res.status(500).send('Error in inviting the team to the event: teams or event not found');
         }
     } else {
         console.log('Conditions not matched');
-        res.status(500).send('Error in inviting the team to the event: missing parameters'); 
+        res.status(500).send('Error in inviting the team to the event: missing parameters');
     }
 });
 
@@ -337,13 +338,13 @@ app.post('/join', (req, res) => {
             user.save({ session: session })
         ]);
     })
-    .then(() => {
-        res.status(200).send('Event joined successfully');
-    })
-    .catch((err) => {
-        console.log('Error while joining the event\n' + err);
-        res.status(500).send('Error while joining the event');
-    });
+        .then(() => {
+            res.status(200).send('Event joined successfully');
+        })
+        .catch((err) => {
+            console.log('Error while joining the event\n' + err);
+            res.status(500).send('Error while joining the event');
+        });
 });
 
 // API used by a user to leave an event
@@ -361,13 +362,13 @@ app.post('/leave', (req, res) => {
                 connection.transaction(async (session) => {
                     await user.save({ session: session });
                 })
-                .then(() => {
-                    res.status(200).send('Event left successfully');
-                })
-                .catch((err) => {
-                    console.log('Error while leaving the event\n' + err);
-                    res.status(500).send('Error while leaving the event: ' + err);
-                });
+                    .then(() => {
+                        res.status(200).send('Event left successfully');
+                    })
+                    .catch((err) => {
+                        console.log('Error while leaving the event\n' + err);
+                        res.status(500).send('Error while leaving the event: ' + err);
+                    });
             } else {
                 console.log('Error while leaving the event: user is not enrolled in the event');
                 res.status(500).send('Error while leaving the event: user is not enrolled in the event');
@@ -489,7 +490,155 @@ app.get('/getJoinableEvents', async (req, res) => {
 
 });
 
-module.exports = { app: app };
+app.post('/approvePublicTeam', async (req, res) => {
+    const eventId = req.body.eventId;
+    if (!eventId) {
+        res.status(400).send('Missing eventId');
+        return;
+    }
+    const event = await Event.findOne({ _id: eventId }).exec();
+    if (!event) {
+        res.status(500).send('Event not found');
+        return;
+    }
+    if (event.type !== 'team') {
+        res.status(500).send('Event is not a team event');
+        return;
+    }
+    if (event.visibility !== 'public') {
+        res.status(500).send('Event is not public');
+        return;
+    }
+    if (event.status !== 'pending') {
+        res.status(500).send('Event is not pending');
+        return;
+    }
+    event.status = 'active';
+    event.save().then(() => {
+        res.status(200).send(event);
+    }).catch(err => {
+        res.status(500).send('Error in approving the event');
+    });
+
+});
+
+app.post('/rejectPublicTeam', async (req, res) => {
+    const eventId = req.body.eventId;
+    if (!eventId) {
+        res.status(400).send('Missing eventId');
+        return;
+    }
+    const event = await Event.findOne({ _id: eventId }).exec();
+    if (!event) {
+        res.status(500).send('Event not found');
+        return;
+    }
+    if (event.type != 'team') {
+        res.status(500).send('Event is not a team event');
+        return;
+    }
+    if (event.visibility != 'public') {
+        res.status(500).send('Event is not public');
+        return;
+    }
+    if (event.status != 'pending') {
+        res.status(500).send('Event is not pending');
+        return;
+    }
+    event.status = 'rejected';
+    event.save().then(() => {
+        res.status(200).send(event);
+    }).catch(err => {
+        res.status(500).send('Error in rejecting the event');
+    });
+
+});
+
+
+async function terminateEvents() {
+    const events = await Event.find({
+        $and: [
+            { endDate: { $lt: new Date() } },
+            { closed: false }
+        ]
+    }).exec();
+    if (events) {
+        connection.transaction(async (session) => {
+            var promiseArray = [];
+            events.forEach(async event => {
+                event.closed = true;
+                if (event.type == 'team') {
+                    var hostTeam = await Team.findOne({ _id: event.hostTeam }).exec();
+                        if (hostTeam) { //removes the event from the host team
+                            hostTeam.activeEvents = hostTeam.activeEvents.filter(e => e != event._id);
+                            promiseArray.append(hostTeam.save({ session }));
+                        }
+                    if (event.visibility == 'public') {
+                        if (event.involvedTeams.length >= 2) {
+                            event.involvedTeams.forEach(async teamId => {
+                                var team = await Team.findOne({ _id: teamId }).exec();
+                                if (team) {
+                                    team.activeEvents = team.activeEvents.filter(e => e != event._id);
+                                    promiseArray.append(team.save({ session }));
+                                }
+                            })
+                        }
+                    } else if (event.visibility == 'private') {
+                        if (event.guestTeam) { //removes the active event from the guest team
+                            const guestTeam = await Team.findOne({ _id: event.guestTeam }).exec();
+                            if (guestTeam) {
+                                guestTeam.activeEvents = guestTeam.activeEvents.filter(e => e != event._id);
+                                promiseArray.append(guestTeam.save({ session }));
+                            }
+                        } else {
+                            event.involvedTeams.forEach(async teamId => { //removes the unaccepted event request from the involved teams 
+                                var team = await Team.findOne({ _id: teamId }).exec();
+                                if (team) {
+                                    team.eventRequests = team.eventRequests.filter(e => e != event._id);
+                                    promiseArray.append(team.save({ session }));
+                                }
+                            })
+
+                        }
+                    }
+                } else if (event.type == 'individual') {
+                    var bestPlayer = gamificationController.getBestPlayerIndividualEvent(event);
+                    if (bestPlayer){
+                        var user = await User.findOne({ _id: bestPlayer.userId }).exec();
+                        if (user) {
+                            gamificationController.assignPrizeIndividualEvent(user, event);
+                            promiseArray.append(user.save({ session }));
+                        }
+                    }
+                }
+                const users = await User.find({ joinedEvents: { $in: event._id } }).exec();
+                if (users) {
+                    users.forEach(async user => {
+                        user.joinedEvents = user.joinedEvents.filter(e => e != event._id);
+                        if(event.type == 'team')
+                            assignPrizeTeamEvent(user, event);
+                        promiseArray.append(user.save({ session }));
+                    });
+                    
+                }
+                promiseArray.append(event.save({ session }));
+            });
+            Promise.all(promiseArray).then(() => {
+                console.log('Events up to ' + new Date() + 'closed');
+            }
+            ).catch(err => {
+                console.log('Error in closing events');
+            }
+            );
+        });
+    }
+
+
+}
+
+
+module.exports = { app: app, terminateEvents: terminateEvents };
+
 
 
 ///Old stuff
@@ -559,67 +708,3 @@ app.post("/create", async (req, res) => {
     }
 });
 */
-
-app.post('/approvePublicTeam', async (req, res) => {
-    const eventId = req.body.eventId;
-    if (!eventId) {
-        res.status(400).send('Missing eventId');
-        return;
-    }
-    const event = await Event.findOne({ _id: eventId }).exec();
-    if (!event) {
-        res.status(500).send('Event not found');
-        return;
-    }
-    if (event.type !== 'team') {
-        res.status(500).send('Event is not a team event');
-        return;
-    }
-    if (event.visibility !== 'public') {
-        res.status(500).send('Event is not public');
-        return;
-    }
-    if (event.status !== 'pending') {
-        res.status(500).send('Event is not pending');
-        return;
-    }
-    event.status = 'active';
-    event.save().then(() => {
-        res.status(200).send(event);
-    }).catch(err => {
-        res.status(500).send('Error in approving the event');
-    });
-
-});
-
-app.post('/rejectPublicTeam', async (req, res) => {
-    const eventId = req.body.eventId;
-    if (!eventId) {
-        res.status(400).send('Missing eventId');
-        return;
-    }
-    const event = await Event.findOne({ _id: eventId }).exec();
-    if (!event) {
-        res.status(500).send('Event not found');
-        return;
-    }
-    if (event.type != 'team') {
-        res.status(500).send('Event is not a team event');
-        return;
-    }
-    if (event.visibility != 'public') {
-        res.status(500).send('Event is not public');
-        return;
-    }
-    if (event.status != 'pending') {
-        res.status(500).send('Event is not pending');
-        return;
-    }
-    event.status = 'rejected';
-    event.save().then(() => {
-        res.status(200).send(event);
-    }).catch(err => {
-        res.status(500).send('Error in rejecting the event');
-    });
-
-});
