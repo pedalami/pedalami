@@ -443,11 +443,13 @@ app.post('/search', async (req, res) => {
 // API used by a user to get the list of all the events that he can join
 app.get('/getJoinableEvents', async (req, res) => {
     const userId = req.query.userId;
+    const name = req.query.name;
+
     console.log('Received getEvents GET request with param userId=' + userId);
     if (userId) {
         const user = await User.findOne({ userId: userId }).exec();
         if (user) {
-            const events = await Event.find({
+            var events = await Event.find({
                 $and: [
                     { _id: { $nin: user.joinedEvents } }, //excludes the events the user has already joined
                     { startDate: { $lte: new Date() } }, //excludes the events that have not started
@@ -473,6 +475,9 @@ app.get('/getJoinableEvents', async (req, res) => {
                     }
                 ]
             }).exec();
+            if (name) {
+                events.filter(event => event.name.toLowerCase().includes(name.toLowerCase()));
+            }
             if (events) {
                 res.status(200).send(events);
             } else {
@@ -627,7 +632,7 @@ async function terminateEvents() {
                 console.log('Events up to ' + new Date() + 'closed');
             }
             ).catch(err => {
-                console.log('Error in closing events');
+                console.log('Error in closing events:' + err);
             }
             );
         });
@@ -708,3 +713,12 @@ app.post("/create", async (req, res) => {
     }
 });
 */
+
+
+
+
+
+
+
+//TODO: GET ALL EVENTS OF A USER
+//TODO GET ALL EVENTS OF A TEAM, ACTIVE AND REQUESTS
