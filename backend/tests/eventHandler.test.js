@@ -515,10 +515,210 @@ describe("POST /search", () => {
     })
 })
 
-/*describe("POST /join", () => {
-    test("An individual event with missing parameters should return 500", async () => {
-        const response = await request(app).post('/events/join').send(event_miss);
+describe("GET /getJoinableEvents", () => {
+    test("A request without userId field should return 400", async () => {
+        const response = await request(app).get('/events/getJoinableEvents').query({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error: Missing userId.');
+    })
+
+    test("A request with fake userId should return 500", async () => {
+        const response = await request(app).get('/events/getJoinableEvents').query({
+            'userId': 'n0tEx1st'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error: User not found');
+    })
+    test("A request with correct userId should return a list of events", async () => {
+        const response = await request(app).get('/events/getJoinableEvents').query({
+            'userId': 'admin'
+        });
+        expect(response.status).toBe(200);
+        response.body.forEach(e => {
+            var start =new Date(e.startDate)
+            var end = new Date(e.endDate)
+            expect(start.getTime()).toBeLessThan(end.getTime())
+        })
+    })
+})
+
+describe("POST /join", () => {
+    test("Joining request with missing parameters should return 500", async () => {
+        const response = await request(app).post('/events/join').send({});
         expect(response.status).toBe(500);
         expect(response.text).toBe('Error while joining the event');
     })
-})*/
+
+    test("Joining request for a team event without teamId should return 500", async () =>{
+        var userId = 'no_team_member';
+        await request(app).post('/users/initUser').send({userId: userId});
+        const team = await Team.findOne({'name': 'testTeam'});
+        const adminId = team.adminId;
+        const name = 'joining_test_no_teamId';
+        var event_team_pub = {
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'team',
+            'visibility': 'private',
+            'hostTeamId': team._id,
+            'adminId': adminId
+        }
+        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const eventId = resp_event.body._id;
+        await request(app).post('/events/approvePublicTeam').send({'eventId': eventId});
+        const response = await request(app).post('/events/join').send({
+            'userId': userId,
+            'eventId': eventId
+        });
+        await Event.deleteOne({'name': name});
+        await User.deleteOne({'userId': userId});
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error while joining the event');
+    })
+
+    test("Joining request for a team event with incorrect teamId should return 500", async () =>{
+        var userId = 'team_member_fake_team';
+        await request(app).post('/users/initUser').send({userId: userId});
+        const team = await Team.findOne({'name': 'testTeam'});
+        const adminId = team.adminId;
+        const name = 'join_test_fake_team';
+        var event_team_pub = {
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'team',
+            'visibility': 'private',
+            'hostTeamId': team._id,
+            'adminId': adminId
+        }
+        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const eventId = resp_event.body._id;
+        await request(app).post('/events/approvePublicTeam').send({'eventId': eventId});
+        const response = await request(app).post('/events/join').send({
+            'userId': userId,
+            'eventId': eventId,
+            'teamId': 'aaaaaaaaaaaa'
+        });
+        await Event.deleteOne({'name': name});
+        await User.deleteOne({'userId': userId});
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error while joining the event');
+    })
+
+    test("Joining request for a team event with correct parameters should return 200", async () =>{
+        var userId = 'team_member'
+        await request(app).post('/users/initUser').send({userId: userId});
+        const team = await Team.findOne({'name': 'testTeam'});
+        const adminId = team.adminId;
+        const name = 'join_test';
+        var event_team_pub = {
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'team',
+            'visibility': 'private',
+            'hostTeamId': team._id,
+            'adminId': adminId
+        }
+        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const eventId = resp_event.body._id;
+        await request(app).post('/events/approvePublicTeam').send({'eventId': eventId});
+        const response = await request(app).post('/events/join').send({
+            'userId': userId,
+            'eventId': eventId,
+            'teamId': team._id
+        });
+        await Event.deleteOne({'name': name});
+        await User.deleteOne({'userId': userId});
+        expect(response.status).toBe(200);
+        expect(response.text).toBe('Event joined successfully');
+    })
+
+    test("Joining request for an individual event with correct parameters should return 200", async () =>{
+        var userId = 'random_user';
+        await request(app).post('/users/initUser').send({userId: userId});
+        const name = 'join_test_indiv';
+        const resp_event = await request(app).post('/events/createIndividual').send({
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'individual',
+            'visibility': 'public'
+        });
+        const eventId = resp_event.body._id
+        const response = await request(app).post('/events/join').send({
+            'userId': userId,
+            'eventId': eventId
+        });
+        await Event.deleteOne({'name': name});
+        await User.deleteOne({'userId': userId});
+        expect(response.status).toBe(200);
+        expect(response.text).toBe('Event joined successfully');
+    })
+
+})
+
+describe("POST /leave", () => {
+    test("Leaving request with missing parameters should return 400", async () => {
+        const response = await request(app).post('/events/leave').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error while leaving the event: missing parameters');
+    })
+    test("Leaving request with fake parameters should return 500", async () => { //TODO: fix this, it returns an error unexpected
+        const response = await request(app).post('/events/leave').send({
+            'userId': 'bbbbbbbbbbbb',
+            'eventId': 'aaaaaaaaaaaa'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error while leaving the event: user or event not found');
+    })
+    test("Leaving request for an event not joined should return 500", async () => {
+        const name = 'leave_test_wrong';
+        const resp_event = await request(app).post('/events/createIndividual').send({
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'individual',
+            'visibility': 'public'
+        });
+        const eventId = resp_event.body._id
+        const response = await request(app).post('/events/leave').send({
+            'userId': 'admin',
+            'eventId': eventId
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error while leaving the event: user or event not found');
+    })
+})
+
+describe("POST /enrollTeamPublic", () => {
+    test("Enroll request with missing parameters should return 400", async () => {
+        const response = await request(app).post('/events/enrollTeamPublic').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in enrolling the team to the event: missing parameters');
+    })
+    test("Enroll request with wrong parameters should return 500", async () => {
+        const response = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': 'aaaaaaaaaaaa',
+            'teamId': 'bbbbbbbbbbbb',
+            'adminId': 'carlo'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in enrolling the team to the event: event or team or admin not found');
+    })
+    test("Enroll request with wrong parameters should return 500", async () => {
+        const response = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': 'aaaaaaaaaaaa',
+            'teamId': 'bbbbbbbbbbbb',
+            'adminId': 'carlo'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in enrolling the team to the event: event or team or admin not found');
+    })
+})
