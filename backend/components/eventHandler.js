@@ -642,6 +642,56 @@ async function terminateEvents() {
 }
 
 
+app.post("/getUsersEvents", async (req, res) => {
+    var userId = req.body.userId;
+
+    if (userId){
+        var user = await User.findOne({ _id: ObjectId(userId) }).exec();
+        if (user) {
+            var events = await Event.find({ _id: { $in: user.joinedEvents } }).exec();
+            res.status(200).send(events);
+        } else {
+            res.status(500).send('Error in getting the user events: event not found');
+        }
+    } else {
+        res.status(400).send('Error in getting the user events: missing parameter');
+    }
+});
+
+app.post("/getTeamActiveEvents", async (req, res) => {
+    var teamId = req.body.teamId;
+
+    if (teamId){
+        var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
+        if (team) {
+            var events = await Event.find({ _id: { $in: team.activeEvents } }).exec();
+            res.status(200).send(events);
+        } else {
+            res.status(500).send('Error in getting the team events: event not found');
+        }
+    } else {
+        res.status(400).send('Error in getting the team events: missing parameter');
+    }
+
+});
+
+app.post("/getTeamEventRequests", async (req, res) => {
+    var teamId = req.body.teamId;
+
+    if (teamId){
+        var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
+        if (team) {
+            var events = await Event.find({ _id: { $in: team.eventRequests } }).exec();
+            res.status(200).send(events);
+        } else {
+            res.status(500).send('Error in getting the team events: event not found');
+        }
+    } else {
+        res.status(400).send('Error in getting the team events: missing parameter');
+    }
+})
+
+
 module.exports = { app: app, terminateEvents: terminateEvents };
 
 
@@ -716,9 +766,3 @@ app.post("/create", async (req, res) => {
 
 
 
-
-
-
-
-//TODO: GET ALL EVENTS OF A USER
-//TODO GET ALL EVENTS OF A TEAM, ACTIVE AND REQUESTS
