@@ -301,7 +301,6 @@ app.post('/invitePrivateTeam', async (req, res) => {
 });
 
 
-
 // API used by a user to join an event
 app.post('/join', (req, res) => {
     console.log('Received join POST request:');
@@ -422,7 +421,7 @@ app.post('/search', async (req, res) => {
                 {
                     $or: [
                         {
-                            $and: [{ visibility: 'public' }, { status: 'active' }]
+                            $and: [{ visibility: 'public' }, { status: 'approved' }]
                         }, //if the event is public and active
                         { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
                     ]
@@ -518,7 +517,7 @@ app.post('/approvePublicTeam', async (req, res) => {
         res.status(500).send('Event is not pending');
         return;
     }
-    event.status = 'active';
+    event.status = 'approve';
     event.save().then(() => {
         res.status(200).send(event);
     }).catch(err => {

@@ -91,7 +91,7 @@ const EventSchema = new Schema({
     involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
     winningTeam: { type: ObjectId, required: false }, //the team that wins the event
 
-    status: { type: String, required: false }, //It is set only if the event is a public team event, it can be "pending", "accepted", "rejected".
+    status: { type: String, required: false }, //It is set only if the event is a public team event, it can be "pending", "approved", "rejected".
 
 
     scoreboard: [new Schema({
