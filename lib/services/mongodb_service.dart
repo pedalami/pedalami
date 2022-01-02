@@ -381,4 +381,50 @@ class MongoDB {
     return response.statusCode == 200 ? true : false;
   }
 
+  //Returns an array of the user's events
+  //Returns null in case of error
+  //Used by a user to retrieve the list of his events
+  Future<List<Event>?> getUserEvents(String userId) async {
+    var url = Uri.parse(baseUri + '/events/getUsersEvents');
+    var response = await _serverClient.post(url, headers: _headers,
+        body: json.encode({'userId': userId}));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Event> eventList =
+      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+      return eventList;
+    } else
+      return null;
+  }
+
+  //Returns an array of the team's active events
+  //Returns null in case of error
+  Future<List<Event>?> getTeamActiveEvents(String teamId) async {
+    var url = Uri.parse(baseUri + '/events/getTeamActiveEvents');
+    var response = await _serverClient.post(url, headers: _headers,
+        body: json.encode({'teamId': userId}));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Event> eventList =
+      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+      return eventList;
+    } else
+      return null;
+  }
+
+  //Returns an array of the team's event requests
+  //Returns null in case of error
+  Future<List<Event>?> getTeamActiveEvents(String teamId) async {
+    var url = Uri.parse(baseUri + '/events/getTeamEventRequests');
+    var response = await _serverClient.post(url, headers: _headers,
+        body: json.encode({'teamId': userId}));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body) as List;
+      List<Event> eventList =
+      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+      return eventList;
+    } else
+      return null;
+  }
+
 }
