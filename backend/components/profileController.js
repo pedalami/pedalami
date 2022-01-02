@@ -1,5 +1,5 @@
 var express = require('express');
-var app = express.Router();
+var app = express();
 app.use(express.json());
 const User = require('../schemas.js').User;
 const Event = require('../schemas.js').Event;
@@ -89,7 +89,7 @@ app.post('/initUser', (req, res) => {
           console.log('Error checking the User existence.\n' + err);
           res.status(500).send('Error finding the user.');
         } else {
-          if (users && users.length == 1) {
+          if (users && users.length === 1) {
             console.log('The user already exist. Returning it');
             res.status(200).send(users[0]);
           } else { // user doesn't exist
@@ -108,7 +108,7 @@ app.post('/initUser', (req, res) => {
       })
   } else {
     console.log('Missing userId parameter');
-    res.status(500).send('Missing userId parameter');
+    res.status(400).send('Missing userId parameter');
   }
 });
 
