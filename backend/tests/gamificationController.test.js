@@ -3,6 +3,7 @@ const checkBadge = require('./../components/gamificationController').checkNewBad
 const update = require('./../components/profileController').updateUserStatistics;
 const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
+const Event = require('../schemas.js').Event;
 const app = require('./../../server');
 const mongoose = require('mongoose');
 
@@ -15,6 +16,15 @@ beforeAll(async () => {
 afterAll(async () => {
     await mongoose.connection.close();
 })
+
+var event_public = {
+    'name': 'prova',
+    'description': 'descrizione',
+    'startDate': new Date(),
+    'endDate': new Date(),
+    'type': 'individual',
+    'visibility': 'public'
+}
 
 var ride = Ride({
     "userId": "user_id",
@@ -37,7 +47,7 @@ var ride = Ride({
 });
 
 describe("Testing assignPoints function", () => {
-    test("The points of the user should be increased depending on ride data", async () => {
+    test("The points of the user should be increased depending on ride data (no events)", async () => {
         var user = User({
             "userId": "username",
             "badges": [],
@@ -56,6 +66,27 @@ describe("Testing assignPoints function", () => {
         });
         const oldPoints = user.points;
         assign(user, ride, []);
+        expect(user.points).toBe((ride.totalKm * 100) + (oldPoints + ride.elevationGain * 10));
+    })
+    test("The points of the user should be increased depending on ride data and events", async () => {
+        var user = User({
+            "userId": "username",
+            "badges": [],
+            "teams": [],
+            "points": 0,
+            "statistics": {
+                "numberOfRides": 0,
+                "totalDuration": 0,
+                "totalKm": 0,
+                "averageSpeed": 0,
+                "totalElevationGain": 0,
+                "averageKm": 0,
+                "averageDuration": 0,
+                "averageElevationGain": 0
+            }
+        });
+        const oldPoints = user.points;
+        assign(user, ride, [event_public]);
         expect(user.points).toBe((ride.totalKm * 100) + (oldPoints + ride.elevationGain * 10));
     })
 })
