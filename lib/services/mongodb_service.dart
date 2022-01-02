@@ -403,7 +403,7 @@ class MongoDB {
   Future<List<Event>?> getTeamActiveEvents(String teamId) async {
     var url = Uri.parse(baseUri + '/events/getTeamActiveEvents');
     var response = await _serverClient.post(url, headers: _headers,
-        body: json.encode({'teamId': userId}));
+        body: json.encode({'teamId': teamId}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
@@ -418,7 +418,7 @@ class MongoDB {
   Future<List<Event>?> getTeamEventRequests(String teamId) async {
     var url = Uri.parse(baseUri + '/events/getTeamEventRequests');
     var response = await _serverClient.post(url, headers: _headers,
-        body: json.encode({'teamId': userId}));
+        body: json.encode({'teamId': teamId}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
