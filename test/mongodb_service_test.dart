@@ -173,11 +173,11 @@ void main() {
     assert(await instance.joinEvent(eventId, userId, teamId: teamId));
   });
 
-  test('get joinable events testing', () async {
+  /*test('get joinable events testing', () async {
     instance.localDebug();
     String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
     List<Event>? events = await instance.getJoinableEvents(userId);
     print(events);
     assert(events != null);
-  });
+  });*/
 }

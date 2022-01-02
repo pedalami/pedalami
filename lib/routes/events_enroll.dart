@@ -94,7 +94,8 @@ class _EnrollEventState extends State<EnrollEvent> {
                             List<DropdownMenuItem> results=[];
                             if(keyword!="")
                             {
-                              List<Event>? teamsFound=await MongoDB.instance.getJoinableEvents(LoggedUser.instance!.userId);
+                              //should be await MongoDB.instance.searchEvent, not getJoinableEvents
+                              /*List<Event>? teamsFound=await MongoDB.instance.getJoinableEvents(LoggedUser.instance!.userId);
                               int sameTeamIndex=-1;
                               for(int i=0;i<teamsFound!.length;i++)
                               {
@@ -124,7 +125,7 @@ class _EnrollEventState extends State<EnrollEvent> {
                                     child: Text(item.name),
                                   ),
                                 ),
-                              )).toList();
+                              )).toList();*/
                             }
                             return (Tuple2<List<DropdownMenuItem>, int>(results, nbResults));
                           },
