@@ -274,7 +274,7 @@ describe("POST /approvePublic", () => {
         await Event.deleteOne({'name': name});
         expect(response.status).toBe(200); // correct response
         expect(response.body._id).toStrictEqual(resp_event.body._id); // the event returned should be the same sent
-        expect(response.body.status).toBe('active'); // the event should be active
+        expect(response.body.status).toBe('approved'); // the event should be active
 
     })
     test("Approving an active event should return 500", async () => {
@@ -295,7 +295,7 @@ describe("POST /approvePublic", () => {
         const resp_act =await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
-        expect(resp_act.body.status).toBe('active'); // the event should be active
+        expect(resp_act.body.status).toBe('approved'); // the event should be active
         const response = await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
@@ -693,7 +693,7 @@ describe("POST /leave", () => {
             'eventId': eventId
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error while leaving the event: user or event not found');
+        expect(response.text).toBe('Error while leaving the event: user is not enrolled in the event');
     })
 })
 
@@ -710,15 +710,120 @@ describe("POST /enrollTeamPublic", () => {
             'adminId': 'carlo'
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error in enrolling the team to the event: event or team or admin not found');
+        expect(response.text).toBe('Error in enrolling the team to the event: user, event or team not found');
     })
-    test("Enroll request with wrong parameters should return 500", async () => {
-        const response = await request(app).post('/events/enrollTeamPublic').send({
-            'eventId': 'aaaaaaaaaaaa',
-            'teamId': 'bbbbbbbbbbbb',
-            'adminId': 'carlo'
+    test("Enroll request of a not team event should return 500", async () => {
+        const name = 'enroll_test_wrong';
+        const resp_event = await request(app).post('/events/createIndividual').send({
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'individual',
+            'visibility': 'public'
         });
+        const eventId = resp_event.body._id;
+        const team = await Team.findOne({'name': 'testTeam'});
+        const teamId = team._id;
+        const adminId = team.adminId;
+        const response = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': eventId,
+            'teamId': teamId,
+            'adminId': adminId
+        });
+        await Event.deleteOne({'name': name});
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error in enrolling the team to the event: event or team or admin not found');
+        expect(response.text).toBe('The event is not public or is not a team event');
+    })
+    test("Enroll a team event for the first time should return 200", async () => {
+        const hostTeam = await Team.findOne({'name': 'testTeam'});
+        const adminId = hostTeam.adminId
+        const name = 'enroll_test'
+        var event_team_pub = {
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'team',
+            'visibility': 'public',
+            'hostTeamId': hostTeam._id,
+            'adminId': adminId
+        }
+        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const eventId = resp_event.body._id;
+        const guestTeam = await Team.findOne({'name': 'guestTeam'});
+        const guestTeamId = guestTeam._id;
+        const guestAdminId = guestTeam.adminId;
+        const response = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': eventId,
+            'teamId': guestTeamId,
+            'adminId': guestAdminId
+        });
+        await Event.deleteOne({'name': name});
+        await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
+        expect(response.status).toBe(200);
+        expect(response.body._id).toStrictEqual(eventId);
+    })
+    test("Enroll a team event for the second time should return 500", async () => {
+        const hostTeam = await Team.findOne({'name': 'testTeam'});
+        const adminId = hostTeam.adminId;
+        const name = 'enroll_test';
+        var event_team_pub = {
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'team',
+            'visibility': 'public',
+            'hostTeamId': hostTeam._id,
+            'adminId': adminId
+        }
+        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const eventId = resp_event.body._id;
+        const guestTeam = await Team.findOne({'name': 'guestTeam'});
+        const guestTeamId = guestTeam._id;
+        const guestAdminId = guestTeam.adminId;
+        const resp_one = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': eventId,
+            'teamId': guestTeamId,
+            'adminId': guestAdminId
+        });
+        const response = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': eventId,
+            'teamId': guestTeamId,
+            'adminId': guestAdminId
+        });
+        await Event.deleteOne({'name': name});
+        await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('The team is already enrolled in the event');
+    })
+    test("To enroll a team event you should be the admin", async () => {
+        const hostTeam = await Team.findOne({'name': 'testTeam'});
+        const adminId = hostTeam.adminId
+        const name = 'enroll_test'
+        var event_team_pub = {
+            'name': name,
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'type': 'team',
+            'visibility': 'public',
+            'hostTeamId': hostTeam._id,
+            'adminId': adminId
+        }
+        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const eventId = resp_event.body._id;
+        const guestTeam = await Team.findOne({'name': 'guestTeam'});
+        const guestTeamId = guestTeam._id;
+        const response = await request(app).post('/events/enrollTeamPublic').send({
+            'eventId': eventId,
+            'teamId': guestTeamId,
+            'adminId': adminId
+        });
+        await Event.deleteOne({'name': name});
+        await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Specified admin is not an admin of the specified team');
     })
 })
