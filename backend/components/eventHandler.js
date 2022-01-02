@@ -347,18 +347,18 @@ app.post('/join', (req, res) => {
 });
 
 // API used by a user to leave an event
-app.post('/leave', (req, res) => {
+app.post('/leave', async (req, res) => {
     console.log('Received leave POST request:');
     console.log(req.body);
     const userId = req.body.userId;
     const eventId = req.body.eventId;
     if (userId && eventId) {
-        const user = User.findOne({ userId: userId }).exec().catch(err => {
+        const user = await User.findOne({ userId: userId }).exec().catch(err => {
             console.log('Error in finding user: ' + err);
             res.status(500).send('Error in finding user');
             return;
         });
-        const event = Event.findOne({ _id: eventId }).exec().catch(err => {
+        const event = await Event.findOne({ _id: eventId }).exec().catch(err => {
             console.log('Error in finding the event: ' + err);
             res.status(500).send('Error in finding the event');
             return;
