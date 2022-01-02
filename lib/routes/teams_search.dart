@@ -201,6 +201,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
               height: 3 * SizeConfig.heightMultiplier!,
             ),*/
             displayTeam(),
+            SizedBox(height: MediaQuery.of(context).size.height*.02,)
             /*Padding(
               padding: EdgeInsets.only(
                   left: 10,
@@ -254,65 +255,64 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
   }
 
   Widget displayTeam() {
-    return Container(
-      height: MediaQuery.of(context).size.height / 1.8,
-      child: ListView.builder(
-          itemCount: LoggedUser.instance!.teams?.length ?? 0,
-          itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
-              child: Stack(
-                children: [
-                  GestureDetector(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                       children: [
-                         ClipRRect(
-                         borderRadius: BorderRadius.circular(70),
-                         child: Image(
-                          image: AssetImage('lib/assets/app_icon.png'),
-                          height: 16 * SizeConfig.heightMultiplier!,
-                          width: 32 * SizeConfig.widthMultiplier!,
-                        ),
-                      ),],
-                    ),
-                    onTap: () async {
-                      Team selectedTeam = LoggedUser.instance!.teams![index];
-                      if (selectedTeam.members == null) {
-                        print("Getting team data");
-                        selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
-                        LoggedUser.instance!.teams![index] = selectedTeam;
-                      }
-                      print("Showing team details");
-                      pushNewScreen(
-                        context,
-                        screen: TeamProfile(team: selectedTeam),
-                        pageTransitionAnimation:
-                            PageTransitionAnimation.cupertino,
-                      );
-                    },
+    return ListView.builder(
+        itemCount: LoggedUser.instance!.teams?.length ?? 0,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            child: Stack(
+              children: [
+                GestureDetector(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                     children: [
+                       ClipRRect(
+                       borderRadius: BorderRadius.circular(70),
+                       child: Image(
+                        image: AssetImage('lib/assets/app_icon.png'),
+                        height: 16 * SizeConfig.heightMultiplier!,
+                        width: 32 * SizeConfig.widthMultiplier!,
+                      ),
+                    ),],
                   ),
-                  Positioned.fill(
-                      child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Text(
-                            LoggedUser.instance!.teams![index].name,
-                            style: TextStyle(
-                                fontSize: 2 * SizeConfig.textMultiplier!,
-                                fontWeight: FontWeight.bold),
-                          )))
-                ],
-              ),
-              onTap: () {
-                pushNewScreen(
-                  context,
-                  screen: TeamProfile(
-                    team: LoggedUser.instance!.teams![index],
-                  ),
-                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                );
-              },
-            );
-          }),
-    );
+                  onTap: () async {
+                    Team selectedTeam = LoggedUser.instance!.teams![index];
+                    if (selectedTeam.members == null) {
+                      print("Getting team data");
+                      selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
+                      LoggedUser.instance!.teams![index] = selectedTeam;
+                    }
+                    print("Showing team details");
+                    pushNewScreen(
+                      context,
+                      screen: TeamProfile(team: selectedTeam),
+                      pageTransitionAnimation:
+                          PageTransitionAnimation.cupertino,
+                    );
+                  },
+                ),
+                Positioned.fill(
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Text(
+                          LoggedUser.instance!.teams![index].name,
+                          style: TextStyle(
+                              fontSize: 2 * SizeConfig.textMultiplier!,
+                              fontWeight: FontWeight.bold),
+                        )))
+              ],
+            ),
+            onTap: () {
+              pushNewScreen(
+                context,
+                screen: TeamProfile(
+                  team: LoggedUser.instance!.teams![index],
+                ),
+                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+              );
+            },
+          );
+        });
   }
 }
