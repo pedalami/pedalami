@@ -414,7 +414,7 @@ class MongoDB {
 
   //Returns an array of the team's event requests
   //Returns null in case of error
-  Future<List<Event>?> getTeamActiveEvents(String teamId) async {
+  Future<List<Event>?> getTeamEventRequests(String teamId) async {
     var url = Uri.parse(baseUri + '/events/getTeamEventRequests');
     var response = await _serverClient.post(url, headers: _headers,
         body: json.encode({'teamId': userId}));
