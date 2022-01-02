@@ -209,6 +209,8 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                         flex: 5,
                         child:
                         SearchChoices.single(
+                          iconDisabledColor: Colors.green,
+                          iconEnabledColor: Colors.green,
                           value: selectedValueSingleDialogFuture,
                           hint: "Choose an opposing team...",
                           searchHint: "Write an opposing team...",
@@ -345,7 +347,6 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                                   content:
                                   Text("Please write a description for this event!")));
                             }
-
                         }
                       else
                         {
@@ -384,7 +385,16 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
         context: context,
         initialDate: selectedStartDate,
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 30)));
+        lastDate: DateTime.now().add(Duration(days: 30)),
+        builder: (context, child)=>Theme(
+          data: ThemeData().copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Colors.green,
+
+            )
+          ),
+          child: child!,
+        ));
     if (picked != null && picked != selectedStartDate)
       if(picked.isBefore(selectedEndDate))
         {
@@ -406,7 +416,16 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
         context: context,
         initialDate: selectedEndDate,
         firstDate: DateTime.now(),
-        lastDate: DateTime.now().add(Duration(days: 30)));
+        lastDate: DateTime.now().add(Duration(days: 30)),
+        builder: (context, child)=>Theme(
+          data: ThemeData().copyWith(
+              colorScheme: ColorScheme.light(
+                primary: Colors.green,
+              )
+          ),
+          child: child!,
+
+        ));
     if (picked != null && picked != selectedEndDate)
       if(picked.isAfter(selectedStartDate))
         {
