@@ -237,7 +237,13 @@ describe("POST /createIndividual", () => {
     })
 })
 
-describe("POST /approvePublic", () => {
+describe("POST /invitePrivateTeam", () => {})
+
+describe("POST /acceptPrivateTeamInvite", () => {})
+
+describe("POST /rejectPrivateTeamInvite", () => {})
+
+describe("POST /approvePublicTeam", () => {
 
     test("Approving without eventId should return 400", async () => {
         const response = await request(app).post('/events/approvePublicTeam').send({});
@@ -827,3 +833,12 @@ describe("POST /enrollTeamPublic", () => {
         expect(response.text).toBe('Specified admin is not an admin of the specified team');
     })
 })
+
+describe("POST /getUsersEvents", () => {})
+
+describe("POST /getTeamActiveEvents", () => {})
+
+describe("POST /getTeamEventRequests", () => {})
+
+describe("GET /closeEvents", () => {})
+
