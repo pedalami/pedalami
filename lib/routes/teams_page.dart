@@ -1,6 +1,7 @@
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/team_members.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
+import 'package:pedala_mi/routes/your_events_page.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
@@ -257,7 +258,11 @@ class _TeamProfileState extends State<TeamProfile> {
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
-
+                                  pushNewScreen(
+                                    context,
+                                    screen: YourEventsPage(activeTeam: widget.team,),
+                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                  );
                                 },
                                 child: Text("Your events"),
                                 style: ButtonStyle(
