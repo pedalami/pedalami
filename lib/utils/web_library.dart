@@ -21,13 +21,16 @@ class Conditional {
   Future<void> initFireBase() async {
     await Firebase.initializeApp(
         options: FirebaseOptions(
-            apiKey: '"AIzaSyD9jCXLzUOxSsYMuLRgEw5elaqSdkPXb3M"',
-            appId: '"1:215517273270:web:27cc8bffe4902628329a17"',
-            messagingSenderId: '215517273270',
-            projectId: 'pedala-mi'));
+            apiKey: "AIzaSyD9jCXLzUOxSsYMuLRgEw5elaqSdkPXb3M",
+            authDomain: "pedala-mi.firebaseapp.com",
+            projectId: "pedala-mi",
+            storageBucket: "pedala-mi.appspot.com",
+            messagingSenderId: "215517273270",
+            appId: "1:215517273270:web:27cc8bffe4902628329a17"));
   }
 
-  Widget startPage = WebDashBoard();
+
+  Widget startPage = SignInScreen();
 
   final routes = {
     '/start': (context) => StartPage(),
