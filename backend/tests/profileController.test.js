@@ -1,8 +1,12 @@
 const request = require('supertest');
 const app = require('./../../server');
 const update = require('./../components/profileController').updateUserStatistics
+const getEvents = require('./../components/profileController').getEvents
+const getActiveEvents = require('./../components/profileController').getActiveEvents
 const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
+const Event = require('../schemas.js').Event;
+const ObjectId = require('../schemas.js').ObjectId;
 const mongoose = require('mongoose');
 
 jest.setTimeout(30000);
@@ -14,6 +18,15 @@ beforeAll(async () => {
 afterAll(async () => {
   await mongoose.connection.close();
 })
+
+const event_indiv = {
+  'name': 'prova',
+  'description': 'descrizione',
+  'startDate': new Date(),
+  'endDate': new Date(),
+  'type': 'individual',
+  'visibility': 'public'
+}
 
 const ride = Ride({
   "userId": "username",
@@ -43,6 +56,17 @@ describe("POST /initUser", ()=>{
     expect(response.text).toBe('Missing userId parameter');
   })
 
+  test("If user is already signed return 200", async () =>{
+    const userId = "user_id";
+    await request(app).post('/users/initUser').send({userId: userId});
+    const response = await request(app).post('/users/initUser').send({
+      userId: userId
+    });
+    expect(response.status).toBe(200);
+    expect(response.body.userId).toBe(userId);
+    await User.deleteOne({userId: userId});
+  })
+
   test("Sending a request with userId should return 200 and the User", async () => {
     const userId = "user_id";
     const response = await request(app).post('/users/initUser').send({
@@ -51,7 +75,7 @@ describe("POST /initUser", ()=>{
     //Chiamare firbase dal backend per controllare che le uid sia di un utente
     expect(response.status).toBe(200);
     expect(response.body.userId).toBe(userId);
-    await User.deleteOne({userId: userId});
+    await User.deleteMany({userId: userId});
   })
 })
 
@@ -144,4 +168,77 @@ describe("updateUserStatistics", () => {
   })
 
 
+})
+
+describe("function getEvents", () =>{
+  test("", async () =>{
+    await request(app).post('/events/createIndividual').send(event_indiv);
+    const new_event = await Event.findOne({'name': 'prova'})
+    var user = User({
+      "userId": "username",
+      "badges": [],
+      "teams": [],
+      "points": 0,
+      "joinedEvents": [
+        new_event._id
+      ],
+      "statistics": {
+        "numberOfRides": 0,
+        "totalDuration": 0,
+        "totalKm": 0,
+        "averageSpeed": 0,
+        "totalElevationGain": 0,
+        "averageKm": 0,
+        "averageDuration": 0,
+        "averageElevationGain": 0,
+      }
+    });
+    user_events = await getEvents(user);
+    expect(user_events.length).toBe(1);
+    expect(user_events[0]._id).toStrictEqual(ObjectId(new_event._id))
+    await Event.deleteOne({'name': 'prova'})
+  })
+})
+
+describe("function getActiveEvents", () =>{
+  test("", async () =>{
+    const today = new Date()
+    const tomorrow = new Date(today)
+    const yesterday = new Date(today)
+    tomorrow.setDate(today.getDate() + 1)
+    yesterday.setDate(today.getDate() - 1)
+    const active_event = {
+      'name': 'prova_active',
+      'description': 'descrizione',
+      'startDate': yesterday,
+      'endDate': tomorrow,
+      'type': 'individual',
+      'visibility': 'public'
+    }
+    await request(app).post('/events/createIndividual').send(active_event);
+    const new_event = await Event.findOne({'name': 'prova_active'})
+    var user = User({
+      "userId": "username",
+      "badges": [],
+      "teams": [],
+      "points": 0,
+      "joinedEvents": [
+        new_event._id
+      ],
+      "statistics": {
+        "numberOfRides": 0,
+        "totalDuration": 0,
+        "totalKm": 0,
+        "averageSpeed": 0,
+        "totalElevationGain": 0,
+        "averageKm": 0,
+        "averageDuration": 0,
+        "averageElevationGain": 0,
+      }
+    });
+    user_events = await getActiveEvents(user);
+    expect(user_events.length).toBe(1);
+    expect(user_events[0]._id).toStrictEqual(ObjectId(new_event._id))
+    await Event.deleteOne({'name': 'prova_active'})
+  })
 })

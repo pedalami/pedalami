@@ -69,11 +69,70 @@ async function checkNewBadgesAfterRide(user, ride) {
                 user.badges.push(badge);
             if (badge.type === "ride" && ride[badge.criteria] >= badge.criteriaValue)
                 user.badges.push(badge);
-        }   
+        }
     });
 }
 
+function getBestPlayerIndividualEvent(event) {
+    if (event.prize != null) {
+        const bestPlayer = event.scoreboard.reduce(function (prev, current) {
+            return (prev.points > current.points) ? prev : current
+        })
+        return bestPlayer
+    }
+    return null;
+}
+
+function assignPrizeIndividualEvent(user, event) {
+    if (event.prize != null) {
+        user.points += event.prize;
+    }
+    return user;
+}
+
+function computeTeamScoreboard(event) {
+    var teamScoreboardMap = new Map();
+    var teamScoreboard = [];
+    event.scoreboard.forEach(function (score) {
+        var scoreboardValue = teamScoreboardMap.get(score.teamId);
+        if (scoreboardValue === undefined ){
+            teamScoreboardMap.set(score.teamId, score.points);
+        } else {
+            teamScoreboardMap.set(score.teamId, scoreboardValue + score.points);
+        }
+    });
+    teamScoreboardMap.forEach((value, key) => {
+        teamScoreboard.push({"teamId": key, "points": value});
+    });
+    return teamScoreboard;
+}
+
+function assignPrizeTeamEvent(user, event) {
+
+    var teamScoreboard = event.teamScoreboard;
+    if (teamScoreboard === undefined) {
+        teamScoreboard = computeTeamScoreboard(event);
+        event.teamScoreboard = teamScoreboard;
+    }
+    const winningTeam = teamScoreboard.reduce(function (prev, current) {
+        return (prev.points > current.points) ? prev : current
+    })
+    var totalPoints = 0;
+    event.teamScoreboard.forEach(function (score) {
+        totalPoints += score.points;
+    });
+    if (winningTeam.points > 0) {
+        var userScoreboard = event.scoreboard.filter(score => {
+            return score.userId === user.userId && score.teamId === winningTeam.teamId;
+          })
+        user.points += totalPoints * userScoreboard.points / winningTeam.points;
+    }
+}
+
+
 module.exports = {
     assignPoints: assignPoints,
-    checkNewBadgesAfterRide: checkNewBadgesAfterRide
+    checkNewBadgesAfterRide: checkNewBadgesAfterRide,
+    getBestPlayerIndividualEvent: getBestPlayerIndividualEvent,
+    assignPrizeIndividualEvent: assignPrizeIndividualEvent
 };

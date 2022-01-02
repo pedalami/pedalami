@@ -50,7 +50,8 @@ dependencies:
   universal_html: ^2.0.8
   firebase_auth_web: ^3.3.5
   search_choices: ^2.0.16
-
+  shared_preferences: ^2.0.11
+  progress_indicators: ^1.0.0
 
 
 dev_dependencies:

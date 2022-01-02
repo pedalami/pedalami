@@ -106,45 +106,6 @@ app.post('/leave', (req, res) => {
   console.log('Received leave POST request:');
   console.log(req.body);
   if (req.body.teamId && req.body.userId) {
-    connection.transaction(async (session) => {
-      const [user, team] = await Promise.all([
-        User.findOne({ userId: req.body.userId }).session(session).exec(),
-        Team.findOne({ _id: req.body.teamId }).session(session).exec()
-      ]);
-      if (!team.members.includes(req.body.userId)) {
-        throw new Error('Error: User not in team.');
-      } else {
-        if (team.adminId == req.body.userId) {
-          throw new Error('Forbidden: An admin cannot leave the team.');
-        } else {
-          user.teams.splice(user.teams.indexOf(ObjectId(req.body.teamId)), 1);
-          team.members.splice(team.members.indexOf(req.body.userId), 1);
-          await Promise.all([
-            team.save(),
-            user.save()
-          ]);
-        }
-      }
-    })
-      .then(() => {
-        res.status(200).send('Team left successfully');
-      })
-      .catch((err) => {
-        console.log('Error while leaving the team\n' + err);
-        res.status(500).send('Error while leaving the team');
-      })
-  }
-  else {
-    console.log('Error: Missing parameters.');
-    res.status(400).send('Error: Missing parameters.');
-  }
-});
-
-//POST /leave
-app.post('/leave', (req, res) => {
-  console.log('Received leave POST request:');
-  console.log(req.body);
-  if (req.body.teamId && req.body.userId) {
     Promise.all([
       User.findOne({ userId: req.body.userId }).exec(),
       Team.findOne({ _id: req.body.teamId }).exec()
