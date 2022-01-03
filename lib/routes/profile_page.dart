@@ -136,26 +136,15 @@ class _ProfilePageState extends State<ProfilePage> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                GestureDetector(
-                  child: Container(
-                    height: 11 * SizeConfig.heightMultiplier!,
-                    width: 22 * SizeConfig.widthMultiplier!,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: _miUser.image,
-                        )),
-                  ),
-                  onTap: () async {
-                    await Authentication.signOut(context: context);
-                    setState(() {
-                      widget.refreshBottomBar();
-                      Navigator.of(context).pushAndRemoveUntil(
-                          _routeToSignInScreen(),
-                          (Route<dynamic> route) => false);
-                    });
-                  },
+                Container(
+                  height: 11 * SizeConfig.heightMultiplier!,
+                  width: 22 * SizeConfig.widthMultiplier!,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      image: DecorationImage(
+                        fit: BoxFit.cover,
+                        image: _miUser.image,
+                      )),
                 ),
                 SizedBox(
                   width: 5 * SizeConfig.widthMultiplier!,
@@ -238,29 +227,62 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
-                GestureDetector(
-                  onTap: () {
-                    pushNewScreen(context,
-                        screen: ProfileEditing(),
-                        pageTransitionAnimation:
+                Column(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        pushNewScreen(context,
+                            screen: ProfileEditing(),
+                            pageTransitionAnimation:
                             PageTransitionAnimation.cupertino);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white60),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "EDIT PROFILE",
-                        style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 1.8 * SizeConfig.textMultiplier!),
+                      },
+                      child: Container(/*width: 15 * SizeConfig.heightMultiplier!,*/
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white60),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Text(
+                            "EDIT PROFILE",
+                            style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 1.8 * SizeConfig.textMultiplier!),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                    SizedBox(
+                      height: 1 * SizeConfig.heightMultiplier!,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                          await Authentication.signOut(context: context);
+                          setState(() {
+                          widget.refreshBottomBar();
+                          Navigator.of(context).pushAndRemoveUntil(_routeToSignInScreen(),
+                          (Route<dynamic> route) => false);
+                          });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white60),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 5.0, bottom: 5.0),
+                          child: Text(
+                            "SIGN OUT",
+                            style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 1.8 * SizeConfig.textMultiplier!),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+
               ],
             ),
           ],
@@ -526,7 +548,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         path: _miUser.rideHistory![index].path!));
               },
               child: Container(
-                height: MediaQuery.of(context).size.height / 11,
+                height: MediaQuery.of(context).size.height / 10,
                 padding: EdgeInsets.all(8.0),
                 child: Row(
                   children: [
