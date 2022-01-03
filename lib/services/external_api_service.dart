@@ -1,4 +1,5 @@
-import 'dart:ffi';
+import 'dart:async';
+import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:pedala_mi/utils/mobile_library.dart';
@@ -19,16 +20,16 @@ class AirQuality {
   };
 
   //Given the id of a Team, it returns the entire team
-  Future<Int8> getAirQualityIndexFromCoords(Float latitude, Float longitude) async {
+  Future<int> getAirQualityIndexFromCoords(double latitude, double longitude) async {
     var url = Uri.parse(baseUri + '/forecast')
-        .replace(queryParameters: {'lat': latitude, 'lon': longitude});
+        .replace(queryParameters: {'lat': latitude.toString(), 'lon': longitude.toString(), 'appid': 'f01bcf9b8d8f2aedde4fa855cbcdd02b'});
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);
-      var airQualityIndex = decodedBody['list'][0]['main']['aqi']
+      var airQualityIndex = decodedBody['list'][0]['main']['aqi'];
       return airQualityIndex;
     } else
-      return null;
+      return -1;
   }
 
 }
