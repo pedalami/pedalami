@@ -133,8 +133,8 @@ app.post('/enrollTeamPublic', async (req, res) => {
             User.findOne({ userId: req.body.adminId }).exec()
         ]);
         if (event && team && admin) {
-            if (team.adminId == admin.userId) {
-                if (event.visibility == "public" && event.type == "team") {
+            if (team.adminId === admin.userId) {
+                if (event.visibility === "public" && event.type === "team") {
                     if (!event.involvedTeams.includes(team._id)) {
                         event.involvedTeams.push(team._id);
                         team.activeEvents.push(event._id);
@@ -172,7 +172,7 @@ app.post('/enrollTeamPublic', async (req, res) => {
         }
     } else {
         console.log('Error in enrolling the team to the event: missing params');
-        res.status(500).send('Error in enrolling the team to the event: missing parameters');
+        res.status(400).send('Error in enrolling the team to the event: missing parameters');
     }
 });
 
@@ -186,7 +186,7 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
             User.findOne({ userId: req.body.adminId }).exec()
         ]);
         if (event && team && admin) {
-            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
+            if (team.adminId === admin.userId && event.visibility === "private" && event.type === "team"
             && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                 event.involvedTeams = null;
                 event.guestTeam = team._id;
@@ -229,7 +229,7 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
             User.findOne({ userId: req.body.adminId }).exec()
         ]);
         if (event && team && admin) {
-            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
+            if (team.adminId === admin.userId && event.visibility === "private" && event.type === "team"
                 && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                 event.involvedTeams = null;
                 team.eventRequests.remove(event._id);
@@ -262,14 +262,14 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
 app.post('/invitePrivateTeam', async (req, res) => {
     console.log('Received invitePrivateTeam POST request:');
     console.log(req.body);
-    if (req.body.eventId && req.body.hostTeamId && req.body.adminId && req.body.invitedTeamId && req.body.invitedTeamId != req.body.hostTeamId) {
+    if (req.body.eventId && req.body.hostTeamId && req.body.adminId && req.body.invitedTeamId && req.body.invitedTeamId !== req.body.hostTeamId) {
         var [event, hostTeam, guestTeam] = await Promise.all([
             Event.findOne({ _id: ObjectId(req.body.eventId) }).exec(),
             Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec(),
             Team.findOne({ _id: ObjectId(req.body.invitedTeamId) }).exec()
         ])
         if (event && hostTeam && guestTeam) {
-            if (hostTeam.adminId == req.body.adminId && event.visibility == "private" && event.type == "team" &&
+            if (hostTeam.adminId === req.body.adminId && event.visibility === "private" && event.type === "team" &&
                 event.hostTeam.equals(hostTeam._id) && event.involvedTeams == null && event.guestTeam == null) {
                 event.involvedTeams = [req.body.invitedTeamId];
                 guestTeam.eventRequests.push(event._id);
@@ -317,14 +317,14 @@ app.post('/join', (req, res) => {
             User.findOne({ userId: userId }).session(session).exec(),
             Event.findOne({ _id: eventId }).session(session).exec()
         ]);
-        if (event.type == 'team') {
+        if (event.type === 'team') {
             if (!teamId)
                 throw new Error('Missing teamId');
             var team = await Team.findOne({ _id: teamId }).session(session).exec();
             if (!team)
                 throw new Error('Team not found');
             scoreboardEntry = { userId: userId, teamId: teamId, points: 0 };
-        } else if (event.type == 'individual') {
+        } else if (event.type === 'individual') {
             scoreboardEntry = { userId: userId, teamId: null, points: 0 };
         } else {
             throw new Error('Unknown event type');
@@ -388,7 +388,7 @@ app.post('/leave', async (req, res) => {
     }
     else {
         console.log('Missing params');
-        res.status(500).send('Error while leaving the event: missing parameters');
+        res.status(400).send('Error while leaving the event: missing parameters');
     }
 });
 
@@ -430,7 +430,7 @@ app.post('/search', async (req, res) => {
                 {
                     $or: [
                         {
-                            $and: [{ visibility: 'public' }, { status: 'active' }]
+                            $and: [{ visibility: 'public' }, { status: 'approved' }]
                         }, //if the event is public and active
                         { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
                     ]
@@ -521,7 +521,7 @@ app.post('/approvePublicTeam', async (req, res) => {
         res.status(500).send('Event is not pending');
         return;
     }
-    event.status = 'active';
+    event.status = 'approved';
     event.save().then(() => {
         res.status(200).send(event);
     }).catch(err => {
@@ -541,15 +541,15 @@ app.post('/rejectPublicTeam', async (req, res) => {
         res.status(500).send('Event not found');
         return;
     }
-    if (event.type != 'team') {
+    if (event.type !== 'team') {
         res.status(500).send('Event is not a team event');
         return;
     }
-    if (event.visibility != 'public') {
+    if (event.visibility !== 'public') {
         res.status(500).send('Event is not public');
         return;
     }
-    if (event.status != 'pending') {
+    if (event.status !== 'pending') {
         res.status(500).send('Event is not pending');
         return;
     }

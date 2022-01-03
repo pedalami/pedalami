@@ -6,6 +6,9 @@ import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/username_insert_page.dart';
 import 'package:pedala_mi/services/authentication.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:pedala_mi/services/web_authentication.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class GoogleSignInButton extends StatefulWidget {
   @override
@@ -14,6 +17,29 @@ class GoogleSignInButton extends StatefulWidget {
 
 class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   bool _isSigningIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if(kIsWeb)
+    {
+      WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        bool loggedIn=prefs.getBool("loggedIn")??false;
+        if(loggedIn)
+          {
+            setState(() {
+              _isSigningIn=true;
+            });
+            await webSignInWithGoogle(context: context);
+            setState(() {
+              _isSigningIn=false;
+            });
+          }
+      });
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -33,32 +59,40 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                 ),
               ),
               onPressed: () async {
-
-                setState(() {
-                  _isSigningIn = true;
-                });
-                User? user =
+                if(!kIsWeb)
+                  {
+                    setState(() {
+                      _isSigningIn = true;
+                    });
+                    User? user =
                     await Authentication.signInWithGoogle(context: context);
-                setState(() {
-                  _isSigningIn = false;
-                });
-                if (user != null) {
-                  print(user.displayName);
-                  CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
-                  QuerySnapshot querySnapshot = await usersCollection
-                      .where("Mail", isEqualTo: user.email)
-                      .get();
-                  if (querySnapshot.docs.isNotEmpty) {
-                    String? username = querySnapshot.docs[0].get("Username");
+                    setState(() {
+                      _isSigningIn = false;
+                    });
+                    if (user != null) {
+                      print(user.displayName);
+                      CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+                      QuerySnapshot querySnapshot = await usersCollection
+                          .where("Mail", isEqualTo: user.email)
+                          .get();
+                      if (querySnapshot.docs.isNotEmpty) {
+                        String? username = querySnapshot.docs[0].get("Username");
 
-                      if (username != null) {
-                        LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
-                        await MongoDB.instance.initUser(user.uid);
+                        if (username != null) {
+                          LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
+                          await MongoDB.instance.initUser(user.uid);
 
-                        
 
-                        Navigator.pushNamedAndRemoveUntil(
-                            context, '/switch_page', (route) => false);
+
+                          Navigator.pushNamedAndRemoveUntil(
+                              context, '/switch_page', (route) => false);
+                        } else {
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      InsertUsernameScreen(user: user)));
+                        }
                       } else {
                         Navigator.pushReplacement(
                             context,
@@ -66,18 +100,23 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                                 builder: (BuildContext context) =>
                                     InsertUsernameScreen(user: user)));
                       }
-                    } else {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  InsertUsernameScreen(user: user)));
                     }
-                }
 
-                setState(() {
-                  _isSigningIn = false;
-                });
+                    setState(() {
+                      _isSigningIn = false;
+                    });
+                  }
+                else
+                  {
+                    setState(() {
+                      _isSigningIn = true;
+                    });
+                    await webSignInWithGoogle(context: context);
+                    setState(() {
+                      _isSigningIn = false;
+                    });
+                  }
+
               },
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
