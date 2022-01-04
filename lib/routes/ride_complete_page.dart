@@ -3,10 +3,36 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:pedala_mi/models/ride.dart';
 
 class RideCompletePage extends StatelessWidget {
-  
   final Ride finishedRide;
-  
-  const RideCompletePage({Key? key, required this.finishedRide}) : super(key: key);
+
+  const RideCompletePage({Key? key, required this.finishedRide})
+      : super(key: key);
+
+  Widget singleStat(String name, String unit, BuildContext context) {
+    TextStyle headLine = TextStyle(fontWeight: FontWeight.bold, fontSize: 20);
+    TextStyle sub = TextStyle(fontSize: 20);
+
+    return Padding(
+      padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 12, bottom: MediaQuery.of(context).size.height / 35),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              name,
+              style: headLine,
+            ),
+          ),
+          Expanded(
+            child: Text(
+              unit,
+              style: sub,
+            ),
+          )
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,109 +50,24 @@ class RideCompletePage extends StatelessWidget {
                 decoration: TextDecoration.underline),
           )),
           SizedBox(
-            height: 70,
+            height: MediaQuery.of(context).size.height / 15,
           ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  child: Text(
-                    "Time: ",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                ),
-                SizedBox(
-                  width: 100,
-                ),
-                Container(
-                  child: Text(
-                    (finishedRide.durationInSeconds!/60).toStringAsFixed(1) + " min",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  child: Text(
-                    "Distance: ",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                ),
-                SizedBox(
-                  width: 100,
-                ),
-                Container(
-                  child: Text(
-                    finishedRide.totalKm!.toStringAsFixed(2) + " km",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  child: Text(
-                    "Pace:",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                ),
-                SizedBox(
-                  width: 100,
-                ),
-                Container(
-                  child: Text(
-                    finishedRide.pace!.toStringAsFixed(2) + " km/h",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          Container(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  child: Text(
-                    "Elevation gain: ",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
-                ),
-                SizedBox(
-                  width: 100,
-                ),
+          singleStat(
+              'Time: ',
+              (finishedRide.durationInSeconds! / 60).toStringAsFixed(1) +
+                  " min",
+              context),
+          singleStat('Distance: ',
+              finishedRide.totalKm!.toStringAsFixed(2) + " km", context),
+          singleStat('Pace: ', finishedRide.pace!.toStringAsFixed(2) + " km/h",
+              context),
+          singleStat('Elevation gain: ',
+              finishedRide.elevationGain!.toStringAsFixed(2) + " m", context),
 
-                Container(
-                  child: Text(
-                    finishedRide.elevationGain!.toStringAsFixed(2) + " m",
-                    style: TextStyle(fontSize: 20),
-                  ),
-                )
-              ],
-            ),
-          ),
           SizedBox(
-            height: 40,
+            height: MediaQuery.of(context).size.height / 8,
           ),
+
           Container(
             height: 150,
             decoration: BoxDecoration(
@@ -138,9 +79,8 @@ class RideCompletePage extends StatelessWidget {
                     offset: Offset(0, 2), // changes position of shadow
                   ),
                 ],
-              color: Colors.green[200],
-              borderRadius: BorderRadius.all(Radius.circular(18.0))
-            ),
+                color: Colors.green[200],
+                borderRadius: BorderRadius.all(Radius.circular(18.0))),
             width: 300,
             child: Column(
               mainAxisSize: MainAxisSize.min,
