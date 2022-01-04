@@ -215,7 +215,7 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
         }
     } else {
         console.log('Missing params');
-        res.status(500).send('Error in joining the team event: missing parameters');
+        res.status(400).send('Error in joining the team event: missing parameters');
     }
 });
 
@@ -255,10 +255,11 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
         }
     } else {
         console.log('Missing params');
-        res.status(500).send('Error in rejecting the team event invite: missing parameters');
+        res.status(400).send('Error in rejecting the team event invite: missing parameters');
     }
 });
 
+// if the invited team reject to challenge the host team, the latter can invite another team
 app.post('/invitePrivateTeam', async (req, res) => {
     console.log('Received invitePrivateTeam POST request:');
     console.log(req.body);
@@ -270,7 +271,7 @@ app.post('/invitePrivateTeam', async (req, res) => {
         ])
         if (event && hostTeam && guestTeam) {
             if (hostTeam.adminId === req.body.adminId && event.visibility === "private" && event.type === "team" &&
-                event.hostTeam === hostTeam._id && event.involvedTeams == null && event.guestTeam == null) {
+                event.hostTeam === hostTeam._id && event.involvedTeams.length == null && event.guestTeam == null) {
                 event.involvedTeams = [req.body.invitedTeamId];
                 guestTeam.eventRequests.push(event._id);
                 connection.transaction(async (session) => {
