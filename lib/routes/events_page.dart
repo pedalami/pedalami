@@ -89,7 +89,7 @@ class _EventsPageState extends State<EventsPage> {
                                       loading = true;
                                     });
                                     events = (await MongoDB.instance
-                                        .searchEvent(eventSearchController.text, "", ""))!;
+                                        .getJoinableEvents(FirebaseAuth.instance.currentUser!.uid,eventSearchController.text,))!;
                                     setState(() {
                                       loading = false;
                                     });

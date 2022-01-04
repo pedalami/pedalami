@@ -359,15 +359,27 @@ class _ProfileEditingState extends State<ProfileEditing> {
       Reference storageRef = storage.ref();
       Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
       await imageRef.putFile(image);
+      CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+      String docID="";
+      String urlFirebase="";
+      await usersCollection
+          .where("Mail", isEqualTo: user!.email)
+          .get()
+          .then((QuerySnapshot querySnapshot) async {
+          docID=querySnapshot.docs[0].id;
+          urlFirebase=querySnapshot.docs[0].get("Image");
+      });
       await imageRef.getDownloadURL().then( (url) async {
         await FirebaseFirestore.instance
           .collection("Users")
-          .doc(LoggedUser.instance!.userId)
+          .doc(docID)
           .update({"Image": url})
-          .then( (value) {
-            FirebaseStorage.instance.refFromURL(imageUrl).delete();
+          .then( (value) async{
+            LoggedUser.instance!.changeProfileImage(url);
+            await FirebaseStorage.instance.refFromURL(urlFirebase).delete();
+            imageUrl=url;
             setState(() {
-              LoggedUser.instance!.image = NetworkImage(url);
+
             });
           });
       });
