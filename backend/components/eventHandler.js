@@ -574,7 +574,6 @@ async function terminateEvents() {
         await connection.transaction(async (session) => {
             var promiseArray = [];
             for (const event of events) {
-                console.log(event);
                 event.closed = true;
                 if (event.type === 'team') {
                     var hostTeam = await Team.findOne({ _id: event.hostTeam }).exec();

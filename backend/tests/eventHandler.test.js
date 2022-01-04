@@ -1089,7 +1089,7 @@ describe("GET /closeEvents", () => {
 
         expect(response.text).toBe('Events closed');
         const event = await Event.findById(resp_event.body._id);
-        //await Event.deleteOne({_id: resp_event.body._id});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(event.closed).toBeTruthy();
     })
 
