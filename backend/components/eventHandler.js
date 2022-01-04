@@ -40,7 +40,7 @@ app.post("/createPrivateTeam", async (req, res) => {
             Team.findOne({ _id: ObjectId(req.body.invitedTeamId) }).exec(),
             Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec()
         ])
-        if (guestTeam && hostTeam && hostTeam.adminId == req.body.adminId) {
+        if (guestTeam && hostTeam && hostTeam.adminId === req.body.adminId) {
             var newEvent = new Event({
                 name: req.body.name,
                 description: req.body.description,
@@ -52,7 +52,7 @@ app.post("/createPrivateTeam", async (req, res) => {
                 guestTeam: null,
                 involvedTeams: [req.body.invitedTeamId]
             });
-            hostTeam.activeEvents.push(newEvent._id); //TODO: we should control that it is really an active event
+            hostTeam.activeEvents.push(newEvent._id);
             guestTeam.eventRequests.push(newEvent._id);
             connection.transaction(async (session) => {
                 await Promise.all([
@@ -215,7 +215,7 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
         }
     } else {
         console.log('Missing params');
-        res.status(500).send('Error in joining the team event: missing parameters');
+        res.status(400).send('Error in joining the team event: missing parameters');
     }
 });
 
@@ -255,10 +255,11 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
         }
     } else {
         console.log('Missing params');
-        res.status(500).send('Error in rejecting the team event invite: missing parameters');
+        res.status(400).send('Error in rejecting the team event invite: missing parameters');
     }
 });
 
+// if the invited team reject to challenge the host team, the latter can invite another team
 app.post('/invitePrivateTeam', async (req, res) => {
     console.log('Received invitePrivateTeam POST request:');
     console.log(req.body);
@@ -270,7 +271,7 @@ app.post('/invitePrivateTeam', async (req, res) => {
         ])
         if (event && hostTeam && guestTeam) {
             if (hostTeam.adminId === req.body.adminId && event.visibility === "private" && event.type === "team" &&
-                event.hostTeam.equals(hostTeam._id) && event.involvedTeams == null && event.guestTeam == null) {
+                event.hostTeam === hostTeam._id && event.involvedTeams.length == null && event.guestTeam == null) {
                 event.involvedTeams = [req.body.invitedTeamId];
                 guestTeam.eventRequests.push(event._id);
                 connection.transaction(async (session) => {
@@ -296,7 +297,7 @@ app.post('/invitePrivateTeam', async (req, res) => {
         }
     } else {
         console.log('Conditions not matched');
-        res.status(500).send('Error in inviting the team to the event: missing parameters'); 
+        res.status(400).send('Error in inviting the team to the event: missing parameters');
     }
 });
 
@@ -414,7 +415,7 @@ app.post('/search', async (req, res) => {
         res.status(500).send('Error while searching for events: user or team not found');
         return;
     }
-    if (user.userId != team.adminId) {
+    if (user.userId !== team.adminId) {
         console.log('Error while searching for events: user is not the team admin');
         res.status(500).send('Error while searching for events: user is not the team admin');
         return;
@@ -574,13 +575,13 @@ async function terminateEvents() {
             var promiseArray = [];
             events.forEach(async event => {
                 event.closed = true;
-                if (event.type == 'team') {
+                if (event.type === 'team') {
                     var hostTeam = await Team.findOne({ _id: event.hostTeam }).exec();
                         if (hostTeam) { //removes the event from the host team
                             hostTeam.activeEvents = hostTeam.activeEvents.filter(e => e != event._id);
                             promiseArray.push(hostTeam.save({ session }));
                         }
-                    if (event.visibility == 'public') {
+                    if (event.visibility === 'public') {
                         if (event.involvedTeams.length >= 2) {
                             event.involvedTeams.forEach(async teamId => {
                                 var team = await Team.findOne({ _id: teamId }).exec();
@@ -590,7 +591,7 @@ async function terminateEvents() {
                                 }
                             })
                         }
-                    } else if (event.visibility == 'private') {
+                    } else if (event.visibility === 'private') {
                         if (event.guestTeam) { //removes the active event from the guest team
                             const guestTeam = await Team.findOne({ _id: event.guestTeam }).exec();
                             if (guestTeam) {
@@ -608,7 +609,7 @@ async function terminateEvents() {
 
                         }
                     }
-                } else if (event.type == 'individual') {
+                } else if (event.type === 'individual') {
                     var bestPlayer = gamificationController.getBestPlayerIndividualEvent(event);
                     if (bestPlayer){
                         var user = await User.findOne({ _id: bestPlayer.userId }).exec();
@@ -621,8 +622,8 @@ async function terminateEvents() {
                 const users = await User.find({ joinedEvents: { $in: event._id } }).exec();
                 if (users) {
                     users.forEach(async user => {
-                        user.joinedEvents = user.joinedEvents.filter(e => e != event._id);
-                        if(event.type == 'team')
+                        user.joinedEvents = user.joinedEvents.filter(e => e !== event._id);
+                        if(event.type === 'team')
                             assignPrizeTeamEvent(user, event);
                         promiseArray.push(user.save({ session }));
                     });
@@ -648,12 +649,12 @@ app.post("/getUsersEvents", async (req, res) => {
     var userId = req.body.userId;
 
     if (userId){
-        var user = await User.findOne({ _id: ObjectId(userId) }).exec();
+        const user = await User.findOne({ userId: userId }).exec();
         if (user) {
             var events = await Event.find({ _id: { $in: user.joinedEvents } }).exec();
             res.status(200).send(events);
         } else {
-            res.status(500).send('Error in getting the user events: event not found');
+            res.status(500).send('Error in getting the user events: user not found');
         }
     } else {
         res.status(400).send('Error in getting the user events: missing parameter');
@@ -669,7 +670,7 @@ app.post("/getTeamActiveEvents", async (req, res) => {
             var events = await Event.find({ _id: { $in: team.activeEvents } }).exec();
             res.status(200).send(events);
         } else {
-            res.status(500).send('Error in getting the team events: event not found');
+            res.status(500).send('Error in getting the team events: team not found');
         }
     } else {
         res.status(400).send('Error in getting the team events: missing parameter');
@@ -686,7 +687,7 @@ app.post("/getTeamEventRequests", async (req, res) => {
             var events = await Event.find({ _id: { $in: team.eventRequests } }).exec();
             res.status(200).send(events);
         } else {
-            res.status(500).send('Error in getting the team events: event not found');
+            res.status(500).send('Error in getting the team events: team not found');
         }
     } else {
         res.status(400).send('Error in getting the team events: missing parameter');

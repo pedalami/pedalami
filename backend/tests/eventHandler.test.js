@@ -141,7 +141,6 @@ describe("POST /createPrivateTeam", () => {
     test("Create a Private Team event with existing teams should return 200", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
-        const adminId = hostTeam.adminId
         var event_team_priv = {
             'name': 'prova_private_event',
             'description': 'descrizione',
@@ -151,7 +150,7 @@ describe("POST /createPrivateTeam", () => {
             'visibility': 'private',
             'hostTeamId': hostTeam._id,
             'invitedTeamId': guestTeam._id,
-            'adminId': adminId
+            'adminId': hostTeam.adminId
         }
         const response = await request(app).post('/events/createPrivateTeam').send(event_team_priv);
         await Event.deleteOne({'name': 'prova_private_event'})
@@ -237,11 +236,173 @@ describe("POST /createIndividual", () => {
     })
 })
 
-describe("POST /invitePrivateTeam", () => {})
+describe("POST /invitePrivateTeam", () => {
+    test("Invite requests without parameters should return 400", async () => {
+        const response = await request(app).post('/events/invitePrivateTeam').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in inviting the team to the event: missing parameters');
+    })
+    test("Invite requests with wrong parameters should return 500", async () => {
+        const response = await request(app).post('/events/invitePrivateTeam').send({
+            eventId: 'cccccccccccc',
+            hostTeamId: 'aaaaaaaaaaaa',
+            invitedTeamId: 'bbbbbbbbbbbb',
+            adminId: 'admin'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in inviting the team to the event: teams or event not found');
+    })
+    test("Invite with conditions not matched should return 500", async () => {
+        const resp_event = await request(app).post('/events/createIndividual').send(event_indiv);
+        const hostTeam = await Team.findOne({name :'testTeam'});
+        const guestTeam = await Team.findOne({name :'guestTeam'});
+        const response = await request(app).post('/events/invitePrivateTeam').send({
+            eventId: resp_event.body._id,
+            hostTeamId: hostTeam._id,
+            invitedTeamId: guestTeam._id,
+            adminId: 'carlo' // is not the admin
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in inviting the team to the event: conditions not matched');
+    })
+    test("A team which invites correctly another should receive 200", async () => {
+        const hostTeam = await Team.findOne({name :'testTeam'});
+        const guestTeam = await Team.findOne({name :'guestTeam'});
+        var event_team_priv = {
+            'name': 'invite_private_event',
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'visibility': 'private',
+            'type': 'team',
+            'hostTeamId': hostTeam._id,
+            'invitedTeamId': guestTeam._id,
+            'adminId': hostTeam.adminId
+        }
+        const resp_event = await request(app).post('/events/createPrivateTeam').send(event_team_priv);
+        //await Event.updateOne({_id: resp_event.body._id}, { $set: {involvedTeams: null, guestTeam: null}});
+        await request(app).post('/events/rejectPrivateTeamInvite').send({
+            eventId: resp_event.body._id,
+            teamId: guestTeam._id,
+            adminId: guestTeam.adminId
+        });
+        const response = await request(app).post('/events/invitePrivateTeam').send({
+            eventId: resp_event.body._id,
+            hostTeamId: hostTeam._id,
+            invitedTeamId: guestTeam._id,
+            adminId: hostTeam.adminId
+        });
+        await Event.deleteOne({_id: resp_event.body._id});
+        expect(response.status).toBe(200);
+        expect(response.body._id).toStrictEqual(resp_event.body._id);
+    })
+})
 
-describe("POST /acceptPrivateTeamInvite", () => {})
+describe("POST /acceptPrivateTeamInvite", () => {
+    test("Accept requests without parameters should return 400", async () => {
+        const response = await request(app).post('/events/acceptPrivateTeamInvite').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in joining the team event: missing parameters');
+    })
+    test("Accept requests with wrong parameters should return 500", async () => {
+        const response = await request(app).post('/events/acceptPrivateTeamInvite').send({
+            eventId: 'cccccccccccc',
+            teamId: 'aaaaaaaaaaaa',
+            adminId: 'admin'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in joining the team event: event or team or admin not found');
+    })
+    test("Accept with conditions not matched should return 500", async () => {
+        const resp_event = await request(app).post('/events/createIndividual').send(event_indiv);
+        const guestTeam = await Team.findOne({name :'guestTeam'});
+        const response = await request(app).post('/events/acceptPrivateTeamInvite').send({
+            eventId: resp_event.body._id, //is not a private team event
+            teamId: guestTeam._id,
+            adminId: 'admin' // is not the admin of guestTeam
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Conditions not matched');
+    })
+    test("A team which accepts correctly an invitation should receive 200", async () => {
+        const hostTeam = await Team.findOne({name :'testTeam'});
+        const guestTeam = await Team.findOne({name :'guestTeam'});
+        var event_team_priv = {
+            'name': 'accept_private_event',
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'visibility': 'private',
+            'type': 'team',
+            'hostTeamId': hostTeam._id,
+            'invitedTeamId': guestTeam._id,
+            'adminId': hostTeam.adminId
+        }
+        const resp_event = await request(app).post('/events/createPrivateTeam').send(event_team_priv);
+        const response = await request(app).post('/events/acceptPrivateTeamInvite').send({
+            eventId: resp_event.body._id,
+            teamId: guestTeam._id,
+            adminId: guestTeam.adminId
+        });
+        await Event.deleteOne({_id: resp_event.body._id});
+        await Team.updateOne({_id: guestTeam._id}, { $set: {activeEvents: [], eventRequests: []}});
+        expect(response.status).toBe(200);
+        expect(response.body._id).toStrictEqual(resp_event.body._id);
+    })
+})
 
-describe("POST /rejectPrivateTeamInvite", () => {})
+describe("POST /rejectPrivateTeamInvite", () => {
+    test("Accept requests without parameters should return 400", async () => {
+        const response = await request(app).post('/events/rejectPrivateTeamInvite').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in rejecting the team event invite: missing parameters');
+    })
+    test("Accept requests with wrong parameters should return 500", async () => {
+        const response = await request(app).post('/events/rejectPrivateTeamInvite').send({
+            eventId: 'cccccccccccc',
+            teamId: 'aaaaaaaaaaaa',
+            adminId: 'admin'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in rejecting the team invite: event or team or admin not found');
+    })
+    test("Accept with conditions not matched should return 500", async () => {
+        const resp_event = await request(app).post('/events/createIndividual').send(event_indiv);
+        const guestTeam = await Team.findOne({name :'guestTeam'});
+        const response = await request(app).post('/events/rejectPrivateTeamInvite').send({
+            eventId: resp_event.body._id, //is not a private team event
+            teamId: guestTeam._id,
+            adminId: 'admin' // is not the admin of guestTeam
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Conditions not matched');
+    })
+    test("A team which accepts correctly an invitation should receive 200", async () => {
+        const hostTeam = await Team.findOne({name :'testTeam'});
+        const guestTeam = await Team.findOne({name :'guestTeam'});
+        var event_team_priv = {
+            'name': 'reject_private_event',
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': tomorrow,
+            'visibility': 'private',
+            'type': 'team',
+            'hostTeamId': hostTeam._id,
+            'invitedTeamId': guestTeam._id,
+            'adminId': hostTeam.adminId
+        }
+        const resp_event = await request(app).post('/events/createPrivateTeam').send(event_team_priv);
+        const response = await request(app).post('/events/rejectPrivateTeamInvite').send({
+            eventId: resp_event.body._id,
+            teamId: guestTeam._id,
+            adminId: guestTeam.adminId
+        });
+        await Event.deleteOne({_id: resp_event.body._id});
+        await Team.updateOne({_id: guestTeam._id}, { $set: {activeEvents: [], eventRequests: []}});
+        expect(response.status).toBe(200);
+        expect(response.text).toBe("Invite rejected successfully");
+    })
+})
 
 describe("POST /approvePublicTeam", () => {
 
@@ -834,11 +995,101 @@ describe("POST /enrollTeamPublic", () => {
     })
 })
 
-describe("POST /getUsersEvents", () => {})
+describe("POST /getUsersEvents", () => {
+    test("Request without parameters will return 400", async () => {
+        const response = await request(app).post('/events/getUsersEvents').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in getting the user events: missing parameter');
+    })
+    test("Request with wrong/fake userId will return 500", async () => {
+        const response = await request(app).post('/events/getUsersEvents').send({
+            'userId': 'n0t3x1st'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in getting the user events: user not found');
+    })
+    test("Request with correct userId should return 200", async () => {
+        const userId = 'get_events_user';
+        const resp_user = await request(app).post('/users/initUser').send({
+            'userId': userId
+        })
+        expect(resp_user.status).toBe(200);
+        const response = await request(app).post('/events/getUsersEvents').send({
+            'userId': userId
+        });
+        User.deleteOne({'userId': userId});
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBe(0);
 
-describe("POST /getTeamActiveEvents", () => {})
+    })
 
-describe("POST /getTeamEventRequests", () => {})
+})
 
-describe("GET /closeEvents", () => {})
+describe("POST /getTeamActiveEvents", () => {
+    test("Request without parameters will return 400", async () => {
+        const response = await request(app).post('/events/getTeamActiveEvents').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in getting the team events: missing parameter');
+    })
+    test("Request with wrong/fake teamId will return 500", async () => {
+        const response = await request(app).post('/events/getTeamActiveEvents').send({
+            'teamId': '000000000000'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in getting the team events: team not found');
+    })
+    test("Request with correct teamId should return 200", async () => {
+        const name = 'testTeam';
+        const team = await Team.findOne({name: name});
+        const response = await request(app).post('/events/getTeamActiveEvents').send({
+            'teamId': team._id
+        });
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBeGreaterThanOrEqual(0);
+    })
+})
+
+describe("POST /getTeamEventRequests", () => {
+    test("Request without parameters will return 400", async () => {
+        const response = await request(app).post('/events/getTeamEventRequests').send({});
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in getting the team events: missing parameter');
+    })
+    test("Request with wrong/fake teamId will return 500", async () => {
+        const response = await request(app).post('/events/getTeamEventRequests').send({
+            'teamId': '000000000000'
+        });
+        expect(response.status).toBe(500);
+        expect(response.text).toBe('Error in getting the team events: team not found');
+    })
+    test("Request with correct teamId should return 200", async () => {
+        const name = 'testTeam';
+        const team = await Team.findOne({name: name});
+        const response = await request(app).post('/events/getTeamEventRequests').send({
+            'teamId': team._id
+        });
+        expect(response.status).toBe(200);
+        expect(response.body.length).toBeGreaterThanOrEqual(0);
+    })
+})
+
+describe("GET /closeEvents", () => {
+    test("An old event should be closed", async ()=>{
+        const resp_event = await request(app).post('/events/createIndividual').send({
+            'name': 'prova_close',
+            'description': 'descrizione',
+            'startDate': yesterday,
+            'endDate': yesterday,
+            'type': 'individual',
+            'visibility': 'public'
+        });
+        const response = await request(app).get('/events/closeEvents');
+        expect(response.status).toBe(200);
+        expect(response.text).toBe('Events closed');
+        const event = await Event.findById(resp_event.body._id);
+        await Event.deleteOne({_id: resp_event.body._id});
+        expect(event.closed).toBeTruthy();
+    })
+
+})
 
