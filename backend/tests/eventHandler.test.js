@@ -153,7 +153,7 @@ describe("POST /createPrivateTeam", () => {
             'adminId': hostTeam.adminId
         }
         const response = await request(app).post('/events/createPrivateTeam').send(event_team_priv);
-        await Event.deleteOne({'name': 'prova_private_event'})
+        await Event.deleteOne({_id: response.body._id});
         expect(response.status).toBe(200);
         expect(response.body.name).toBe('prova_private_event');
     })
@@ -214,7 +214,7 @@ describe("POST /createPublicTeam", () => {
             'adminId': adminId
         }
         const response = await request(app).post('/events/createPublicTeam').send(event_team_pub);
-        await Event.deleteOne({'name': 'prova_public_event'})
+        await Event.deleteOne({_id: response.body._id})
         expect(response.status).toBe(200);
         expect(response.body.name).toBe('prova_public_event');
     })
@@ -232,7 +232,7 @@ describe("POST /createIndividual", () => {
         const response = await request(app).post('/events/createIndividual').send(event_indiv);
         expect(response.status).toBe(200);
         expect(response.body.name).toBe('prova');
-        await Event.deleteOne({'name': 'prova'})
+        await Event.deleteOne({_id: response.body._id})
     })
 })
 
@@ -438,7 +438,7 @@ describe("POST /approvePublicTeam", () => {
         const response = await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(200); // correct response
         expect(response.body._id).toStrictEqual(resp_event.body._id); // the event returned should be the same sent
         expect(response.body.status).toBe('approved'); // the event should be active
@@ -466,7 +466,7 @@ describe("POST /approvePublicTeam", () => {
         const response = await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500); // correct response
         expect(response.text).toBe('Event is not pending');
     })
@@ -490,7 +490,7 @@ describe("POST /approvePublicTeam", () => {
         const response = await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500); // correct response
         expect(response.text).toBe('Event is not public');
     })
@@ -508,7 +508,7 @@ describe("POST /approvePublicTeam", () => {
         const response = await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500); // correct response
         expect(response.text).toBe('Event is not a team event');
     })
@@ -548,7 +548,7 @@ describe("POST /rejectPublicTeam", () => {
         const response = await request(app).post('/events/rejectPublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(200); // correct response
         expect(response.body._id).toStrictEqual(resp_event.body._id); // the event returned should be the same sent
         expect(response.body.status).toBe('rejected'); // the event should be active
@@ -576,7 +576,7 @@ describe("POST /rejectPublicTeam", () => {
         const response = await request(app).post('/events/rejectPublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500); // correct response
         expect(response.text).toBe('Event is not pending');
     })
@@ -600,7 +600,7 @@ describe("POST /rejectPublicTeam", () => {
         const response = await request(app).post('/events/rejectPublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500); // correct response
         expect(response.text).toBe('Event is not public');
     })
@@ -618,7 +618,7 @@ describe("POST /rejectPublicTeam", () => {
         const response = await request(app).post('/events/rejectPublicTeam').send({
             'eventId': resp_event.body._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500); // correct response
         expect(response.text).toBe('Event is not a team event');
     })
@@ -675,7 +675,7 @@ describe("POST /search", () => {
             'teamId': team2._id,
             'adminId': adminId2
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(200);
         expect(response.body.length).toBeGreaterThanOrEqual(1);
 
@@ -739,7 +739,7 @@ describe("POST /join", () => {
             'userId': userId,
             'eventId': eventId
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await User.deleteOne({'userId': userId});
         expect(response.status).toBe(500);
         expect(response.text).toBe('Error while joining the event');
@@ -769,7 +769,7 @@ describe("POST /join", () => {
             'eventId': eventId,
             'teamId': 'aaaaaaaaaaaa'
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await User.deleteOne({'userId': userId});
         expect(response.status).toBe(500);
         expect(response.text).toBe('Error while joining the event');
@@ -799,7 +799,7 @@ describe("POST /join", () => {
             'eventId': eventId,
             'teamId': team._id
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await User.deleteOne({'userId': userId});
         expect(response.status).toBe(200);
         expect(response.text).toBe('Event joined successfully');
@@ -822,7 +822,7 @@ describe("POST /join", () => {
             'userId': userId,
             'eventId': eventId
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await User.deleteOne({'userId': userId});
         expect(response.status).toBe(200);
         expect(response.text).toBe('Event joined successfully');
@@ -898,7 +898,7 @@ describe("POST /enrollTeamPublic", () => {
             'teamId': teamId,
             'adminId': adminId
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(500);
         expect(response.text).toBe('The event is not public or is not a team event');
     })
@@ -926,7 +926,7 @@ describe("POST /enrollTeamPublic", () => {
             'teamId': guestTeamId,
             'adminId': guestAdminId
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
         expect(response.status).toBe(200);
         expect(response.body._id).toStrictEqual(eventId);
@@ -960,7 +960,7 @@ describe("POST /enrollTeamPublic", () => {
             'teamId': guestTeamId,
             'adminId': guestAdminId
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
         expect(response.status).toBe(500);
         expect(response.text).toBe('The team is already enrolled in the event');
@@ -988,7 +988,7 @@ describe("POST /enrollTeamPublic", () => {
             'teamId': guestTeamId,
             'adminId': adminId
         });
-        await Event.deleteOne({'name': name});
+        await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
         expect(response.status).toBe(500);
         expect(response.text).toBe('Specified admin is not an admin of the specified team');
