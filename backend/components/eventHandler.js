@@ -643,12 +643,10 @@ async function terminateEvents() {
         });
     }
 
-
 }
 
 app.post("/getUsersEvents", async (req, res) => {
     var userId = req.body.userId;
-
     if (userId){
         const user = await User.findOne({ userId: userId }).exec();
         if (user) {
