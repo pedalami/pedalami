@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
@@ -7,6 +8,7 @@ import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:search_choices/search_choices.dart';
+import 'package:pedala_mi/widget/event_item.dart';
 
 class EnrollEvent extends StatefulWidget {
   const EnrollEvent({Key? key, required this.actualTeam}) : super(key: key);
@@ -20,15 +22,23 @@ class _EnrollEventState extends State<EnrollEvent> {
   final descriptionNameController=TextEditingController();
   bool uploadingToDB=false;
   Team? selectedTeam;
+  List<Event> events = [];
 
   List<bool> publicOrPrivateEvent=[true,false];
   String enrollEvent="Search for an event...";
   late Team actualTeam;
   var selectedValueSingleDialogFuture;
+  final eventSearchController = TextEditingController();
+  late bool hasSearched, loading;
 
+  refresh(){
+    setState((){});
+  }
 
   @override
   void initState() {
+    hasSearched = false;
+    loading = false;
     actualTeam=widget.actualTeam;
     super.initState();
   }
@@ -36,117 +46,126 @@ class _EnrollEventState extends State<EnrollEvent> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              color: Colors.green[600],
-              height: 20 * SizeConfig.heightMultiplier!,
-              width: MediaQuery.of(context).size.width,
-              child: Padding(
-                padding: EdgeInsets.only(top: 10*SizeConfig.heightMultiplier!),
-                child:
-                  Column(
-                  children: [ Text(
-                    "Enroll to Events",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black54,
-                      fontSize: 4 * SizeConfig.textMultiplier!,
-                    ),
-                  ),],
-                 ),
-               ),
-
-             ),
-            Container(
-              color: Colors.white,
-              width: MediaQuery.of(context).size.width,
-              child: Padding(
-                padding: EdgeInsets.only(top: 3*SizeConfig.heightMultiplier!, bottom:  3*SizeConfig.heightMultiplier!),
-                child: Row(
-                  children: [
-                    Expanded(flex:3,child: Text("Search for an event: ", style: TextStyle(fontSize: 18),),),
-                    Expanded(
-                        flex: 5,
-                        child:
-                        SearchChoices.single(
-                          value: selectedValueSingleDialogFuture,
-                          hint: "Search an event...",
-                          searchHint: "Choose an event to enroll...",
-                          onChanged:  (value) {
-                            setState(() {
-                              selectedValueSingleDialogFuture = value;
-                            });
-                          },
-                          isExpanded: true,
-                          selectedValueWidgetFn: (item) {
-                            selectedTeam=(item as Team);
-                            return (Center(
-                                child: Padding(
-                                  padding: const EdgeInsets.all(6),
-                                  child: Text(selectedTeam!.name),
-                                )));
-                          },
-                          futureSearchFn: (String? keyword, String? orderBy, bool? orderAsc,
-                              List<Tuple2<String, String>>? filters, int? pageNb) async {
-                            int nbResults=0;
-                            List<DropdownMenuItem> results=[];
-                            if(keyword!="")
-                            {
-                              //should be await MongoDB.instance.searchEvent, not getJoinableEvents
-                              /*List<Event>? teamsFound=await MongoDB.instance.getJoinableEvents(LoggedUser.instance!.userId);
-                              int sameTeamIndex=-1;
-                              for(int i=0;i<teamsFound!.length;i++)
-                              {
-                                if(teamsFound[i].id==actualTeam.id)
-                                {
-                                  sameTeamIndex=i;
-                                }
-                              }
-                              if(sameTeamIndex!=-1)
-                              {
-                                teamsFound.removeAt(sameTeamIndex);
-                              }
-                              nbResults=teamsFound.length;
-                              results=teamsFound.map<DropdownMenuItem>((item) => DropdownMenuItem(
-                                value: item,
-                                child: Card(
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(4),
-                                    side: BorderSide(
-                                      color: Colors.green,
-                                      width: 1,
-                                    ),
-                                  ),
-                                  margin: EdgeInsets.all(1),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(6),
-                                    child: Text(item.name),
-                                  ),
-                                ),
-                              )).toList();*/
-                            }
-                            return (Tuple2<List<DropdownMenuItem>, int>(results, nbResults));
-                          },
-                          emptyListWidget: () => Text(
-                            "No result",
-                            style: TextStyle(
-                              fontStyle: FontStyle.italic,
-                              color: Colors.grey,
-                            ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 30),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  color: Colors.green[600],
+                  height: 30 * SizeConfig.heightMultiplier!,
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                        left: 30.0,
+                        right: 30.0,
+                        top: 8 * SizeConfig.heightMultiplier!),
+                    child: Column(
+                      children: <Widget>[
+                        Text(
+                          "Enroll to Events",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black54,
+                            fontSize: 4 * SizeConfig.textMultiplier!,
                           ),
-                        )
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 5 * SizeConfig.heightMultiplier!),
+                          child: Column(
+                            children: <Widget>[
+                              Padding(
+                                padding: EdgeInsets.only(
+                                    left: 20.0,
+                                    //top: 1 * SizeConfig.heightMultiplier!,
+                                    right: 20),
+                                child: TextField(
+                                  style: TextStyle(color: Colors.white),
+                                  cursorColor: CustomColors.green,
+                                  decoration: InputDecoration(
+                                      counterStyle: TextStyle(
+                                        color: CustomColors.silver,
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20.0),
+                                        borderSide:
+                                        BorderSide(color: CustomColors.silver),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(20.0),
+                                        borderSide:
+                                        BorderSide(color: CustomColors.green),
+                                      ),
+                                      hintText: "Search for an event",
+                                      hintStyle:
+                                      TextStyle(color: CustomColors.silver)),
+                                  controller: eventSearchController,
+                                  onSubmitted: (value) async {
+                                    if(eventSearchController.text!="")
+                                    {
+                                      setState(() {
+                                        hasSearched = true;
+                                        loading = true;
+                                      });
+                                      events = (await MongoDB.instance.searchEvent(eventSearchController.text, actualTeam.id, actualTeam.adminId))!;
+                                      setState(() {
+                                        loading = false;
+                                      });
+                                    }
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+                !hasSearched
+                    ? SizedBox()
+                    : loading
+                    ? Column(
+                  children: [
+                    SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                    CircularProgressIndicator(color: Colors.green[600],),
+                    SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                    Text("Loading", style: TextStyle(fontSize: 17),)
+                  ],
+                )
+                    : (events.length > 0
+                    ? Column(
+                  children: [Container(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(top: 15),
+                        child: Text(
+                          "Available Events",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 4 * SizeConfig.textMultiplier!,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                    ListView.builder(
+                        itemCount: events.length,
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (context, i) {
+                          return EventItem(event: events[i], refresh: refresh,);
+                        }),
+                  ],
+                )  : Padding( padding: EdgeInsets.only(top: 15),
+                     child: Text("No events found"))),
+              ],
+            ),
+          ),
+        ));
   }
-
-
 }
+
+
+
