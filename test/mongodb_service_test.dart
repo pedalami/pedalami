@@ -96,6 +96,10 @@ void main() {
     assert(t != null);
   });
 
+
+
+
+
   test('create private team event testing', () async {
     instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
@@ -174,10 +178,17 @@ void main() {
   });
 
   test('get joinable events testing', () async {
-    instance.localDebug();
-    String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
+    //instance.localDebug();
+    String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
     List<Event>? events = await instance.getJoinableEvents(userId);
-    print(events);
+    //print(events);
+    print("Involved teams are:");
+    events?.forEach((event) {
+      if (!event.isIndividual()) {
+        print(event.id);
+        print(event.enrolledTeamsIds);
+      }
+    });
     assert(events != null);
   });
 }
