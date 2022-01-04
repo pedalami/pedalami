@@ -3,7 +3,7 @@ const profileController = require("./profileController.js");
 
 
 async function assignPoints(user, ride, events) {
-    //Calculate points
+    //Calculate points based on ride totalKm and elevationGain
     var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10)); //add bonus if raining later on
     ride.points = points;
     console.log("Assigning " + points + " points to " + user.userId);
@@ -74,7 +74,7 @@ async function checkNewBadgesAfterRide(user, ride) {
 }
 
 function getBestPlayerIndividualEvent(event) {
-    if (event.prize != null) {
+    if (event.prize != null && event.scoreboard.length > 0) {
         const bestPlayer = event.scoreboard.reduce(function (prev, current) {
             return (prev.points > current.points) ? prev : current
         })
@@ -95,14 +95,14 @@ function computeTeamScoreboard(event) {
     var teamScoreboard = [];
     event.scoreboard.forEach(function (score) {
         var scoreboardValue = teamScoreboardMap.get(score.teamId);
-        if (scoreboardValue === undefined ){
+        if (scoreboardValue === undefined) {
             teamScoreboardMap.set(score.teamId, score.points);
         } else {
             teamScoreboardMap.set(score.teamId, scoreboardValue + score.points);
         }
     });
     teamScoreboardMap.forEach((value, key) => {
-        teamScoreboard.push({"teamId": key, "points": value});
+        teamScoreboard.push({ "teamId": key, "points": value });
     });
     return teamScoreboard;
 }
@@ -114,18 +114,24 @@ function assignPrizeTeamEvent(user, event) {
         teamScoreboard = computeTeamScoreboard(event);
         event.teamScoreboard = teamScoreboard;
     }
-    const winningTeam = teamScoreboard.reduce(function (prev, current) {
-        return (prev.points > current.points) ? prev : current
-    })
-    var totalPoints = 0;
-    event.teamScoreboard.forEach(function (score) {
-        totalPoints += score.points;
-    });
-    if (winningTeam.points > 0) {
-        var userScoreboard = event.scoreboard.filter(score => {
-            return score.userId === user.userId && score.teamId === winningTeam.teamId;
-          })
-        user.points += totalPoints * userScoreboard.points / winningTeam.points;
+    if (teamScoreboard.lenght > 0) {
+        const winningTeam = teamScoreboard.reduce(function (prev, current) {
+            return (prev.points > current.points) ? prev : current
+        })
+        var totalPoints = 0;
+        event.teamScoreboard.forEach(function (score) {
+            totalPoints += score.points;
+        });
+        if (winningTeam.points > 0) {
+            var userScoreboard = event.scoreboard.filter(score => {
+                return score.userId === user.userId && score.teamId === winningTeam.teamId;
+            })
+            if (userScoreboard.length != null) {
+                if (userScoreboard.length > 1)
+                    userScoreboard = userScoreboard[0];
+                user.points += totalPoints * userScoreboard.points / winningTeam.points;
+            }
+        }
     }
 }
 

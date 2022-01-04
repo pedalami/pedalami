@@ -52,6 +52,7 @@ dependencies:
   search_choices: ^2.0.16
   shared_preferences: ^2.0.11
   progress_indicators: ^1.0.0
+  background_location: ^0.8.1
 
 
 dev_dependencies:
