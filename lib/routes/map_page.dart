@@ -12,6 +12,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
+import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
@@ -63,7 +64,7 @@ class MapPage extends StatefulWidget {
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   late CustomController controller;
   late GlobalKey<ScaffoldState> scaffoldKey;
   ValueNotifier<bool> zoomNotifierActivation = ValueNotifier(false);
@@ -85,6 +86,7 @@ class _MapPageState extends State<MapPage> {
   RoadInfo? _roadInfo;
   User? user = FirebaseAuth.instance.currentUser;
   LoggedUser _miUser = LoggedUser.instance!;
+  AppLifecycleState _currentState = AppLifecycleState.resumed;
   List<double>? elevations;
   late loc.Location location;
   late loc.LocationData _locationData;
@@ -93,18 +95,28 @@ class _MapPageState extends State<MapPage> {
     []: 'elevation',
   };
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      _currentState = state;
+    });
+    super.didChangeAppLifecycleState(state);
+  }
+
   void getLocationPermission() async {
     await Permission.locationAlways.request();
   }
 
   void addPointInBackground(location) {
-    if (path.last.latitude == location.latitude &&
-        path.last.longitude == location.longitude) {
-      print("No progress to save in background");
-    } else {
-      if (_isRecording) {
-        path.add(GeoPoint(
-            latitude: location.latitude, longitude: location.longitude));
+    if (_currentState != AppLifecycleState.resumed) {
+      if (path.last.latitude == location.latitude &&
+          path.last.longitude == location.longitude) {
+        print("No progress to save in background");
+      } else {
+        if (_isRecording) {
+          path.add(GeoPoint(
+              latitude: location.latitude, longitude: location.longitude));
+        }
       }
     }
   }
@@ -139,7 +151,7 @@ class _MapPageState extends State<MapPage> {
     });
      */
     super.initState();
-
+    WidgetsBinding.instance?.addObserver(this);
     getLocationPermission();
     controller = CustomController(initMapWithUserPosition: true);
   }
@@ -151,6 +163,8 @@ class _MapPageState extends State<MapPage> {
     }
     //controller.listenerMapIsReady.removeListener(mapIsInitialized);
     controller.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
+
     super.dispose();
   }
 
