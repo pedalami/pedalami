@@ -92,7 +92,7 @@ app.post('/join', (req, res) => {
       })
       .catch((err) => {
         console.log('Error while joining the team\n' + err);
-        res.status(500).send('Error while joining the team' + err);
+        res.status(500).send('Error while joining the team');
       })
   }
   else {
@@ -105,16 +105,13 @@ app.post('/join', (req, res) => {
 app.post('/leave', (req, res) => {
   console.log('Received leave POST request:');
   console.log(req.body);
-  var user, team;
   if (req.body.teamId && req.body.userId) {
     connection.transaction(async (session) => {
-       user, team = await Promise.all([
+      const [user, team] = await Promise.all([
         User.findOne({ userId: req.body.userId }).session(session).exec(),
         Team.findOne({ _id: req.body.teamId }).session(session).exec()
       ]);
-    if(!user || !team){
-      throw new Error('Error: User or team does not exist.');
-    }else if (!team.members.includes(req.body.userId)) {
+      if (!team.members.includes(req.body.userId)) {
         throw new Error('Error: User not in team.');
       } else {
         if (team.adminId == req.body.userId) {
