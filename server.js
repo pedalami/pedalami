@@ -7,12 +7,11 @@ const MONGO_URI = process.env.MONGO_URI;
 
 const connectionParams = {
     useNewUrlParser: true,
-    useUnifiedTopology: true 
+    useUnifiedTopology: true
 };
 
 const app = express();
 app.use(express.json());
-
 if (process.env.NODE_ENV !== 'test') {
     mongoose.connect(MONGO_URI,connectionParams)
         .then( () => {
@@ -24,8 +23,8 @@ if (process.env.NODE_ENV !== 'test') {
     mongoose.Promise = Promise;
     app.use(cors());
     app.use(function(req, res, next) {
-      res.header("Access-Control-Allow-Origin", '*');
-      next();
+        res.header("Access-Control-Allow-Origin", '*');
+        next();
     });
     var listener = app.listen(PORT, () => {
         console.log('Listening on port ' + listener.address().port);

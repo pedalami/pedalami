@@ -15,6 +15,7 @@ app.post("/record", async (req, res) => {
   console.log(req.body);
   var ride = new Ride(req.body);
   if (req.body.userId) {
+    if (ride.durationInSeconds>0){
     connection.transaction(async (session) => {
       ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) * 100) / 100;
       const user = await User.findOne({ userId: req.body.userId }).session(session).exec();
@@ -25,7 +26,7 @@ app.post("/record", async (req, res) => {
         await gamificationController.checkNewBadgesAfterRide(user, ride);
         var promiseArray = [
           user.save({ session }),
-          ride.save({ session }), 
+          ride.save({ session }),
         ];
         events.forEach(event => {
           promiseArray.push(event.save({ session }));
@@ -35,18 +36,21 @@ app.post("/record", async (req, res) => {
         throw new Error("Cannot find the user specified!");
       }
     })
-    .then(() => {
-      res.json({
-        message: "Ride saved successfully, user statistics and badges updated successfully",
-        points: ride.points,
-        pace: ride.pace,
-        id: ride._id,
+      .then(() => {
+        res.json({
+          message: "Ride saved successfully, user statistics and badges updated successfully",
+          points: ride.points,
+          pace: ride.pace,
+          id: ride._id,
+        });
+      })
+      .catch((err) => {
+        console.log("Impossible to record the ride:\n" + err);
+        res.status(500).send("Impossible to record the ride");
       });
-    })
-    .catch((err) => {
-      console.log("Impossible to record the ride:\n" + err);
-      res.status(500).send("Impossible to record the ride");
-    });
+    } else {
+      res.status(400).send("Ride duration cannot be 0");
+    }
   } else {
     console.error("User not specified!");
     res.status(400).send("User not specified!");
