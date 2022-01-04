@@ -9,24 +9,28 @@ const connectionParams = {
     useNewUrlParser: true,
     useUnifiedTopology: true 
 };
-mongoose.connect(MONGO_URI,connectionParams)
-    .then( () => {
-        console.log('Connected to database!')
-    })
-    .catch( (err) => {
-        console.error(`Error connecting to the database.\n${err}`);
-    })
-mongoose.Promise = Promise;
+
 const app = express();
 app.use(express.json());
-app.use(cors());
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", '*');
-  next();
-});
-var listener = app.listen(PORT, () => {
-    console.log('Listening on port ' + listener.address().port);
-});
+
+if (process.env.NODE_ENV !== 'test') {
+    mongoose.connect(MONGO_URI,connectionParams)
+        .then( () => {
+            console.log('Connected to database!')
+        })
+        .catch( (err) => {
+            console.error(`Error connecting to the database.\n${err}`);
+        })
+    mongoose.Promise = Promise;
+    app.use(cors());
+    app.use(function(req, res, next) {
+      res.header("Access-Control-Allow-Origin", '*');
+      next();
+    });
+    var listener = app.listen(PORT, () => {
+        console.log('Listening on port ' + listener.address().port);
+    });
+}
 
 
 var usersRouter = require('./backend/components/profileController').router;
@@ -42,7 +46,7 @@ app.use('/users', usersRouter);
 app.use('/teams', teamsRouter);
 app.use('/rides', ridesRouter);
 app.use('/rewards', rewardsRoutes);
-app.use('/events', eventRoutes);
+app.use('/events', eventRoutes.app);
 
 app.use('/tests', require('./backend/components/genBadgesInfo.js'));
 
@@ -58,3 +62,5 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument,options));
 app.get('/', (req, res) => {
     res.send('<h1>Welcome to PedalaMi!<h1>');
 });
+
+module.exports = app;

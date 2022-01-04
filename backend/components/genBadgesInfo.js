@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 var express = require('express');
 var app = express.Router();
 app.use(express.json());
