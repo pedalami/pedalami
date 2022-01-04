@@ -6,6 +6,11 @@
 	<string>Track location</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Get current location</string>
+	<key>UIBackgroundModes</key>
+    <array>
+    	<string>fetch</string>
+    	<string>location</string>
+    </array>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

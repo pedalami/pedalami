@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:background_location/background_location.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,6 +12,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
+import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
@@ -62,7 +64,7 @@ class MapPage extends StatefulWidget {
   _MapPageState createState() => _MapPageState();
 }
 
-class _MapPageState extends State<MapPage> {
+class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   late CustomController controller;
   late GlobalKey<ScaffoldState> scaffoldKey;
   ValueNotifier<bool> zoomNotifierActivation = ValueNotifier(false);
@@ -84,6 +86,7 @@ class _MapPageState extends State<MapPage> {
   RoadInfo? _roadInfo;
   User? user = FirebaseAuth.instance.currentUser;
   LoggedUser _miUser = LoggedUser.instance!;
+  AppLifecycleState _currentState = AppLifecycleState.resumed;
   List<double>? elevations;
   late loc.Location location;
   late loc.LocationData _locationData;
@@ -92,8 +95,30 @@ class _MapPageState extends State<MapPage> {
     []: 'elevation',
   };
 
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      _currentState = state;
+    });
+    super.didChangeAppLifecycleState(state);
+  }
+
   void getLocationPermission() async {
     await Permission.locationAlways.request();
+  }
+
+  void addPointInBackground(location) {
+    if (_currentState != AppLifecycleState.resumed) {
+      if (path.last.latitude == location.latitude &&
+          path.last.longitude == location.longitude) {
+        print("No progress to save in background");
+      } else {
+        if (_isRecording) {
+          path.add(GeoPoint(
+              latitude: location.latitude, longitude: location.longitude));
+        }
+      }
+    }
   }
 
   @override
@@ -126,7 +151,7 @@ class _MapPageState extends State<MapPage> {
     });
      */
     super.initState();
-
+    WidgetsBinding.instance?.addObserver(this);
     getLocationPermission();
     controller = CustomController(initMapWithUserPosition: true);
   }
@@ -138,6 +163,8 @@ class _MapPageState extends State<MapPage> {
     }
     //controller.listenerMapIsReady.removeListener(mapIsInitialized);
     controller.dispose();
+    WidgetsBinding.instance?.removeObserver(this);
+
     super.dispose();
   }
 
@@ -247,6 +274,10 @@ class _MapPageState extends State<MapPage> {
                                 await controller.enableTracking();
                                 await controller.currentLocation();
                                 if (_isRecording == false) {
+                                  BackgroundLocation.startLocationService();
+                                  BackgroundLocation.getLocationUpdates(
+                                      (location) =>
+                                          addPointInBackground(location));
                                   _locationData = await location.getLocation();
                                   elevations!.add(_locationData.altitude!);
                                   _isRecording = true;
@@ -314,6 +345,7 @@ class _MapPageState extends State<MapPage> {
                                         )));
                                   });
                                 } else {
+                                  BackgroundLocation.stopLocationService();
                                   if (path.length < 3) {
                                     showAlertDialog(context);
                                   } else {
@@ -333,7 +365,8 @@ class _MapPageState extends State<MapPage> {
                                         .recordRide(finishedRide);
                                     if (response != null) {
                                       if (_miUser.rideHistory == null) {
-                                        _miUser.rideHistory = List.empty(growable: true);
+                                        _miUser.rideHistory =
+                                            List.empty(growable: true);
                                       }
                                       _miUser.rideHistory!.add(response);
                                       MongoDB.instance.initUser(_miUser.userId);
@@ -417,19 +450,18 @@ class _MapPageState extends State<MapPage> {
                                     longitude: 9.22567362278855)
                               ]);
 
-
                               Ride? response = await MongoDB.instance
                                   .recordRide(finishedRide);
 
                               if (response != null) {
-                                if(_miUser.rideHistory == null){
-                                  _miUser.rideHistory = List.empty(growable: true);
+                                if (_miUser.rideHistory == null) {
+                                  _miUser.rideHistory =
+                                      List.empty(growable: true);
                                 }
                                 _miUser.rideHistory!.add(response);
                                 MongoDB.instance.initUser(_miUser.userId);
                                 //_miUser.notifyListeners();
-                                showRideCompleteDialog(
-                                context, size, response);
+                                showRideCompleteDialog(context, size, response);
                               }
                             },
                             icon: FaIcon(FontAwesomeIcons.bicycle),

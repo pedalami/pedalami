@@ -5,11 +5,12 @@ import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 class ShowSingleRideHistoryPage extends StatefulWidget {
   final List<GeoPoint> path;
 
-
-  const ShowSingleRideHistoryPage({Key? key, required this.path}) : super(key: key);
+  const ShowSingleRideHistoryPage({Key? key, required this.path})
+      : super(key: key);
 
   @override
-  _ShowSingleRideHistoryPageState createState() => _ShowSingleRideHistoryPageState();
+  _ShowSingleRideHistoryPageState createState() =>
+      _ShowSingleRideHistoryPageState();
 }
 
 class CustomController extends MapController {
@@ -18,13 +19,13 @@ class CustomController extends MapController {
     GeoPoint? initPosition,
     BoundingBox? areaLimit = const BoundingBox.world(),
   })  : assert(
-  initMapWithUserPosition || initPosition != null,
-  ),
+          initMapWithUserPosition || initPosition != null,
+        ),
         super(
-        initMapWithUserPosition: initMapWithUserPosition,
-        initPosition: initPosition,
-        areaLimit: areaLimit,
-      );
+          initMapWithUserPosition: initMapWithUserPosition,
+          initPosition: initPosition,
+          areaLimit: areaLimit,
+        );
 
   @override
   void init() {
@@ -32,14 +33,14 @@ class CustomController extends MapController {
   }
 }
 
-
 class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
   late CustomController controller;
 
   @override
   void initState() {
-
-    controller = CustomController(initMapWithUserPosition: true);
+    controller = CustomController(
+        initMapWithUserPosition: false,
+        initPosition: widget.path[(widget.path.length / 2).floor()]);
     // TODO: implement initState
     super.initState();
   }
@@ -55,10 +56,9 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
                 OSMFlutter(
                   controller: controller,
                   onMapIsReady: (isReady) {
-                    controller.drawRoad(
-                        widget.path.first, widget.path.last,
+                    controller.drawRoad(widget.path.first, widget.path.last,
                         intersectPoint:
-                        widget.path.sublist(1, widget.path.length - 1),
+                            widget.path.sublist(1, widget.path.length - 1),
                         roadType: RoadType.bike,
                         roadOption: RoadOption(
                           roadWidth: 10,
