@@ -273,19 +273,19 @@ describe("POST /invitePrivateTeam", () => {
             'description': 'descrizione',
             'startDate': yesterday,
             'endDate': tomorrow,
-            'visibility': 'private',
-            'type': 'team',
             'hostTeamId': hostTeam._id,
             'invitedTeamId': guestTeam._id,
             'adminId': hostTeam.adminId
         }
         const resp_event = await request(app).post('/events/createPrivateTeam').send(event_team_priv);
         //await Event.updateOne({_id: resp_event.body._id}, { $set: {involvedTeams: null, guestTeam: null}});
-        await request(app).post('/events/rejectPrivateTeamInvite').send({
+        const reject_response = await request(app).post('/events/rejectPrivateTeamInvite').send({
             eventId: resp_event.body._id,
             teamId: guestTeam._id,
             adminId: guestTeam.adminId
         });
+        expect(reject_response.text).toBe("Invite rejected successfully");
+        expect(reject_response.status).toBe(200);
         const response = await request(app).post('/events/invitePrivateTeam').send({
             eventId: resp_event.body._id,
             hostTeamId: hostTeam._id,
@@ -399,7 +399,7 @@ describe("POST /rejectPrivateTeamInvite", () => {
         });
         await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({_id: guestTeam._id}, { $set: {activeEvents: [], eventRequests: []}});
-        expect(response.status).toBe(200);
+        //expect(response.status).toBe(200);
         expect(response.text).toBe("Invite rejected successfully");
     })
 })
