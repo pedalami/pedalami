@@ -78,7 +78,7 @@ class _EventItemState extends State<EventItem> {
                     child: Column(
                       crossAxisAlignment:CrossAxisAlignment.start,
                       children: <Widget>[
-                        event.isIndividual()?Padding(
+                        event.isIndividual()?event.prize!=null?Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
                           child: Text("Points: "+event.prize!.toStringAsFixed(0),
@@ -88,11 +88,22 @@ class _EventItemState extends State<EventItem> {
                                 fontSize: 2 * SizeConfig.textMultiplier!
                             ),
                           ),
-                        ):SizedBox(),
+                        ):SizedBox():SizedBox(),
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Event Type: "+(event.isPublic()?"Public":event.isIndividual()?"Individual":""),
+                          child: Text("Event Type: "+(event.isTeam()?"Team":event.isIndividual()?"Individual":""),
+                            style: TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 2 * SizeConfig.textMultiplier!
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 1 * SizeConfig.heightMultiplier!),
+                          child: Text("Event Visibility: "+(event.isPublic()?"Public":event.isPrivate()?"Private":""),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
