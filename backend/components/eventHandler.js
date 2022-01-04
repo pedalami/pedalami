@@ -578,7 +578,7 @@ async function terminateEvents() {
                     var hostTeam = await Team.findOne({ _id: event.hostTeam }).exec();
                         if (hostTeam) { //removes the event from the host team
                             hostTeam.activeEvents = hostTeam.activeEvents.filter(e => e != event._id);
-                            promiseArray.append(hostTeam.save({ session }));
+                            promiseArray.push(hostTeam.save({ session }));
                         }
                     if (event.visibility == 'public') {
                         if (event.involvedTeams.length >= 2) {
@@ -586,7 +586,7 @@ async function terminateEvents() {
                                 var team = await Team.findOne({ _id: teamId }).exec();
                                 if (team) {
                                     team.activeEvents = team.activeEvents.filter(e => e != event._id);
-                                    promiseArray.append(team.save({ session }));
+                                    promiseArray.push(team.save({ session }));
                                 }
                             })
                         }
@@ -595,14 +595,14 @@ async function terminateEvents() {
                             const guestTeam = await Team.findOne({ _id: event.guestTeam }).exec();
                             if (guestTeam) {
                                 guestTeam.activeEvents = guestTeam.activeEvents.filter(e => e != event._id);
-                                promiseArray.append(guestTeam.save({ session }));
+                                promiseArray.push(guestTeam.save({ session }));
                             }
                         } else {
                             event.involvedTeams.forEach(async teamId => { //removes the unaccepted event request from the involved teams
                                 var team = await Team.findOne({ _id: teamId }).exec();
                                 if (team) {
                                     team.eventRequests = team.eventRequests.filter(e => e != event._id);
-                                    promiseArray.append(team.save({ session }));
+                                    promiseArray.push(team.save({ session }));
                                 }
                             })
 
@@ -614,7 +614,7 @@ async function terminateEvents() {
                         var user = await User.findOne({ _id: bestPlayer.userId }).exec();
                         if (user) {
                             gamificationController.assignPrizeIndividualEvent(user, event);
-                            promiseArray.append(user.save({ session }));
+                            promiseArray.push(user.save({ session }));
                         }
                     }
                 }
@@ -624,11 +624,11 @@ async function terminateEvents() {
                         user.joinedEvents = user.joinedEvents.filter(e => e != event._id);
                         if(event.type == 'team')
                             assignPrizeTeamEvent(user, event);
-                        promiseArray.append(user.save({ session }));
+                        promiseArray.push(user.save({ session }));
                     });
 
                 }
-                promiseArray.append(event.save({ session }));
+                promiseArray.push(event.save({ session }));
             });
             Promise.all(promiseArray).then(() => {
                 console.log('Events up to ' + new Date() + 'closed');
