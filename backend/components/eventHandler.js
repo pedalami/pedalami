@@ -571,9 +571,10 @@ async function terminateEvents() {
         ]
     }).exec();
     if (events) {
-        connection.transaction(async (session) => {
+        await connection.transaction(async (session) => {
             var promiseArray = [];
-            events.forEach(async event => {
+            for (const event of events) {
+                console.log(event);
                 event.closed = true;
                 if (event.type === 'team') {
                     var hostTeam = await Team.findOne({ _id: event.hostTeam }).exec();
@@ -583,13 +584,13 @@ async function terminateEvents() {
                         }
                     if (event.visibility === 'public') {
                         if (event.involvedTeams.length >= 2) {
-                            event.involvedTeams.forEach(async teamId => {
+                            for (const teamId of event.involvedTeams) {
                                 var team = await Team.findOne({ _id: teamId }).exec();
                                 if (team) {
                                     team.activeEvents = team.activeEvents.filter(e => e != event._id);
                                     promiseArray.push(team.save({ session }));
                                 }
-                            })
+                            }
                         }
                     } else if (event.visibility === 'private') {
                         if (event.guestTeam) { //removes the active event from the guest team
@@ -599,13 +600,13 @@ async function terminateEvents() {
                                 promiseArray.push(guestTeam.save({ session }));
                             }
                         } else {
-                            event.involvedTeams.forEach(async teamId => { //removes the unaccepted event request from the involved teams
+                            for (const teamId of event.involvedTeams) { //removes the unaccepted event request from the involved teams
                                 var team = await Team.findOne({ _id: teamId }).exec();
                                 if (team) {
                                     team.eventRequests = team.eventRequests.filter(e => e != event._id);
                                     promiseArray.push(team.save({ session }));
                                 }
-                            })
+                            }
 
                         }
                     }
@@ -621,24 +622,25 @@ async function terminateEvents() {
                 }
                 const users = await User.find({ joinedEvents: { $in: event._id } }).exec();
                 if (users) {
-                    users.forEach(async user => {
+                    users.forEach(user => {
                         user.joinedEvents = user.joinedEvents.filter(e => e !== event._id);
                         if(event.type === 'team')
-                            assignPrizeTeamEvent(user, event);
+                            gamificationController.assignPrizeTeamEvent(user, event);
                         promiseArray.push(user.save({ session }));
                     });
 
                 }
                 promiseArray.push(event.save({ session }));
-            });
-            Promise.all(promiseArray).then(() => {
-                console.log('Events up to ' + new Date() + 'closed');
             }
-            ).catch(err => {
+            await Promise.all(promiseArray).catch(err => {
                 console.log('Error in closing events:' + err);
                 throw err;
             }
             );
+            console.log('Events up to ' + new Date() + 'closed');
+        }).catch(err => {
+            console.log('Error in closing events:' + err);
+            throw err;
         });
     }
 
@@ -695,7 +697,7 @@ app.post("/getTeamEventRequests", async (req, res) => {
 })
 
 app.get("/closeEvents", async (req, res) => {
-    try{ terminateEvents();
+    try{ await terminateEvents();
     }
     catch(err){
         res.status(500).send('Error in closing events');
@@ -703,6 +705,8 @@ app.get("/closeEvents", async (req, res) => {
     }
     res.status(200).send('Events closed');
     });
+
+module.exports = { app: app, terminateEvents: terminateEvents };
 
 
 
@@ -775,4 +779,3 @@ app.post("/create", async (req, res) => {
 */
 
 
-module.exports = { app: app, terminateEvents: terminateEvents };

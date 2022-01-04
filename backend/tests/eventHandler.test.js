@@ -1076,18 +1076,20 @@ describe("POST /getTeamEventRequests", () => {
 describe("GET /closeEvents", () => {
     test("An old event should be closed", async ()=>{
         const resp_event = await request(app).post('/events/createIndividual').send({
-            'name': 'prova_close',
+            'name': 'prova_close_22',
             'description': 'descrizione',
             'startDate': yesterday,
             'endDate': yesterday,
-            'type': 'individual',
-            'visibility': 'public'
+            'prize':100
         });
+
+
         const response = await request(app).get('/events/closeEvents');
         expect(response.status).toBe(200);
+
         expect(response.text).toBe('Events closed');
         const event = await Event.findById(resp_event.body._id);
-        await Event.deleteOne({_id: resp_event.body._id});
+        //await Event.deleteOne({_id: resp_event.body._id});
         expect(event.closed).toBeTruthy();
     })
 
