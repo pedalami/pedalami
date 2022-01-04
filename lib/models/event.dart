@@ -51,6 +51,13 @@ class Event{
   bool isPublic() {
     return _visibility == "public";
   }
+  bool isTeam() {
+    return _type == "team";
+  }
+  bool isPrivate() {
+    return _visibility == "private";
+  }
+
   bool isIndividual() {
     return _type == "individual";
   }

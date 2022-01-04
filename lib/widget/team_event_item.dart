@@ -9,39 +9,39 @@ import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/utils/date_time_ext.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
-class EventItem extends StatefulWidget {
-  const EventItem({Key? key, required Event event, required refresh}) : refresh=refresh,event=event,super(key: key);
+class TeamEventItem extends StatefulWidget {
+  const TeamEventItem({Key? key, required Event event, required refresh}) : refresh=refresh,event=event,super(key: key);
   final Function refresh;
   final Event event;
 
   @override
-  _EventItemState createState() => _EventItemState();
+  _TeamEventItemState createState() => _TeamEventItemState();
 }
 
-class _EventItemState extends State<EventItem> {
+class _TeamEventItemState extends State<TeamEventItem> {
 
   late Event event;
-  late bool _joined;
+  //late bool _joined;
 
 
   @override
   void initState() {
     event=widget.event;
-    _joined=hasJoined();
+    //_joined=hasJoined();
     super.initState();
   }
 
-  bool hasJoined()
+  /*bool hasJoined()
   {
     for(int i=0;i<event.scoreboard!.length;i++)
+    {
+      if(event.scoreboard![i].userId==FirebaseAuth.instance.currentUser!.uid)
       {
-        if(event.scoreboard![i].userId==FirebaseAuth.instance.currentUser!.uid)
-          {
-            return true;
-          }
+        return true;
       }
+    }
     return false;
-  }
+  }*/
 
   @override
   Widget build(BuildContext context) {
@@ -78,21 +78,10 @@ class _EventItemState extends State<EventItem> {
                     child: Column(
                       crossAxisAlignment:CrossAxisAlignment.start,
                       children: <Widget>[
-                        event.isIndividual()?Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Points: "+event.prize!.toStringAsFixed(0),
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
-                            ),
-                          ),
-                        ):SizedBox(),
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Event Type: "+(event.isPublic()?"Public":event.isIndividual()?"Individual":""),
+                          child: Text("Event Type: "+(event.isPublic()?"Public":event.isPrivate()?"Private":""),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -127,7 +116,7 @@ class _EventItemState extends State<EventItem> {
                     ),
                   ),
                   //!_joined?buildJoinButton():buildLeaveButton(context),
-                  ElevatedButton(
+                  /*ElevatedButton(
                       style: !_joined?ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.lightGreen),
                           shape: MaterialStateProperty.all(RoundedRectangleBorder(
@@ -141,37 +130,18 @@ class _EventItemState extends State<EventItem> {
                                   side: BorderSide(
                                       color: Colors.grey)))),
                       child:
-                          AnimatedCrossFade(
+                      AnimatedCrossFade(
                           duration: Duration(milliseconds: 100),
                           crossFadeState: _joined
                               ? CrossFadeState.showSecond
                               : CrossFadeState.showFirst,
                           firstChild:
-                          Text("Join"),
-                          secondChild: Text('Joined'))
-                          ,
+                          Text(""),
+                          secondChild: Text("")),
                       onPressed: () async{
-                          if(!_joined)
-                            {
-                              if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid))
-                                {
-                                  ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, null, 0);
-                                  event.scoreboard!.add(s);
-                                  LoggedUser.instance!.joinedEvents!.add(event);
-                                  setState(() {
-                                    _joined=!_joined;
-                                  });
-                                  widget.refresh();
-                                }
-                              else
-                                {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content:
-                                      Text("You cannot join multiple active events simultaneously.")));
-                                }
-                            }
-                        }
-                      )
+
+                      }
+                  )*/
                 ],
               ),
             ],
