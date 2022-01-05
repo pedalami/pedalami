@@ -3,11 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/routes/event_ranking.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/utils/date_time_ext.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'package:search_choices/search_choices.dart';
 
 class EventItem extends StatefulWidget {
   const EventItem({Key? key, required Event event, required refresh}) : refresh=refresh,event=event,super(key: key);
@@ -22,6 +24,12 @@ class _EventItemState extends State<EventItem> {
 
   late Event event;
   late bool _joined;
+  late List<Team?> joinableTeams=[];
+  bool loadingJoinableTeams=true;
+  var selectedValueSingleDoneButtonDialog;
+  List<DropdownMenuItem>? item;
+  Team? selectedTeam;
+
 
 
   @override
@@ -29,6 +37,30 @@ class _EventItemState extends State<EventItem> {
     event=widget.event;
     _joined=hasJoined();
     super.initState();
+    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
+      if(event.isTeam()) {
+        for(String enrolledTeamId in event.enrolledTeamsIds!)
+        {
+          for(int i=0;i<LoggedUser.instance!.teams!.length;i++)
+          {
+            if(LoggedUser.instance!.teams![i].id==enrolledTeamId)
+            {
+              joinableTeams.add(await MongoDB.instance.getTeam(enrolledTeamId));
+            }
+          }
+        }
+        item=joinableTeams.map<DropdownMenuItem>((item) => DropdownMenuItem(
+          value: item,
+          child: Padding(
+            padding: const EdgeInsets.all(6),
+            child: Text(item!.name),
+          ),
+        )).toList();
+        loadingJoinableTeams=false;
+        setState(() {});
+      }
+
+    });
   }
 
   bool hasJoined()
@@ -133,6 +165,60 @@ class _EventItemState extends State<EventItem> {
                             ),
                           ),
                         ),
+                        event.isTeam()?
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 1 * SizeConfig.heightMultiplier!),
+                          child: Row(
+                            children: [
+                              Text("Team: ",
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 2 * SizeConfig.textMultiplier!
+                                ),
+                              ),
+                              !loadingJoinableTeams?SearchChoices.single(
+                                items: item,
+                                value: selectedValueSingleDoneButtonDialog,
+                                hint: "Select one team",
+                                searchHint: "Select one team",
+                                onChanged: (value) {
+                                  setState(() {
+                                    selectedTeam=(value as Team);
+                                    selectedValueSingleDoneButtonDialog = value;
+                                  });
+                                },
+                                doneButton: "Done",
+                                displayItem: (item, selected) {
+                                  return (Row(children: [
+                                    selected
+                                        ? Icon(
+                                      Icons.radio_button_checked,
+                                      color: Colors.grey,
+                                    )
+                                        : Icon(
+                                      Icons.radio_button_unchecked,
+                                      color: Colors.grey,
+                                    ),
+                                    SizedBox(width: 7),
+                                    Expanded(
+                                      child: item,
+                                    ),
+                                  ]));
+                                },
+                              ):Padding(
+                                padding: EdgeInsets.only(left: 10),
+                                child: SizedBox(
+                                  height: 2 * SizeConfig.heightMultiplier!,
+                                  width: 2 * SizeConfig.heightMultiplier!,
+                                  child: CircularProgressIndicator(
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ):SizedBox()
 
                       ],
                     ),
@@ -162,11 +248,35 @@ class _EventItemState extends State<EventItem> {
                           secondChild: Text('Joined'))
                           ,
                       onPressed: () async{
-                          if(!_joined)
+                        if(event.isIndividual())
+                          {
+                            if(!_joined)
                             {
                               if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid))
+                              {
+                                ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, null, 0);
+                                event.scoreboard!.add(s);
+                                LoggedUser.instance!.joinedEvents!.add(event);
+                                setState(() {
+                                  _joined=!_joined;
+                                });
+                                widget.refresh();
+                              }
+                              else
+                              {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content:
+                                    Text("You cannot join multiple active events simultaneously.")));
+                              }
+                            }
+                          }
+                        if(event.isTeam())
+                          {
+                            if(selectedTeam!=null)
+                              {
+                                if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid, teamId: selectedTeam!.id))
                                 {
-                                  ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, null, 0);
+                                  ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, selectedTeam!.id, 0);
                                   event.scoreboard!.add(s);
                                   LoggedUser.instance!.joinedEvents!.add(event);
                                   setState(() {
@@ -174,13 +284,18 @@ class _EventItemState extends State<EventItem> {
                                   });
                                   widget.refresh();
                                 }
-                              else
-                                {
-                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content:
-                                      Text("You cannot join multiple active events simultaneously.")));
-                                }
-                            }
+                                else
+                                  {
+                                  }
+                              }
+                            else
+                              {
+                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                    content:
+                                    Text("Please select one team!")));
+                              }
+
+                          }
                         }
                       )
                 ],
