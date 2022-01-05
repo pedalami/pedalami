@@ -69,42 +69,30 @@ class _TeamMembersState extends State<TeamMembers> {
                       topLeft: Radius.circular(30.0),
                     )
                 ),
-                        // Team Members
+                // Team Members
                 child: Container(
-                  height: MediaQuery.of(context).size.height / 2,
+                  height: MediaQuery.of(context).size.height/2,
                   child: ListView.builder(
                       itemCount: widget.team.membersId.length,
                       itemBuilder: (BuildContext context, int index) {
                         return Padding(
                           padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
+                              top: 1 * SizeConfig.heightMultiplier!,
+                              left: 10 * SizeConfig.widthMultiplier!),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
                               Text(
-                                "Member username",
+                                (index+1).toString()+": "+getUsername(index),
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.black54,
                                   fontWeight: FontWeight.bold,
                                   fontSize:
-                                      2 * SizeConfig.textMultiplier!,
+                                      2.5 * SizeConfig.textMultiplier!,
                                 ),
                               ),
                               SizedBox(
-                                height:
-                                    1 * SizeConfig.heightMultiplier!,
-                              ),
-                              Text(
-                                getUsername(index),
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize:
-                                      2 * SizeConfig.textMultiplier!,
-                                ),
-                              ),
-                              SizedBox(
-                                height:
-                                    2 * SizeConfig.heightMultiplier!,
+                                height: 2 * SizeConfig.heightMultiplier!,
                               ),
                             ],
                           ),
