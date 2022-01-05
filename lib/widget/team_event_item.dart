@@ -115,7 +115,6 @@ class _TeamEventItemState extends State<TeamEventItem> {
                       ],
                     ),
                   ),
-                  //!_joined?buildJoinButton():buildLeaveButton(context),
                   /*ElevatedButton(
                       style: !_joined?ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.lightGreen),

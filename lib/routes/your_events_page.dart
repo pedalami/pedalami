@@ -8,6 +8,7 @@ import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
+import 'package:pedala_mi/widget/request_item.dart';
 import 'package:pedala_mi/widget/team_event_item.dart';
 
 
@@ -110,7 +111,7 @@ class _YourEventsPageState extends State<YourEventsPage> {
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemBuilder: (context, j) {
-                                  return TeamEventItem(event: requested_events![j], refresh: refresh,);
+                                  return RequestItem(event: requested_events![j], refresh: refresh, activeTeam: widget.activeTeam,);
                                 }):Column(
                                     children: [
                                       SizedBox(height: MediaQuery.of(context).size.height*.025,),

@@ -279,6 +279,7 @@ class _TeamProfileState extends State<TeamProfile> {
                             ),Padding(
                               padding: EdgeInsets.only(
                                 top: 3 * SizeConfig.heightMultiplier!,
+                                bottom: 3 * SizeConfig.heightMultiplier!,
                               ),
                               child: ElevatedButton(
                                 onPressed: () {
