@@ -58,20 +58,27 @@ app.post("/createPrivateTeam", async (req, res) => {
             });
             hostTeam.activeEvents.push(newEvent._id);
             guestTeam.eventRequests.push(newEvent._id);
+            //hostTeam.markModified('activeEvents');
+            //guestTeam.markModified('eventRequests');
             newEvent.markModified('name'); //ATTENTION! REMOVING THIS LINE CAUSES THE EVENT TO NOT BE CREATED SUCCESSFULLY. THIS IS A MONGOOSE ISSUE
             //OTHERWISE IT WILL RETURN THE FOLLOWING ERROR "No document found for query on save of new object"
             //REFERENCE: https://stackoverflow.com/questions/35733647/mongoose-instance-save-not-working
+            newEvent.save().then(async () => {
             connection.transaction(async (session) => {
                 await Promise.all([
                     hostTeam.save({ session }),
-                    guestTeam.save({ session }),
-                    newEvent.save({ session })
+                    guestTeam.save({ session })
                 ])
             })
                 .then(() => {
                     console.log('Event created!');
                     res.status(200).send(newEvent);
-                })
+                }).catch(async err => {
+                    console.log('The following error occurred in creating the newEvent: ' + err);
+                    await Event.deleteOne({ _id: newEvent._id });
+                    throw err;
+
+                })})
                 .catch(err => {
                     console.log('The following error occurred in creating the new Private Event: ' + err);
                     res.status(500).send('Error in creating the new Private Event');
