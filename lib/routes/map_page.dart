@@ -109,7 +109,6 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   void addPointInBackground(location) {
     if (_currentState != AppLifecycleState.resumed) {
-      print("hej");
       if (path.last.latitude == location.latitude &&
           path.last.longitude == location.longitude) {
         print("No progress to save in background");
