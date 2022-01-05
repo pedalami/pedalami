@@ -8,7 +8,7 @@ import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:search_choices/search_choices.dart';
-import 'package:pedala_mi/widget/event_item.dart';
+import 'package:pedala_mi/widget/enroll_item.dart';
 
 class EnrollEvent extends StatefulWidget {
   const EnrollEvent({Key? key, required this.actualTeam}) : super(key: key);
@@ -155,7 +155,7 @@ class _EnrollEventState extends State<EnrollEvent> {
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (context, i) {
-                          return EventItem(event: events[i], refresh: refresh,);
+                          return EnrollItem(event: events[i], refresh: refresh,);
                         }),
                   ],
                 )  : Padding( padding: EdgeInsets.only(top: 15),
