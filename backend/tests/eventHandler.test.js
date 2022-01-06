@@ -60,12 +60,12 @@ event_indiv = {
 
 
 describe("POST /createPrivateTeam", () => {
-    test("Create a Private Team event without a host team should return 500", async () => {
+    test("Create a Private Team event without a host team should return 400", async () => {
         const response = await request(app).post('/events/createPrivateTeam').send(event_no_host_team);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the newEvent: missing host or guest team or adminId');
     })
-    test("Create a Private Team event without a guest team should return 500", async () => {
+    test("Create a Private Team event without a guest team should return 400", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = hostTeam.adminId
         var event_no_guest = {
@@ -79,10 +79,10 @@ describe("POST /createPrivateTeam", () => {
             'adminId': adminId
         }
         const response = await request(app).post('/events/createPrivateTeam').send(event_no_guest);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the newEvent: missing host or guest team or adminId');
     })
-    test("Create a Private Team event without the adminId should return 500", async () => {
+    test("Create a Private Team event without the adminId should return 400", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         var event_no_admin = {
@@ -96,10 +96,10 @@ describe("POST /createPrivateTeam", () => {
             'invitedTeamId': guestTeam._id
         }
         const response = await request(app).post('/events/createPrivateTeam').send(event_no_admin);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the newEvent: missing host or guest team or adminId');
     })
-    test("Create a Private Team without be the host team admin should return 500", async () => {
+    test("Create a Private Team with a wrong host team admin should return 500", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         const adminId = "carlo"
@@ -161,13 +161,13 @@ describe("POST /createPrivateTeam", () => {
 })
 
 describe("POST /proposePublicTeam", () => {
-    test("Create a Private Team event without a host team should return 500", async () => {
+    test("Propose a Public Team event without a host team should return 400", async () => {
         const response = await request(app).post('/events/proposePublicTeam').send(event_no_host_team);
-        expect(response.status).toBe(500);
-        expect(response.text).toBe("Error in creating the new Public Team Event: missing host team or adminId");
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in creating the new Public Team Event: missing host team or adminId');
     })
 
-    test("Create a Public Team event without the adminId should return 500", async () => {
+    test("Propose a Public Team event without the adminId should return 400", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         var event_no_admin = {
             'name': 'prova_private_event',
@@ -179,10 +179,10 @@ describe("POST /proposePublicTeam", () => {
             'hostTeamId': hostTeam._id
         }
         const response = await request(app).post('/events/proposePublicTeam').send(event_no_admin);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the new Public Team Event: missing host team or adminId');
     })
-    test("Create a Public Team without be the host team admin should return 500", async () => {
+    test("Propose a Public Team with a wrong host team admin should return 500", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = "carlo"
         var event_fake_admin = {
@@ -200,7 +200,7 @@ describe("POST /proposePublicTeam", () => {
         expect(response.text).toBe('Could not find host team or admin');
     })
 
-    test("Create a Public Team event correctly should return 200", async () => {
+    test("Propose a Public Team event correctly should return 200", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = hostTeam.adminId
         var event_team_pub = {

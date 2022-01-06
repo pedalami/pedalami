@@ -190,7 +190,7 @@ app.post("/proposePublicTeam", async (req, res) => {
         })
     } else {
         console.log('Missing host team or adminId');
-        res.status(500).send('Error in creating the new Public Team Event: missing host team or adminId');
+        res.status(400).send('Error in creating the new Public Team Event: missing host team or adminId');
     }
 });
 
@@ -374,6 +374,8 @@ app.post('/join', (req, res) => {
             User.findOne({ userId: userId }).session(session).exec(),
             Event.findOne({ _id: eventId }).session(session).exec()
         ]);
+        if (!user || !event)
+            throw new Error('User or event not found!');
         if (event.type === 'team') {
             if (!teamId)
                 throw new Error('Missing teamId');
@@ -411,39 +413,27 @@ app.post('/leave', async (req, res) => {
     const userId = req.body.userId;
     const eventId = req.body.eventId;
     if (userId && eventId) {
-        const user = await User.findOne({ userId: userId }).exec().catch(err => {
-            console.log('Error in finding user: ' + err);
-            res.status(500).send('Error in finding user');
-            return;
-        });
-        const event = await Event.findOne({ _id: eventId }).exec().catch(err => {
-            console.log('Error in finding the event: ' + err);
-            res.status(500).send('Error in finding the event');
-            return;
-        });
-        if (user && event) {
+        connection.transaction(async (session) => {
+            var [user, event] = await Promise.all([
+                User.findOne({ userId: userId }).session(session).exec(),
+                Event.findOne({ _id: eventId }).session(session).exec()
+            ]);
+            if (!user || !event)
+                throw new Error('User or event not found');
             if (user.joinedEvents.includes(eventId)) {
                 user.joinedEvents.remove(eventId);
-                connection.transaction(async (session) => {
-                    await user.save({ session: session });
-                })
-                    .then(() => {
-                        res.status(200).send('Event left successfully');
-                    })
-                    .catch((err) => {
-                        console.log('Error while leaving the event\n' + err);
-                        res.status(500).send('Error while leaving the event: ' + err);
-                    });
-            } else {
-                console.log('Error while leaving the event: user is not enrolled in the event');
-                res.status(500).send('Error while leaving the event: user is not enrolled in the event');
-            }
-        } else {
-            console.log('Error while leaving the event: user or event not found');
-            res.status(500).send('Error while leaving the event: user or event not found');
-        }
-    }
-    else {
+                await user.save();
+            } else
+                throw new Error('Error while leaving the event: user is not enrolled in the event');
+        })
+        .then(() => {
+            res.status(200).send('Event left successfully');
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send(err);
+        })
+    } else {
         console.log('Missing params');
         res.status(400).send('Error while leaving the event: missing parameters');
     }
@@ -477,31 +467,30 @@ app.post('/search', async (req, res) => {
         return;
     }
     Event.find(
-        {
-            $and: [
-                { name: { $regex: '.*' + to_search + ".*", $options: 'i' } },
-                { _id: { $nin: team.activeEvents } }, //excludes the events team is already enrolled in
-                { startDate: { $lte: new Date() } }, //excludes the events that have not started
-                { endDate: { $gte: new Date() } }, //excludes the events that have already ended
-                { type: 'team' },
-                {
-                    $or: [
-                        {
-                            $and: [{ visibility: 'public' }, { status: 'approved' }]
-                        }, //if the event is public and active
-                        { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
-                    ]
-                }
-            ]
-        }, (error, events) => {
-            if (error) {
-                console.log('Error finding the events.\n' + error);
-                res.status(500).send('Error finding the events!');
-            } else {
-                res.status(200).send(events);
+    {
+        $and: [
+            { name: { $regex: '.*' + to_search + ".*", $options: 'i' } },
+            { _id: { $nin: team.activeEvents } }, //excludes the events team is already enrolled in
+            { startDate: { $lte: new Date() } }, //excludes the events that have not started
+            { endDate: { $gte: new Date() } }, //excludes the events that have already ended
+            { type: 'team' },
+            {
+                $or: [
+                    {
+                        $and: [{ visibility: 'public' }, { status: 'approved' }]
+                    }, //if the event is public and active
+                    { involvedTeams: { $in: [teamId] } } //if the event is private and the team has been invited to join
+                ]
             }
-        });
-
+        ]
+    }, (error, events) => {
+        if (error) {
+            console.log('Error finding the events.\n' + error);
+            res.status(500).send('Error finding the events!');
+        } else {
+            res.status(200).send(events);
+        }
+    });
 });
 
 
@@ -642,6 +631,8 @@ async function terminateEvents() {
 
 
 app.post("/getUsersEvents", async (req, res) => {
+    console.log('Received getUsersEvents POST request');
+    console.log(req.body);
     var userId = req.body.userId;
     if (userId) {
         const user = await User.findOne({ userId: userId }).exec();
@@ -657,39 +648,46 @@ app.post("/getUsersEvents", async (req, res) => {
 });
 
 app.post("/getTeamActiveEvents", async (req, res) => {
+    console.log('Received getTeamActiveEvents POST request');
+    console.log(req.body);
     var teamId = req.body.teamId;
-
     if (teamId) {
         var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
         if (team) {
             var events = await Event.find({ _id: { $in: team.activeEvents } }).exec();
             res.status(200).send(events);
         } else {
+            console.log('Error in getting the team events: team not found')
             res.status(500).send('Error in getting the team events: team not found');
         }
     } else {
+        console.log('Missing params');
         res.status(400).send('Error in getting the team events: missing parameter');
     }
 
 });
 
 app.post("/getTeamEventRequests", async (req, res) => {
+    console.log('Received getTeamEventRequests POST request');
+    console.log(req.body);
     var teamId = req.body.teamId;
-
     if (teamId) {
         var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
         if (team) {
             var events = await Event.find({ _id: { $in: team.eventRequests } }).exec();
             res.status(200).send(events);
         } else {
+            console.log('Error in getting the team events: team not found');
             res.status(500).send('Error in getting the team events: team not found');
         }
     } else {
+        console.log('Missing params');
         res.status(400).send('Error in getting the team events: missing parameter');
     }
 })
 
 app.get("/closeEvents", async (req, res) => {
+    console.log('Received closeEvents request');
     try {
         await terminateEvents();
     }
