@@ -11,33 +11,30 @@ import 'package:pedala_mi/utils/date_time_ext.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class EnrollItem extends StatefulWidget {
-  const EnrollItem({Key? key, required Event event, required refresh}) : refresh=refresh,event=event,super(key: key);
+  const EnrollItem({Key? key, required Event event, required refresh, required Team actualTeam}) : refresh=refresh,event=event, actualTeam = actualTeam, super(key: key);
   final Function refresh;
   final Event event;
+  final Team actualTeam;
 
   @override
   _EnrollItemState createState() => _EnrollItemState();
 }
 
 class _EnrollItemState extends State<EnrollItem> {
-
-  late Event event;
   late bool _enrolled;
-  late Team actualTeam;
 
 
   @override
   void initState() {
-    event = widget.event;
     _enrolled = hasEnrolled();
     super.initState();
   }
 
   bool hasEnrolled()
   {
-    for(int i=0;i<event.scoreboard!.length;i++)
+    for(int i=0;i<widget.event.scoreboard!.length;i++)
     {
-      if(event.scoreboard![i].userId==FirebaseAuth.instance.currentUser!.uid)
+      if(widget.event.scoreboard![i].userId==FirebaseAuth.instance.currentUser!.uid)
       {
         return true;
       }
@@ -51,7 +48,7 @@ class _EnrollItemState extends State<EnrollItem> {
       padding: EdgeInsets.only(bottom: 20, right: 20,left: 20),
       child: GestureDetector(
         onTap: (){
-          pushNewScreen(context, screen: EventRankingPage(event: event,));
+          pushNewScreen(context, screen: EventRankingPage(event: widget.event,));
         },
         child: Container(
           padding: EdgeInsets.all(12),
@@ -66,7 +63,7 @@ class _EnrollItemState extends State<EnrollItem> {
               Padding(
                 padding: EdgeInsets.only(
                     top: 5),
-                child: Text(event.name,
+                child: Text(widget.event.name,
                   style: TextStyle(
                       color: Colors.black54,
                       fontWeight: FontWeight.bold,
@@ -80,10 +77,10 @@ class _EnrollItemState extends State<EnrollItem> {
                     child: Column(
                       crossAxisAlignment:CrossAxisAlignment.start,
                       children: <Widget>[
-                        event.isIndividual()?event.prize != null ? Padding(
+                        widget.event.isIndividual()?widget.event.prize != null ? Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Points: "+event.prize!.toStringAsFixed(0),
+                          child: Text("Points: "+widget.event.prize!.toStringAsFixed(0),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -94,7 +91,7 @@ class _EnrollItemState extends State<EnrollItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Event Type: "+(event.isTeam()?"Team" : "Unknown Type"),
+                          child: Text("Event Type: "+(widget.event.isTeam()?"Team" : "Unknown Type"),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -105,7 +102,7 @@ class _EnrollItemState extends State<EnrollItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Event Visibility: "+(event.isPublic()?"Public":event.isPrivate()?"Private":""),
+                          child: Text("Event Visibility: "+(widget.event.isPublic()?"Public":widget.event.isPrivate()?"Private":""),
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -116,7 +113,7 @@ class _EnrollItemState extends State<EnrollItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Started: "+event.startDate.formatIT,
+                          child: Text("Started: "+widget.event.startDate.formatIT,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -127,7 +124,7 @@ class _EnrollItemState extends State<EnrollItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Ends: "+event.endDate.formatIT,
+                          child: Text("Ends: "+widget.event.endDate.formatIT,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -166,9 +163,8 @@ class _EnrollItemState extends State<EnrollItem> {
                       onPressed: () async{
                         if(!_enrolled)
                         {
-                          if(await MongoDB.instance.enrollTeamToPublicEvent(event.id, actualTeam.id, actualTeam.adminId))
+                          if(await MongoDB.instance.enrollTeamToPublicEvent(widget.event.id, widget.actualTeam.adminId, widget.actualTeam.id))
                           {
-                            // TODO: Need to implement the event enrolling for the team.
                             setState(() {
                               _enrolled = !_enrolled;
                             });

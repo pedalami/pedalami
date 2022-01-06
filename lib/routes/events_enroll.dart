@@ -155,17 +155,14 @@ class _EnrollEventState extends State<EnrollEvent> {
                         physics: const NeverScrollableScrollPhysics(),
                         shrinkWrap: true,
                         itemBuilder: (context, i) {
-                          return EnrollItem(event: events[i], refresh: refresh,);
+                          return EnrollItem(event: events[i], refresh: refresh, actualTeam: actualTeam);
                         }),
                   ],
                 )  : Padding( padding: EdgeInsets.only(top: 15),
-                     child: Text("No events found"))),
+                    child: Text("No events found"))),
               ],
             ),
           ),
         ));
   }
 }
-
-
-
