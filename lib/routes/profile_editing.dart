@@ -33,29 +33,6 @@ class _ProfileEditingState extends State<ProfileEditing> {
     setState(() {
       usernameController.value = usernameController.value.copyWith(text: username);
     });
-    /*
-    CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
-    usersCollection
-        .where("Mail", isEqualTo: user!.email)
-        .get()
-        .then((QuerySnapshot querySnapshot) async {
-          querySnapshot.docs[0].get("Image");
-      setState(() {
-        _miUser = new LoggedUser(
-            querySnapshot.docs[0].id,
-            querySnapshot.docs[0].get("Image"),
-            querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"), 0.0);
-        usernameController.value =
-            usernameController.value.copyWith(text: _miUser.username);
-        //emailController.value =
-        //   emailController.value.copyWith(text: _miUser.mail);
-        //TODO - Comment added by Vincenzo:
-        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
-        //My suggestion is to have a single shared MiUser to use in the whole application.
-      });
-    });
-     */
     super.initState();
   }
 
@@ -77,25 +54,16 @@ class _ProfileEditingState extends State<ProfileEditing> {
                 children: <Widget>[
                   Row(
                     children: <Widget>[
-                      GestureDetector(
-                          child: Container(
-                            height: 11 * SizeConfig.heightMultiplier!,
-                            width: 22 * SizeConfig.widthMultiplier!,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(imageUrl),
-                                )),
-                          ),
-                          onTap: () async {
-                            Map<Permission, PermissionStatus> statuses = await [
-                              Permission.camera,
-                              Permission.storage,
-                            ].request();
-
-                            _showPicker(context);
-                          }),
+                      Container(
+                        height: 11 * SizeConfig.heightMultiplier!,
+                        width: 22 * SizeConfig.widthMultiplier!,
+                        decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            image: DecorationImage(
+                              fit: BoxFit.cover,
+                              image: NetworkImage(imageUrl),
+                            )),
+                      ),
                       SizedBox(
                         width: 5 * SizeConfig.widthMultiplier!,
                       ),
@@ -126,9 +94,6 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                   ),
                                 ],
                               ),
-                              SizedBox(
-                                width: 3 * SizeConfig.widthMultiplier!,
-                              ),
                             ],
                           )
                         ],
@@ -154,32 +119,58 @@ class _ProfileEditingState extends State<ProfileEditing> {
                     child: Column(
                       children: [
                         Padding(
-                            padding: EdgeInsets.only(
-                                left: 10.0,
-                                top: 10 * SizeConfig.heightMultiplier!,
-                                right: 10),
-                            child: TextField(
-                              cursorColor: CustomColors.green,
-                              decoration: InputDecoration(
-                                  counterStyle: TextStyle(
-                                    color: CustomColors.silver,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.silver),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.green),
-                                  ),
-                                  hintText: "Insert new username",
-                                  hintStyle:
-                                      TextStyle(color: CustomColors.silver)),
-                              controller: usernameController,
-                              maxLength: 20,
-                              style: TextStyle(color: Colors.black),
-                            )),
-                        Container(
+                          padding: EdgeInsets.only(
+                              top: 3 * SizeConfig.heightMultiplier!,),
+                          child: !imgInserted?ElevatedButton(
+                              onPressed: () async {
+                                Map<Permission, PermissionStatus> statuses = await [
+                                  Permission.camera,
+                                  Permission.storage,
+                                ].request();
+                                _showPicker(context);
+                              },
+                              child: Text("Change profile picture"),
+                              style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                      Size(200, 35)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0))))):CircularProgressIndicator(
+                            color: Colors.lightGreen,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: 10,
+                              top: 3 * SizeConfig.heightMultiplier!,
+                              right: 10.0),
+                          child: TextField(
+                            cursorColor: Colors.lightGreen,
+                            decoration: InputDecoration(
+                                counterStyle: TextStyle(
+                                  color: CustomColors.silver,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: CustomColors.silver),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.lightGreen),
+                                ),
+                                hintText: "Insert new username",
+                                hintStyle:
+                                    TextStyle(color: CustomColors.silver)),
+                            controller: usernameController,
+                            maxLength: 20,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 1 * SizeConfig.heightMultiplier!,),
                           child: ElevatedButton(
                             onPressed: () {
                               checkValue();
@@ -194,50 +185,6 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(18.0))))),
                         ),
-                        Padding(
-                            padding: EdgeInsets.only(
-                                left: 10,
-                                top: 3 * SizeConfig.heightMultiplier!,
-                                right: 10.0),
-                            /*child: TextField(
-                              cursorColor: CustomColors.green,
-                              decoration: InputDecoration(
-                                  counterStyle: TextStyle(
-                                    color: CustomColors.silver,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.silver),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.green),
-                                  ),
-                                  hintText: "Insert new email address",
-                                  hintStyle:
-                                      TextStyle(color: CustomColors.silver)),
-                              //controller: emailController,
-                              maxLength: 40,
-                              style: TextStyle(color: Colors.black),
-                            )),
-                        Container(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: Text("Change email address"),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen)),
-                          ),*/
-                        ),
-                        SizedBox(
-                          height: 30 * SizeConfig.heightMultiplier!,
-                        ),
-                        Container(
-                          height: 20 * SizeConfig.heightMultiplier!,
-                        ),
-                        Divider(
-                          color: Colors.grey,
-                        )
                       ],
                     ),
                   ),
@@ -295,7 +242,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                     "To use this funcion, please allow access to storage in settings.",),
                                 action: SnackBarAction(
                                   label: "Settings",
-                                  textColor: CustomColors.green,
+                                  textColor: Colors.lightGreen,
                                   onPressed: () {
                                     openAppSettings();
                                   },
@@ -331,7 +278,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                 "To use this funcion, please allow access to camera in settings.",),
                               action: SnackBarAction(
                                 label: "Settings",
-                                textColor: CustomColors.green,
+                                textColor: Colors.lightGreen,
                                 onPressed: () {
                                   openAppSettings();
                                 },
@@ -354,27 +301,29 @@ class _ProfileEditingState extends State<ProfileEditing> {
 
   void loadImageToFirebase(File? image) async {
     var uuid = Uuid().v4();
-    if (image != null) {
-      FirebaseStorage storage = FirebaseStorage.instance;
-      Reference storageRef = storage.ref();
-      Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
-      await imageRef.putFile(image);
-      CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
-      String docID="";
-      String urlFirebase="";
-      await usersCollection
-          .where("Mail", isEqualTo: user!.email)
-          .get()
-          .then((QuerySnapshot querySnapshot) async {
+    try
+    {
+      if (image != null) {
+        FirebaseStorage storage = FirebaseStorage.instance;
+        Reference storageRef = storage.ref();
+        Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
+        await imageRef.putFile(image);
+        CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+        String docID="";
+        String urlFirebase="";
+        await usersCollection
+            .where("Mail", isEqualTo: user!.email)
+            .get()
+            .then((QuerySnapshot querySnapshot) async {
           docID=querySnapshot.docs[0].id;
           urlFirebase=querySnapshot.docs[0].get("Image");
-      });
-      await imageRef.getDownloadURL().then( (url) async {
-        await FirebaseFirestore.instance
-          .collection("Users")
-          .doc(docID)
-          .update({"Image": url})
-          .then( (value) async{
+        });
+        await imageRef.getDownloadURL().then( (url) async {
+          await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(docID)
+              .update({"Image": url})
+              .then( (value) async{
             LoggedUser.instance!.changeProfileImage(url);
             await FirebaseStorage.instance.refFromURL(urlFirebase).delete();
             imageUrl=url;
@@ -382,8 +331,18 @@ class _ProfileEditingState extends State<ProfileEditing> {
 
             });
           });
+        });
+
+      }
+    }
+    finally
+    {
+      imgInserted=false;
+      setState(() {
+
       });
     }
+
   }
 
 }

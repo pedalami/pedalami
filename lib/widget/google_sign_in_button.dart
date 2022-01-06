@@ -78,9 +78,9 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                             .get();
                         if (querySnapshot.docs.isNotEmpty) {
                           String? username = querySnapshot.docs[0].get("Username");
-
+                          String? imageUrl= querySnapshot.docs[0].get("Image");
                           if (username != null) {
-                            LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
+                            LoggedUser.initInstance(user.uid, imageUrl ?? "", user.email!, username);
                             await MongoDB.instance.initUser(user.uid);
 
 
