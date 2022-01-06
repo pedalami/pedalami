@@ -119,12 +119,12 @@ app.post('/leave', (req, res) => {
         } else {
           user.teams.splice(user.teams.indexOf(ObjectId(req.body.teamId)), 1);
           team.members.splice(team.members.indexOf(req.body.userId), 1);
-          await connection.transaction((session) => {
+          //await connection.transaction((session) => {
             return Promise.all([
               team.save({ session }),
               user.save({ session })
             ]);
-          });
+          //});
         }
       }
     })

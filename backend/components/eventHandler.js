@@ -106,60 +106,73 @@ app.post("/createPrivateTeam", async (req, res) => {
     console.log('Received createPrivateTeam POST request:');
     console.log(req.body);
     if (req.body.hostTeamId && req.body.invitedTeamId && req.body.adminId) {
-        var [guestTeam, hostTeam] = await Promise.all([
-            Team.findOne({ _id: ObjectId(req.body.invitedTeamId) }).exec(),
-            Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).exec()
-        ])
-        if (guestTeam && hostTeam && hostTeam.adminId === req.body.adminId) {
-            var newEvent = new Event({
-                name: req.body.name,
-                description: req.body.description,
-                startDate: req.body.startDate,
-                endDate: req.body.endDate,
-                type: "team",
-                visibility: "private",
-                hostTeam: req.body.hostTeamId,
-                guestTeam: null,
-                involvedTeams: [req.body.invitedTeamId]
-            });
-            hostTeam.activeEvents.push(newEvent._id);
-            guestTeam.eventRequests.push(newEvent._id);
-            //hostTeam.markModified('activeEvents');
-            //guestTeam.markModified('eventRequests');
-            newEvent.markModified('name'); //ATTENTION! REMOVING THIS LINE CAUSES THE EVENT TO NOT BE CREATED SUCCESSFULLY. THIS IS A MONGOOSE ISSUE
-            //OTHERWISE IT WILL RETURN THE FOLLOWING ERROR "No document found for query on save of new object"
-            //REFERENCE: https://stackoverflow.com/questions/35733647/mongoose-instance-save-not-working
-            newEvent.save()
-            .then(async () => {
-                connection.transaction(async (session) => {
-                    await Promise.all([
-                        hostTeam.save({ session }),
-                        guestTeam.save({ session })
-                    ])
-                })
-                .then(() => {
-                    console.log('Event created!');
-                    res.status(200).send(newEvent);
-                })
+        var newEvent = new Event({
+            name: req.body.name,
+            description: req.body.description,
+            startDate: req.body.startDate,
+            endDate: req.body.endDate,
+            type: "team",
+            visibility: "private",
+            hostTeam: req.body.hostTeamId,
+            guestTeam: null,
+            involvedTeams: [req.body.invitedTeamId]
+        });
+        connection.transaction(async (session) => {
+            var [guestTeam, hostTeam] = await Promise.all([
+                Team.findOne({ _id: ObjectId(req.body.invitedTeamId) }).session(session).exec(),
+                Team.findOne({ _id: ObjectId(req.body.hostTeamId) }).session(session).exec()
+            ]);
+            if (guestTeam && hostTeam && hostTeam.adminId === req.body.adminId) {
+                hostTeam.activeEvents.push(newEvent._id);
+                guestTeam.eventRequests.push(newEvent._id);
+                await newEvent.save();
+                await Promise.all([
+                    hostTeam.save({ session }),
+                    guestTeam.save({ session })
+                ])
                 .catch(async err => {
                     console.log('The following error occurred in creating the newEvent: ' + err);
                     await Event.deleteOne({ _id: newEvent._id });
                     throw err;
-                })
-            })
-            .catch(err => {
-                console.log('The following error occurred in creating the new Private Event: ' + err);
-                res.status(500).send('Error in creating the new Private Event');
-            })
-        } else {
-            console.log('Could not find host team or guest team or admin');
-            res.status(500).send('Could not find host team or guest team or admin');
-        }
+                });
+            } else {
+                throw new Error('Could not find host team or guest team or admin');
+            }
+        })
+        .then(() => {
+            console.log('Event created!');
+            res.status(200).send(newEvent);
+        })
+        .catch(err => {
+            console.log(err);
+            res.status(500).send(err);
+        })
     } else {
         console.log('Error in creating the newEvent: missing host or guest team or adminId');
         res.status(400).send('Error in creating the newEvent: missing host or guest team or adminId');
     }
 });
+/*
+await newEvent.save()
+                .then(async () => {
+                    await Promise.all([
+                        hostTeam.save({ session }),
+                        guestTeam.save({ session })
+                    ])
+                    .then(() => {
+                        console.log('Event created!');
+                        res.status(200).send(newEvent);
+                    })
+                    .catch(async err => {
+                        console.log('The following error occurred in creating the newEvent: ' + err);
+                        await Event.deleteOne({ _id: newEvent._id });
+                        throw err;
+                    })
+                })
+                .catch(err => {
+                    throw new Error('The following error occurred in creating the new Private Event: ' + err);
+                })
+*/
 
 app.post("/proposePublicTeam", async (req, res) => {
     console.log('Received createPublicTeam POST request:');
@@ -266,45 +279,42 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
     console.log('Received acceptPrivateTeamInvite POST request:');
     console.log(req.body);
     if (req.body.eventId && req.body.teamId && req.body.adminId) {
-        var [event, team, admin] = await Promise.all([
-            Event.findOne({ _id: ObjectId(req.body.eventId) }).exec(),
-            Team.findOne({ _id: ObjectId(req.body.teamId) }).exec(),
-            User.findOne({ userId: req.body.adminId }).exec()
-        ]);
-        if (event && team && admin) {
-            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
-                && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
-                console.log(team.adminId == admin.userId);
-                console.log(event.visibility == "private");
-                console.log(event.type == "team");
-                console.log(event.involvedTeams != null);
-                console.log(event.involvedTeams.includes(team._id));
-                console.log(event.guestTeam == null);
-                event.involvedTeams = null;
-                event.guestTeam = team._id;
-                team.eventRequests.remove(event._id);
-                team.activeEvents.push(event._id);
-                connection.transaction(async (session) => {
+        connection.transaction(async (session) => {
+            var [event, team, admin] = await Promise.all([
+                Event.findOne({ _id: ObjectId(req.body.eventId) }).session(session).exec(),
+                Team.findOne({ _id: ObjectId(req.body.teamId) }).session(session).exec(),
+                User.findOne({ userId: req.body.adminId }).session(session).exec()
+            ]);
+            if (event && team && admin) {
+                if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
+                    && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
+                    console.log(team.adminId == admin.userId);
+                    console.log(event.visibility == "private");
+                    console.log(event.type == "team");
+                    console.log(event.involvedTeams != null);
+                    console.log(event.involvedTeams.includes(team._id));
+                    console.log(event.guestTeam == null);
+                    event.involvedTeams = null;
+                    event.guestTeam = team._id;
+                    team.eventRequests.remove(event._id);
+                    team.activeEvents.push(event._id);
                     await Promise.all([
                         team.save({ session }),
                         event.save({ session })
                     ])
-                })
-                .then(() => {
-                    res.status(200).send(event);
-                })
-                .catch(err => {
-                    console.log('The following error occurred in joining the team event: ' + err);
-                    res.status(500).send('Error in joining the team event');
-                });
+                } else {
+                    throw new Error('Conditions not matched');
+                }
             } else {
-                console.log('Conditions not matched');
-                res.status(500).send('Conditions not matched');
+                throw new Error('Error in joining the team event: event or team or admin not found');
             }
-        } else {
-            console.log('Error in joining the team event: event or team or admin not found');
-            res.status(500).send('Error in joining the team event: event or team or admin not found');
-        }
+        })
+        .then(() => {
+            res.status(200).send('Invite accepted');
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+        })
     } else {
         console.log('Missing params');
         res.status(400).send('Error in joining the team event: missing parameters');
@@ -315,39 +325,43 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
     console.log('Received rejectPrivateTeamInvite POST request:');
     console.log(req.body);
     if (req.body.eventId && req.body.teamId && req.body.adminId) {
-        var event, team, admin;
-        event = await Event.findOne({ _id: ObjectId(req.body.eventId) }).exec()
-        team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec()
-        admin = await User.findOne({ userId: req.body.adminId }).exec()
-        if (event && team && admin) {
-            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
-                && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
-                event.involvedTeams = null;
-                team.eventRequests.remove(event._id);
-                connection.transaction(async (session) => {
+        connection.transaction(async (session) => {
+            var [event, team, admin] = await Promise.all([
+                Event.findOne({ _id: ObjectId(req.body.eventId) }).session(session).exec(),
+                Team.findOne({ _id: ObjectId(req.body.teamId) }).session(session).exec(),
+                User.findOne({ userId: req.body.adminId }).session(session).exec()
+            ]);
+            if (event && team && admin) {
+                if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
+                    && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
+                    console.log(team.adminId == admin.userId);
+                    console.log(event.visibility == "private");
+                    console.log(event.type == "team");
+                    console.log(event.involvedTeams != null);
+                    console.log(event.involvedTeams.includes(team._id));
+                    console.log(event.guestTeam == null);
+                    event.involvedTeams = null;
+                    team.eventRequests.remove(event._id);
                     await Promise.all([
                         team.save({ session }),
                         event.save({ session })
                     ])
-                })
-                .then(() => {
-                    res.status(200).send("Invite rejected successfully");
-                })
-                .catch(err => {
-                    console.log('The following error occurred in rejecting the team event: ' + err);
-                    res.status(500).send('Error in rejecting the team event');
-                });
+                } else {
+                    throw new Error('Conditions not matched');
+                }
             } else {
-                console.log('Conditions not matched');
-                res.status(500).send('Conditions not matched');
+                throw new Error('Error in joining the team event: event or team or admin not found');
             }
-        } else {
-            console.log('Error in rejecting the team invite: event or team or admin not found');
-            res.status(500).send('Error in rejecting the team invite: event or team or admin not found');
-        }
+        })
+        .then(() => {
+            res.status(200).send('Invite accepted');
+        })
+        .catch((err) => {
+            res.status(500).send(err);
+        })
     } else {
         console.log('Missing params');
-        res.status(400).send('Error in rejecting the team event invite: missing parameters');
+        res.status(400).send('Error in joining the team event: missing parameters');
     }
 });
 
