@@ -139,12 +139,26 @@ class _ProfilePageState extends State<ProfilePage> {
                 Container(
                   height: 11 * SizeConfig.heightMultiplier!,
                   width: 22 * SizeConfig.widthMultiplier!,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        fit: BoxFit.cover,
-                        image: _miUser.image,
-                      )),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image.network(_miUser.image.url,
+                      fit: BoxFit.cover,
+                      errorBuilder:(BuildContext context, Object object, StackTrace? stacktrace){
+                          return Image.asset("lib/assets/app_icon.png");
+                      },
+                      loadingBuilder:(BuildContext context, Widget child,ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            value: loadingProgress.expectedTotalBytes != null ?
+                            loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes as num)
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
                 ),
                 SizedBox(
                   width: 5 * SizeConfig.widthMultiplier!,
