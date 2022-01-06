@@ -544,12 +544,17 @@ app.post('/search', async (req, res) => {
 // API used by a user to get the list of all the events that he can join
 app.get('/getJoinableEvents', async (req, res) => {
     const userId = req.query.userId;
+    var to_search = ""
+    if (req.query.name) {
+        to_search = req.query.name;
+    }
     console.log('Received getEvents GET request with param userId=' + userId);
     if (userId) {
         const user = await User.findOne({ userId: userId }).exec();
         if (user) {
             const events = await Event.find({
                 $and: [
+                    { name: { $regex: '.*' + to_search + ".*", $options: 'i' }},
                     { _id: { $nin: user.joinedEvents } }, //excludes the events the user has already joined
                     { startDate: { $lte: new Date() } }, //excludes the events that have not started
                     { endDate: { $gte: new Date() } }, //excludes the events that have already ended
