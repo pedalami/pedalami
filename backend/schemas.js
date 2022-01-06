@@ -82,8 +82,8 @@ const EventSchema = new Schema({
     visibility: { type: String, required: true }, // The event can be public or private
     prize: { type: Number, required: false }, // The event must have a prize only if visibility is "public" and type is "individual"
 
-    // if it is a private team event
     hostTeam: { type: ObjectId, required: false }, //the team proposing the event
+    // only if it is a private team event
     guestTeam: { type: ObjectId, required: false }, //the teams invited to the event
 
     //if it is a public team event, involvedTeams is the list of teams that are partecipating to the event, including the host
@@ -91,6 +91,7 @@ const EventSchema = new Schema({
     involvedTeams: [{ type: ObjectId, required: false }], //the teams that are involved in the event
     winningTeam: { type: ObjectId, required: false }, //the team that wins the event
 
+    // only if it is a public event
     status: { type: String, required: false }, //It is set only if the event is a public team event, it can be "pending", "approved", "rejected".
 
 

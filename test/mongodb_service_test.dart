@@ -97,9 +97,6 @@ void main() {
   });
 
 
-
-
-
   test('create private team event testing', () async {
     instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
@@ -145,7 +142,7 @@ void main() {
 
   test('reject private team event invite testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d724a8ab1c282cdc6ad488";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.rejectInvite(eventId, adminId, teamId));
@@ -153,7 +150,7 @@ void main() {
 
   test('send private team event invite testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d724a8ab1c282cdc6ad488";
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince userId
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
     String invitedTeamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id

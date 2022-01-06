@@ -9,7 +9,7 @@ const Event = models.Event;
 const ObjectId = models.ObjectId;
 const connection = models.connection;
 
-//INTERNAL API for creating individual events
+//INTERNAL APIs
 app.post("/createIndividual", async (req, res) => {
     var prize = 0;
     if (req.body.prize){
@@ -33,6 +33,72 @@ app.post("/createIndividual", async (req, res) => {
             res.status(500).send('Error in creating the newEvent');
         })
 });
+
+app.post('/approvePublicTeam', async (req, res) => {
+    const eventId = req.body.eventId;
+    if (!eventId) {
+        res.status(400).send('Missing eventId');
+        return;
+    }
+    const event = await Event.findOne({ _id: eventId }).exec();
+    if (!event) {
+        res.status(500).send('Event not found');
+        return;
+    }
+    if (event.type !== 'team') {
+        res.status(500).send('Event is not a team event');
+        return;
+    }
+    if (event.visibility !== 'public') {
+        res.status(500).send('Event is not public');
+        return;
+    }
+    if (event.status !== 'pending') {
+        res.status(500).send('Event is not pending');
+        return;
+    }
+    event.status = 'approved';
+    event.save().then(() => {
+        res.status(200).send(event);
+    }).catch(err => {
+        res.status(500).send('Error in approving the event');
+    });
+
+});
+
+app.post('/rejectPublicTeam', async (req, res) => {
+    const eventId = req.body.eventId;
+    if (!eventId) {
+        res.status(400).send('Missing eventId');
+        return;
+    }
+    const event = await Event.findOne({ _id: eventId }).exec();
+    if (!event) {
+        res.status(500).send('Event not found');
+        return;
+    }
+    if (event.type !== 'team') {
+        res.status(500).send('Event is not a team event');
+        return;
+    }
+    if (event.visibility !== 'public') {
+        res.status(500).send('Event is not public');
+        return;
+    }
+    if (event.status !== 'pending') {
+        res.status(500).send('Event is not pending');
+        return;
+    }
+    event.status = 'rejected';
+    event.save().then(() => {
+        res.status(200).send(event);
+    }).catch(err => {
+        res.status(500).send('Error in rejecting the event');
+    });
+
+});
+
+
 
 
 // APIs USED BY TEAM ADMINS TO CREATE TEAM EVENTS
@@ -206,8 +272,14 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
             User.findOne({ userId: req.body.adminId }).exec()
         ]);
         if (event && team && admin) {
-            if (team.adminId === admin.userId && event.visibility === "private" && event.type === "team"
+            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
                 && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
+                console.log(team.adminId == admin.userId);
+                console.log(event.visibility == "private");
+                console.log(event.type == "team");
+                console.log(event.involvedTeams != null);
+                console.log(event.involvedTeams.includes(team._id));
+                console.log(event.guestTeam == null);
                 event.involvedTeams = null;
                 event.guestTeam = team._id;
                 team.eventRequests.remove(event._id);
@@ -248,7 +320,7 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
         team = await Team.findOne({ _id: ObjectId(req.body.teamId) }).exec()
         admin = await User.findOne({ userId: req.body.adminId }).exec()
         if (event && team && admin) {
-            if (team.adminId === admin.userId && event.visibility === "private" && event.type === "team"
+            if (team.adminId == admin.userId && event.visibility == "private" && event.type == "team"
                 && event.involvedTeams != null && event.involvedTeams.includes(team._id) && event.guestTeam == null) {
                 event.involvedTeams = null;
                 team.eventRequests.remove(event._id);
@@ -257,10 +329,11 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
                         team.save({ session }),
                         event.save({ session })
                     ])
-                }).then(() => {
+                })
+                .then(() => {
                     res.status(200).send("Invite rejected successfully");
-                }
-                ).catch(err => {
+                })
+                .catch(err => {
                     console.log('The following error occurred in rejecting the team event: ' + err);
                     res.status(500).send('Error in rejecting the team event');
                 });
@@ -299,13 +372,13 @@ app.post('/invitePrivateTeam', async (req, res) => {
                         event.save({ session })
                     ])
                 })
-                    .then(() => {
-                        res.status(200).send(event);
-                    })
-                    .catch(err => {
-                        console.log('The following error occurred in inviting the team to the event: ' + err);
-                        res.status(500).send('Error in inviting the team to the event');
-                    });
+                .then(() => {
+                    res.status(200).send(event);
+                })
+                .catch(err => {
+                    console.log('The following error occurred in inviting the team to the event: ' + err);
+                    res.status(500).send('Error in inviting the team to the event');
+                });
             } else {
                 console.log('Conditions not matched');
                 res.status(500).send('Error in inviting the team to the event: conditions not matched');
@@ -413,7 +486,7 @@ app.post('/leave', async (req, res) => {
 });
 
 
-//Team admins specify their team and the event they want to search. Empty name means all teams.
+//Team admins specify their team and the event they want to search. Empty name means all events.
 app.post('/search', async (req, res) => {
     console.log('Received search POST request');
     console.log(req.body);
@@ -515,70 +588,6 @@ app.get('/getJoinableEvents', async (req, res) => {
         console.log('Error: Missing userId.');
         res.status(400).send('Error: Missing userId.');
     }
-
-});
-
-app.post('/approvePublicTeam', async (req, res) => {
-    const eventId = req.body.eventId;
-    if (!eventId) {
-        res.status(400).send('Missing eventId');
-        return;
-    }
-    const event = await Event.findOne({ _id: eventId }).exec();
-    if (!event) {
-        res.status(500).send('Event not found');
-        return;
-    }
-    if (event.type !== 'team') {
-        res.status(500).send('Event is not a team event');
-        return;
-    }
-    if (event.visibility !== 'public') {
-        res.status(500).send('Event is not public');
-        return;
-    }
-    if (event.status !== 'pending') {
-        res.status(500).send('Event is not pending');
-        return;
-    }
-    event.status = 'approved';
-    event.save().then(() => {
-        res.status(200).send(event);
-    }).catch(err => {
-        res.status(500).send('Error in approving the event');
-    });
-
-});
-
-app.post('/rejectPublicTeam', async (req, res) => {
-    const eventId = req.body.eventId;
-    if (!eventId) {
-        res.status(400).send('Missing eventId');
-        return;
-    }
-    const event = await Event.findOne({ _id: eventId }).exec();
-    if (!event) {
-        res.status(500).send('Event not found');
-        return;
-    }
-    if (event.type !== 'team') {
-        res.status(500).send('Event is not a team event');
-        return;
-    }
-    if (event.visibility !== 'public') {
-        res.status(500).send('Event is not public');
-        return;
-    }
-    if (event.status !== 'pending') {
-        res.status(500).send('Event is not pending');
-        return;
-    }
-    event.status = 'rejected';
-    event.save().then(() => {
-        res.status(200).send(event);
-    }).catch(err => {
-        res.status(500).send('Error in rejecting the event');
-    });
 
 });
 
