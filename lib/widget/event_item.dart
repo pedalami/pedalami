@@ -39,23 +39,36 @@ class _EventItemState extends State<EventItem> {
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       if(event.isTeam()) {
-        for(String enrolledTeamId in event.enrolledTeamsIds!)
-        {
-          for(int i=0;i<LoggedUser.instance!.teams!.length;i++)
+        if(!_joined)
           {
-            if(LoggedUser.instance!.teams![i].id==enrolledTeamId)
+            for(String enrolledTeamId in event.enrolledTeamsIds!)
             {
-              joinableTeams.add(await MongoDB.instance.getTeam(enrolledTeamId));
+              for(int i=0;i<LoggedUser.instance!.teams!.length;i++)
+              {
+                if(LoggedUser.instance!.teams![i].id==enrolledTeamId)
+                {
+                  joinableTeams.add(await MongoDB.instance.getTeam(enrolledTeamId));
+                }
+              }
             }
+            item=joinableTeams.map<DropdownMenuItem>((item) => DropdownMenuItem(
+              value: item,
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Text(item!.name),
+              ),
+            )).toList();
           }
-        }
-        item=joinableTeams.map<DropdownMenuItem>((item) => DropdownMenuItem(
-          value: item,
-          child: Padding(
-            padding: const EdgeInsets.all(6),
-            child: Text(item!.name),
-          ),
-        )).toList();
+        else
+          {
+            for(ScoreboardEntry s in event.scoreboard!)
+              {
+                if(s.userId==FirebaseAuth.instance.currentUser!.uid)
+                  {
+                    selectedTeam=await MongoDB.instance.getTeam(s.teamId!);
+                  }
+              }
+          }
         loadingJoinableTeams=false;
         setState(() {});
       }
@@ -178,7 +191,7 @@ class _EventItemState extends State<EventItem> {
                                     fontSize: 2 * SizeConfig.textMultiplier!
                                 ),
                               ),
-                              !loadingJoinableTeams?SearchChoices.single(
+                              !loadingJoinableTeams?!_joined?SearchChoices.single(
                                 items: item,
                                 value: selectedValueSingleDoneButtonDialog,
                                 hint: "Select one team",
@@ -207,6 +220,12 @@ class _EventItemState extends State<EventItem> {
                                     ),
                                   ]));
                                 },
+                              ):Text(selectedTeam!.name,
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 2 * SizeConfig.textMultiplier!
+                                ),
                               ):Padding(
                                 padding: EdgeInsets.only(left: 10),
                                 child: SizedBox(
@@ -223,7 +242,6 @@ class _EventItemState extends State<EventItem> {
                       ],
                     ),
                   ),
-                  //!_joined?buildJoinButton():buildLeaveButton(context),
                   ElevatedButton(
                       style: !_joined?ButtonStyle(
                           backgroundColor: MaterialStateProperty.all(Colors.lightGreen),
