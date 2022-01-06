@@ -145,7 +145,7 @@ app.post("/createPrivateTeam", async (req, res) => {
         })
         .catch(err => {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
     } else {
         console.log('Error in creating the newEvent: missing host or guest team or adminId');
@@ -186,7 +186,7 @@ app.post("/proposePublicTeam", async (req, res) => {
         })
         .catch((err) => {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
     } else {
         console.log('Missing host team or adminId');
@@ -233,7 +233,7 @@ app.post('/enrollToPublicTeam', async (req, res) => {
         })
         .catch((err) => {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
         
         
@@ -275,7 +275,7 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
             res.status(200).send('Invite accepted');
         })
         .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
     } else {
         console.log('Missing params');
@@ -305,17 +305,17 @@ app.post('/rejectPrivateTeamInvite', async (req, res) => {
                 } else 
                     throw new Error('Conditions not matched');
             } else
-                throw new Error('Error in joining the team event: event or team or admin not found');
+                throw new Error('Error in rejecting the team invite: event or team or admin not found');
         })
         .then(() => {
-            res.status(200).send('Invite accepted');
+            res.status(200).send('Invite rejected successfully');
         })
         .catch((err) => {
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
     } else {
         console.log('Missing params');
-        res.status(400).send('Error in joining the team event: missing parameters');
+        res.status(400).send('Error in rejecting the team event invite: missing parameters');
     }
 });
 
@@ -349,7 +349,7 @@ app.post('/invitePrivateTeam', async (req, res) => {
         })
         .catch((err) => {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
     } else {
         console.log('Missing params');
@@ -431,7 +431,7 @@ app.post('/leave', async (req, res) => {
         })
         .catch((err) => {
             console.log(err);
-            res.status(500).send(err);
+            res.status(500).send(err.message);
         })
     } else {
         console.log('Missing params');

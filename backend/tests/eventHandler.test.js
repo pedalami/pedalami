@@ -250,7 +250,7 @@ describe("POST /invitePrivateTeam", () => {
             adminId: 'admin'
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error in inviting the team to the event: teams or event not found');
+        expect(response.text).toBe('Teams or event not found');
     })
     test("Invite with conditions not matched should return 500", async () => {
         const resp_event = await request(app).post('/events/createIndividual').send(event_indiv);
@@ -263,7 +263,7 @@ describe("POST /invitePrivateTeam", () => {
             adminId: 'carlo' // is not the admin
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error in inviting the team to the event: conditions not matched');
+        expect(response.text).toBe('Conditions not matched');
     })
     test("A team which invites correctly another should receive 200", async () => {
         const hostTeam = await Team.findOne({name :'testTeam'});
@@ -294,7 +294,8 @@ describe("POST /invitePrivateTeam", () => {
         });
         await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(200);
-        expect(response.body._id).toStrictEqual(resp_event.body._id);
+        expect(response.text).toBe('Team invited correctly')
+        //expect(response.body._id).toStrictEqual(resp_event.body._id);
     })
 })
 
@@ -347,7 +348,8 @@ describe("POST /acceptPrivateTeamInvite", () => {
         await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({_id: guestTeam._id}, { $set: {activeEvents: [], eventRequests: []}});
         expect(response.status).toBe(200);
-        expect(response.body._id).toStrictEqual(resp_event.body._id);
+        expect(response.text).toBe('Invite accepted')
+        //expect(response.body._id).toStrictEqual(resp_event.body._id);
     })
 })
 
@@ -842,7 +844,7 @@ describe("POST /leave", () => {
             'eventId': 'aaaaaaaaaaaa'
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error while leaving the event: user or event not found');
+        expect(response.text).toBe('User or event not found');
     })
     test("Leaving request for an event not joined should return 500", async () => {
         const name = 'leave_test_wrong';
@@ -929,7 +931,8 @@ describe("POST /enrollToPublicTeam", () => {
         await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
         expect(response.status).toBe(200);
-        expect(response.body._id).toStrictEqual(eventId);
+        expect(response.text).toBe('Team successfully enrolled to event!')
+        //expect(response.body._id).toStrictEqual(eventId);
     })
     test("Enroll a team event for the second time should return 500", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
