@@ -129,7 +129,7 @@ void main() {
 
   test('enroll to public event testing', () async {
     instance.localDebug();
-    String eventId = "61cdfd80683f4d8b1163a576";
+    String eventId = "61d6cbaaabb678931acd381c";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.enrollTeamToPublicEvent(eventId, adminId, teamId));
@@ -171,7 +171,7 @@ void main() {
 
   test('join event testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d6cbaaabb678931acd381c";
     String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
     String? teamId = "61b7e246f34ee1e975875025";
     assert(await instance.joinEvent(eventId, userId, teamId: teamId));
