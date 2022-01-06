@@ -43,7 +43,7 @@ describe("POST /record", () => {
     })
 
     test("A request with a fake userId should return 500", async () => {
-        const response = await request(app).post('/rides/record').send({userId: "n0t3x1st"});
+        const response = await request(app).post('/rides/record').send({userId: "n0t3x1st", durationInSeconds: 0.1});
         expect(response.status).toBe(500);
     })
 

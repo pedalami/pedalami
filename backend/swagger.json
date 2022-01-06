@@ -301,7 +301,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Reward"
+              "$ref": "#/definitions/ArrayRewards"
             }
           },
           "400": {
@@ -338,13 +338,140 @@
             "description": "Missing parameters"
           },
           "500": {
+            "description": "Error while getting the rewards"
+          }
+        }
+      }
+    },
+    "/rides/record": {
+      "post": {
+        "tags": [
+          "Rides"
+        ],
+        "summary": "Record a ride",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the user record a ride",
+            "schema": {
+              "$ref": "#/definitions/BaseRide"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "points": {
+                  "type": "number"
+                },
+                "pace": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
             "description": "Error while searching the teams"
+          }
+        }
+      }
+    },
+    "/rides/getAllByUser": {
+      "get": {
+        "tags": [
+          "Rides"
+        ],
+        "summary": "Get all the rides that a user has recorded",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "type": "string",
+            "description": "Id of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/RidesArray"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the rewards"
           }
         }
       }
     }
   },
   "definitions": {
+    "BaseRide": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "durationInSeconds": {
+          "type": "number"
+        },
+        "totalKm": {
+          "type": "number"
+        },
+        "date": {
+          "type": "string"
+        },
+        "elevationGain": {
+          "type": "number"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GeoPoint"
+          }
+        }
+      }
+    },
+    "FullRide": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string"
+            },
+            "points": {
+              "type": "number"
+            },
+            "pace": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/BaseRide"
+        }
+      ]
+    },
+    "RidesArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FullRide"
+      }
+    },
     "Badge": {
       "properties": {
         "criteria": {
@@ -494,6 +621,22 @@
         }
       }
     },
+    "GeoPoint": {
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    },
+    "Path": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GeoPoint"
+      }
+    },
     "Reward": {
       "properties": {
         "price": {
@@ -532,11 +675,98 @@
         "$ref": "#/definitions/RedeemedReward"
       }
     },
+    "ArrayRewards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Reward"
+      }
+    },
     "ArrayTeamWithoutJoinedMembers": {
       "type": "array",
       "items": {
         "$ref": "#/definitions/TeamWithoutJoinedMembers"
       }
+    },
+    "BaseEvent": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        },
+        "closed": {
+          "type": "boolean"
+        },
+        "type": {
+          "type": "string"
+        },
+        "visibility": {
+          "type": "string"
+        }
+      }
+    },
+    "BaseEventWId": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/BaseEvent"
+        }
+      ]
+    },
+    "ScoreboardEntryOfIndividualEvent": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "points": {
+          "type": "number"
+        }
+      }
+    },
+    "ScoreboardEntryOfTeamEvent": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "teamId": {
+          "type": "string"
+        },
+        "points": {
+          "type": "number"
+        }
+      }
+    },
+    "IndividualEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/BaseEventWId"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "scoreboard": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ScoreboardEntryOfIndividualEvent"
+              }
+            }
+          }
+        }
+      ]
     }
   }
 }

@@ -325,6 +325,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                       path.add(latestLocation);
                                     }
                                     if (path.length > 2) {
+                                      controller.removeLastRoad();
                                       _roadInfo = await controller.drawRoad(
                                           path.first, path.last,
                                           intersectPoint:
@@ -364,18 +365,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                     Ride? response = await MongoDB.instance
                                         .recordRide(finishedRide);
                                     if (response != null) {
-                                      if (_miUser.rideHistory == null) {
-                                        _miUser.rideHistory =
-                                            List.empty(growable: true);
-                                      }
-                                      _miUser.rideHistory!.add(response);
-                                      MongoDB.instance.initUser(_miUser.userId);
                                       showRideCompleteDialog(
                                           context, size, response);
                                     }
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
+                                  });
+                                  setState(() {
+                                    //Added this code because it stopped removing the drawn roads after finish for some reason/Marcus
                                   });
                                   path.clear();
                                   _isRecording = false;

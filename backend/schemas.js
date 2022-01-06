@@ -26,7 +26,7 @@ const UserSchema = new Schema({
         redeemedDate: { type: Date, required: true, default: null },
         rewardContent: { type: String, required: true, default: null }
     })],
-    joinedEvents: [{ type: ObjectId, required: false, default: null }], // IDs of active public events
+    joinedEvents: [{ type: ObjectId, required: false, default: null }], // IDs of joined events
 });
 
 const TeamSchema = new Schema({

@@ -505,69 +505,81 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget displayRideHistory() {
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.blueGrey.shade50,
-          borderRadius: BorderRadius.all(Radius.circular(18.0))),
-      //TODO: Fix the height size to change if there is a small amount of ride history / Marcus
-      height: MediaQuery.of(context).size.height / 3,
-      child: ListView.separated(
-          separatorBuilder: (context, index) {
-            return Divider(
-              color: Colors.black,
-            );
-          },
-          itemCount: _miUser.rideHistory!.length,
-          itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                pushNewScreen(context,
-                    screen: ShowSingleRideHistoryPage(
-                        path: _miUser.rideHistory![index].path!));
-              },
-              child: Container(
-                height: MediaQuery.of(context).size.height / 11,
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: Column(
-                        children: [
-                          Text(
-                            DateFormat('EEEE').format(DateTime.parse(
-                                _miUser.rideHistory![index].displayDate())),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            DateFormat('dd MMMM HH:mm').format(DateTime.parse(
-                                _miUser.rideHistory![index].displayDate())),
-                            style: TextStyle(),
-                          ),
-                        ],
+    return Padding(
+      padding: EdgeInsets.only(left: 15, right: 15),
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black26.withOpacity(0.1),
+            ),
+            color: Colors.grey.shade200.withOpacity(0.7),
+            borderRadius: BorderRadius.all(Radius.circular(18.0))),
+        //TODO: Fix the height size to change if there is a small amount of ride history / Marcus
+        height: MediaQuery.of(context).size.height / 3,
+        child: ListView.separated(
+            separatorBuilder: (context, index) {
+              return Divider(
+                color: Colors.black,
+              );
+            },
+            itemCount: _miUser.rideHistory!.length,
+            itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () {
+                  pushNewScreen(context,
+                      screen: ShowSingleRideHistoryPage(
+                          path: _miUser.rideHistory![index].path!));
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 11,
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Column(
+                          children: [
+                            Text(
+                              DateFormat('EEEE').format(DateTime.parse(
+                                  _miUser.rideHistory![index].displayDate())),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              DateFormat('dd MMMM HH:mm').format(DateTime.parse(
+                                  _miUser.rideHistory![index].displayDate())),
+                              style: TextStyle(),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      width: (MediaQuery.of(context).size.width + 10) / 3.3,
-                    ),
-                    Text(
-                      _miUser.rideHistory![index].points!.toStringAsFixed(0) +
-                          " Pts",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 35,
-                    ),
-                    FaIcon(FontAwesomeIcons.greaterThan)
-                  ],
+                      Expanded(
+                          child: Row(
+                        children: [
+                          SizedBox(
+                            width: (MediaQuery.of(context).size.width) / 5.3,
+                          ),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              _miUser.rideHistory![index].points!
+                                      .toStringAsFixed(0) +
+                                  " Pts",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(child: FaIcon(FontAwesomeIcons.greaterThan), flex: 1,),
+                        ],
+                      )),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
     );
   }
 

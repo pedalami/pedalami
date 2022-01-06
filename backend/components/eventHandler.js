@@ -63,26 +63,28 @@ app.post("/createPrivateTeam", async (req, res) => {
             newEvent.markModified('name'); //ATTENTION! REMOVING THIS LINE CAUSES THE EVENT TO NOT BE CREATED SUCCESSFULLY. THIS IS A MONGOOSE ISSUE
             //OTHERWISE IT WILL RETURN THE FOLLOWING ERROR "No document found for query on save of new object"
             //REFERENCE: https://stackoverflow.com/questions/35733647/mongoose-instance-save-not-working
-            newEvent.save().then(async () => {
-            connection.transaction(async (session) => {
-                await Promise.all([
-                    hostTeam.save({ session }),
-                    guestTeam.save({ session })
-                ])
-            })
+            newEvent.save()
+            .then(async () => {
+                connection.transaction(async (session) => {
+                    await Promise.all([
+                        hostTeam.save({ session }),
+                        guestTeam.save({ session })
+                    ])
+                })
                 .then(() => {
                     console.log('Event created!');
                     res.status(200).send(newEvent);
-                }).catch(async err => {
+                })
+                .catch(async err => {
                     console.log('The following error occurred in creating the newEvent: ' + err);
                     await Event.deleteOne({ _id: newEvent._id });
                     throw err;
-
-                })})
-                .catch(err => {
-                    console.log('The following error occurred in creating the new Private Event: ' + err);
-                    res.status(500).send('Error in creating the new Private Event');
                 })
+            })
+            .catch(err => {
+                console.log('The following error occurred in creating the new Private Event: ' + err);
+                res.status(500).send('Error in creating the new Private Event');
+            })
         } else {
             console.log('Could not find host team or guest team or admin');
             res.status(500).send('Could not find host team or guest team or admin');
@@ -111,19 +113,23 @@ app.post("/createPublicTeam", async (req, res) => {
                 status: "pending"
             });
             hostTeam.activeEvents.push(newEvent._id);
-            connection.transaction(async (session) => {
-                await Promise.all([
-                    hostTeam.save({ session }),
-                    newEvent.save({ session })
-                ])
-            })
+            newEvent.save()
+            .then(async () => {
+                hostTeam.save()
                 .then(() => {
+                    console.log('Event created with id: '+newEvent._id);
                     res.status(200).send(newEvent);
                 })
-                .catch(err => {
-                    console.log('The following error occurred in creating the new Public Team Event: ' + err);
-                    res.status(500).send('Error in creating the new Public Team Event');
+                .catch(async err => {
+                    console.log('An error occurred in creating the hostTeam');
+                    await Event.deleteOne({ _id: newEvent._id });
+                    throw err;
                 })
+            })
+            .catch(err => {
+                console.log('The following error occurred in creating the new public team event: ' + err);
+                res.status(500).send('Error in creating the new public team event');
+            })
         } else {
             console.log('Could not find host team or admin');
             res.status(500).send('Could not find host team or admin');
@@ -212,13 +218,13 @@ app.post('/acceptPrivateTeamInvite', async (req, res) => {
                         event.save({ session })
                     ])
                 })
-                    .then(() => {
-                        res.status(200).send(event);
-                    })
-                    .catch(err => {
-                        console.log('The following error occurred in joining the team event: ' + err);
-                        res.status(500).send('Error in joining the team event');
-                    });
+                .then(() => {
+                    res.status(200).send(event);
+                })
+                .catch(err => {
+                    console.log('The following error occurred in joining the team event: ' + err);
+                    res.status(500).send('Error in joining the team event');
+                });
             } else {
                 console.log('Conditions not matched');
                 res.status(500).send('Conditions not matched');
@@ -346,7 +352,7 @@ app.post('/join', (req, res) => {
         event.scoreboard.push(scoreboardEntry);
         if (!user.joinedEvents)
             user.joinedEvents = [];
-        user.joinedEvents += event._id;
+        user.joinedEvents.push(event._id);
         await Promise.all([
             event.save({ session: session }),
             user.save({ session: session })
@@ -717,75 +723,5 @@ app.get("/closeEvents", async (req, res) => {
 });
 
 module.exports = { app: app, terminateEvents: terminateEvents };
-
-
-
-///Old stuff
-/*
-app.post("/create", async (req, res) => {
-    var newEvent = new Event({
-        name: req.body.name,
-        description: req.body.description,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        type: req.body.type,
-        visibility: req.body.visibility
-    });
-    try {
-        const eventType = req.body.type;
-        if (eventType == "team") {
-            const hostTeamId = req.body.hostTeam;
-            if (hostTeamId) {
-                const hostTeamPromise = Team.findOne({ _id: ObjectId(hostTeamId) }).exec();
-                if (req.body.visibility == "private") {
-                    const guestTeamId = req.body.guestTeam;
-                    if (guestTeamId) {
-                        await Promise.all([
-                            hostTeamPromise,
-                            Team.findOne({ _id: ObjectId(guestTeamId) }).exec()
-                        ])
-                            .catch(() => {
-                                throw new Error('Impossible to find some of the specified teams');
-                            })
-                        newEvent.hostTeam = ObjectId(hostTeamId);
-                        newEvent.guestTeam = guestTeamId;
-                        //TODO SEND INVITE TO THE GUEST TEAM
-                    } else
-                        throw new Error('Missing guest team');
-                } else if (req.body.visibility == "public") {
-                    // In public team newEvents the "host" team is the team which proposes the newEvent
-                    const hostTeam = await hostTeamPromise;
-                    if (!hostTeam)
-                        throw new Error('Impossible to find the host team');
-                    newEvent.involvedTeams = [hostTeamId];
-                    if (!hostTeam.activeEvents)
-                        hostTeam.activeEvents = [];
-                    hostTeam.activeEvents += newEvent._id
-                } else {
-                    throw new Error('Unknown option for newEvent visibility');
-                }
-            } else {
-                throw new Error('Missing host team');
-            }
-        } else if (eventType == "individual") {
-            throw new Error('Individual public newEvents can be created only by system admins');
-            //newEvent.prize = req.body.prize;
-        } else {
-            throw new Error('Unknown event type');
-        }
-        newEvent.save()
-            .then(() => {
-                res.status(200).send(newEvent);
-            })
-            .catch(err => {
-                console.log('The following error occurred in creating the newEvent: ' + err);
-                res.status(500).send('Error in creating the newEvent');
-            })
-    } catch (error) {
-        console.log(error);
-        res.status(500).send(error);
-    }
-});
-*/
 
 
