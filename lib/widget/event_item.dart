@@ -23,7 +23,7 @@ class EventItem extends StatefulWidget {
 class _EventItemState extends State<EventItem> {
 
   late Event event;
-  late bool _joined;
+  late bool _joined, joining;
   late List<Team?> joinableTeams=[];
   bool loadingJoinableTeams=true;
   var selectedValueSingleDoneButtonDialog;
@@ -34,6 +34,7 @@ class _EventItemState extends State<EventItem> {
 
   @override
   void initState() {
+    joining=false;
     event=widget.event;
     _joined=hasJoined();
     super.initState();
@@ -238,7 +239,6 @@ class _EventItemState extends State<EventItem> {
                             ],
                           ),
                         ):SizedBox()
-
                       ],
                     ),
                   ),
@@ -263,38 +263,23 @@ class _EventItemState extends State<EventItem> {
                               : CrossFadeState.showFirst,
                           firstChild:
                           Text("Join"),
-                          secondChild: Text('Joined'))
-                          ,
+                          secondChild: Text('Joined')),
                       onPressed: () async{
-                        if(event.isIndividual())
+                        if(!_joined)
+                        {
+                          if(!joining)
                           {
-                            if(!_joined)
+                            try
                             {
-                              if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid))
+                              joining=true;
+                              setState(() {
+
+                              });
+                              if(event.isIndividual())
                               {
-                                ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, null, 0);
-                                event.scoreboard!.add(s);
-                                LoggedUser.instance!.joinedEvents!.add(event);
-                                setState(() {
-                                  _joined=!_joined;
-                                });
-                                widget.refresh();
-                              }
-                              else
-                              {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content:
-                                    Text("You cannot join multiple active events simultaneously.")));
-                              }
-                            }
-                          }
-                        if(event.isTeam())
-                          {
-                            if(selectedTeam!=null)
-                              {
-                                if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid, teamId: selectedTeam!.id))
+                                if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid))
                                 {
-                                  ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, selectedTeam!.id, 0);
+                                  ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, null, 0);
                                   event.scoreboard!.add(s);
                                   LoggedUser.instance!.joinedEvents!.add(event);
                                   setState(() {
@@ -303,17 +288,50 @@ class _EventItemState extends State<EventItem> {
                                   widget.refresh();
                                 }
                                 else
+                                {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      content:
+                                      Text("You cannot join multiple active events simultaneously.")));
+                                }
+                              }
+                              if(event.isTeam())
+                              {
+                                if(selectedTeam!=null)
+                                {
+                                  if(await MongoDB.instance.joinEvent(event.id, FirebaseAuth.instance.currentUser!.uid, teamId: selectedTeam!.id))
+                                  {
+                                    ScoreboardEntry s=new ScoreboardEntry(FirebaseAuth.instance.currentUser!.uid, selectedTeam!.id, 0);
+                                    event.scoreboard!.add(s);
+                                    LoggedUser.instance!.joinedEvents!.add(event);
+                                    setState(() {
+                                      _joined=!_joined;
+                                    });
+                                    widget.refresh();
+                                  }
+                                  else
                                   {
                                   }
-                              }
-                            else
-                              {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                    content:
-                                    Text("Please select one team!")));
-                              }
+                                }
+                                else
+                                {
+                                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      content:
+                                      Text("Please select one team!")));
+                                }
 
+                              }
+                            }
+                            finally
+                            {
+                              joining=false;
+                              setState(() {
+
+                              });
+                            }
                           }
+
+
+                        }
                         }
                       )
                 ],
