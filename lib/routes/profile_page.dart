@@ -21,8 +21,7 @@ import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key? key, required this.refreshBottomBar}) : super(key: key);
-  final Function refreshBottomBar;
+  ProfilePage({Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -273,9 +272,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       onTap: () async {
                           await Authentication.signOut(context: context);
                           setState(() {
-                          widget.refreshBottomBar();
-                          Navigator.of(context).pushAndRemoveUntil(_routeToSignInScreen(),
-                          (Route<dynamic> route) => false);
+                          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(_routeToSignInScreen(), (_)=>false);
                           });
                       },
                       child: Container(

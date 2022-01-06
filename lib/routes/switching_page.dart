@@ -48,7 +48,7 @@ class _SwitchPageState extends State<SwitchPage> {
       ),
       screens: [
         MapPage(),
-        ProfilePage(refreshBottomBar:refresh),
+        ProfilePage(),
         TeamsSearchPage(),
         EventsPage(),
         RewardPage()

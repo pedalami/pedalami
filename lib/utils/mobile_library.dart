@@ -33,9 +33,7 @@ class Conditional {
 
   final routes = {
     'signInScreen': (context) => SignInScreen(),
-    '/profile': (context) => ProfilePage(
-          refreshBottomBar: () {},
-        ),
+    '/profile': (context) => ProfilePage(),
     '/edit': (context) => ProfileEditing(),
     '/start': (context) => StartPage(),
     '/sign_in': (context) => SignInPage(),
