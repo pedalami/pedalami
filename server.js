@@ -51,7 +51,8 @@ app.use('/tests', require('./backend/components/genBadgesInfo.js'));
 
 var options = {
     swaggerOptions: {
-        defaultModelsExpandDepth: -1
+        defaultModelsExpandDepth: -1,
+        supportedSubmitMethods: []
     }
 };
 
