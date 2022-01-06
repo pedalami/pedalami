@@ -7,8 +7,6 @@ const computeScoreboard = require('./../components/gamificationController').comp
 const update = require('./../components/profileController').updateUserStatistics;
 const User = require('../schemas.js').User;
 const Ride = require('../schemas.js').Ride;
-const Event = require('../schemas.js').Event;
-const app = require('./../../server');
 const mongoose = require('mongoose');
 
 jest.setTimeout(30000);
@@ -35,8 +33,8 @@ var event_public_win= {
     type: 'individual',
     visibility: 'public',
     scoreboard: [
-        {userId: 'shabbyUser', points: 0},
-        {userId: 'strongUser', points: 1000}
+        {userId: 'strongUser', points: 1000},
+        {userId: 'shabbyUser', points: 0}
     ],
     prize: 100
 }
@@ -60,8 +58,11 @@ var event_private_team = {
     type: 'team',
     visibility: 'private',
     guestTeam: 'guestTeam',
+    prize: 100,
     scoreboard: [
-        {userId: 'username', points: 0}
+        {userId: 'strongUser', teamId: 'ROPgais', points: 1000},
+        {userId: 'shabbyUser', teamId: 'MDH', points: 0},
+        {userId: 'pippo', teamId: "ROPgais", points: 42}
     ]
 }
 
@@ -125,13 +126,44 @@ describe("Testing assignPoints function", () => {
                 "averageElevationGain": 0
             }
         });
+        var event_ind = {
+            name: 'prova_ind',
+            description: 'descrizione',
+            startDate: yesterday,
+            endDate: tomorrow,
+            type: 'individual',
+            visibility: 'public',
+            scoreboard: [
+                {userId: 'username', points: 0}
+            ]
+        }
+        var event_team = {
+            name: 'prova_team',
+            description: 'descrizione',
+            startDate: yesterday,
+            endDate: tomorrow,
+            type: 'team',
+            visibility: 'private',
+            guestTeam: 'guestTeam',
+            prize: 100,
+            scoreboard: [
+                {userId: 'username', teamId: 'ROPgais', points: 0}
+            ]
+        }
         const oldPoints = user.points;
-        var events = [event_public_ind, event_private_team]
-        assignPoints(user, ride, events);
-        const points = ((ride.totalKm * 100) + (oldPoints + ride.elevationGain * 10))/(events.length+1);
-        expect(user.points).toBe(points);
+        const num_public_event = 1
+        const num_team_event = 1
+        const events = [event_ind, event_team]
+        await assignPoints(user, ride, events);
+        const points =(ride.totalKm * 100) + (oldPoints + ride.elevationGain * 10);
+        const points_public_event = points/num_public_event;
+        const points_team_event = points/(num_team_event+1) // team events points + user points
+        expect(user.points).toBe(points_team_event);
         events.forEach(event => {
-            expect(event.scoreboard[0].points).toBe(points);
+            if(event.type === 'individual')
+                expect(event.scoreboard[0].points).toBe(points_public_event);
+            else if (event.type === 'team')
+                expect(event.scoreboard[0].points).toBe(points_team_event);
         });
     })
 })
@@ -218,4 +250,40 @@ describe("Testing getBestPlayerIndividualEvent function", () => {
         var bestUser = getBestPlayer(event_public_win);
         expect(bestUser.userId).toBe("strongUser");
     })
+})
+
+describe("Testing computeTeamScoreboard function", () => {
+    const scoreboard = computeScoreboard(event_private_team);
+    const points = event_private_team.scoreboard[0].points + event_private_team.scoreboard[2].points;
+    scoreboard.forEach(team => {
+        if(team.teamId === 'ROPgais'){
+            expect(team.points).toBe(points);
+        }
+    })
+})
+
+describe("Testing assignPrizeTeamEvent function", () => {
+    var user = User({
+        "userId": "pippo",
+        "badges": [],
+        "teams": ["ROPgais"],
+        "points": 10,
+        "statistics": {
+            "numberOfRides": 0,
+            "totalDuration": 0,
+            "totalKm": 0,
+            "averageSpeed": 0,
+            "totalElevationGain": 0,
+            "averageKm": 0,
+            "averageDuration": 0,
+            "averageElevationGain": 0
+        }
+    });
+    const old_points = user.points;
+    const team_points = event_private_team.scoreboard[0].points + event_private_team.scoreboard[2].points;
+    const user_points_event = event_private_team.scoreboard[2].points;
+    const enemy_points =  event_private_team.scoreboard[1].points;
+    const total_points = enemy_points+team_points;
+    assignPrizeTeam(user, event_private_team);
+    expect(user.points).toBe(old_points + ((total_points*user_points_event/team_points)));
 })

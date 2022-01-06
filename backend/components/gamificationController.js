@@ -20,7 +20,6 @@ async function assignPoints(user, ride, events) {
             }
         }
     });
-    points = points / (individual_counter + team_counter + 1);
     if (individual_counter > 0) {
         events.forEach(event => {
             if (event.type === "individual" && event.visibility === "public" && ride.date <= event.endDate && ride.date >= event.startDate) {
@@ -28,7 +27,7 @@ async function assignPoints(user, ride, events) {
                 event.scoreboard.some(function (score) {
                     if (score.userId === user.userId) {
                         console.log(score);
-                        score.points += points;
+                        score.points += points / individual_counter;
                         found = true;
                     }
                     return found;
@@ -38,6 +37,7 @@ async function assignPoints(user, ride, events) {
     }
 
     if (team_counter > 0) {
+        points = points / (team_counter + 1);
         events.forEach(event => {
             if (event.type === "team" && ride.date <= event.endDate && ride.date >= event.startDate) {
                 if ((event.visibility === "private" && event.guestTeam != null) || (event.visibility === "public" && event.involvedTeams.size >= 2)) {
@@ -112,7 +112,7 @@ function assignPrizeTeamEvent(user, event) {
         teamScoreboard = computeTeamScoreboard(event);
         event.teamScoreboard = teamScoreboard;
     }
-    if (teamScoreboard.lenght > 0) {
+    if (teamScoreboard.length > 0) {
         const winningTeam = teamScoreboard.reduce(function (prev, current) {
             return (prev.points > current.points) ? prev : current
         })
@@ -125,8 +125,11 @@ function assignPrizeTeamEvent(user, event) {
                 return score.userId === user.userId && score.teamId === winningTeam.teamId;
             })
             if (userScoreboard.length != null) {
-                if (userScoreboard.length > 1)
+                if (userScoreboard.length >= 1)
                     userScoreboard = userScoreboard[0];
+                console.log("TotalPoints:" + totalPoints)
+                console.log("User points:" + userScoreboard.points)
+                console.log("Team Points:" + winningTeam.points)
                 user.points += totalPoints * userScoreboard.points / winningTeam.points;
             }
         }
