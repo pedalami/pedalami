@@ -91,9 +91,16 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
           },
         );
       } else {
+        String docID="";
+        await usersCollection
+            .where("Mail", isEqualTo: FirebaseAuth.instance.currentUser!.email)
+            .get()
+            .then((QuerySnapshot querySnapshot) async {
+          docID=querySnapshot.docs[0].id;
+        });
         FirebaseFirestore.instance
             .collection("Users")
-            .doc(LoggedUser.instance!.userId)
+            .doc(docID)
             .update({'Username': trimmedUsername}).then((value) async {
           LoggedUser.instance!.username = trimmedUsername;
           Navigator.pop(context);
