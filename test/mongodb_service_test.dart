@@ -120,8 +120,8 @@ void main() {
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
     Event? e = await instance.createPublicTeamEvent(
         adminId, hostTeamId,
-        "create public team event testing", "create public team event testing",
-        DateTime.now(), DateTime.now().add(Duration(days: 10))
+        "Vince public event testing", "create public team event testing",
+        DateTime.now(), DateTime.now().add(Duration(days: 1))
     );
     print(e?.id ?? "Null event");
     assert(e != null);
@@ -181,14 +181,14 @@ void main() {
     //instance.localDebug();
     String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
     List<Event>? events = await instance.getJoinableEvents(userId);
-    //print(events);
-    print("Involved teams are:");
+    print(events);
+    /*print("Involved teams are:");
     events?.forEach((event) {
       if (!event.isIndividual()) {
         print(event.id);
         print(event.enrolledTeamsIds);
       }
-    });
+    });*/
     assert(events != null);
   });
 }
