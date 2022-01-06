@@ -968,7 +968,7 @@ describe("POST /enrollTeamPublic", () => {
     test("To enroll a team event you should be the admin", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = hostTeam.adminId
-        const name = 'enroll_test'
+        const name = 'enroll_test_'
         var event_team_pub = {
             'name': name,
             'description': 'descrizione',
@@ -1076,7 +1076,7 @@ describe("POST /getTeamEventRequests", () => {
 describe("GET /closeEvents", () => {
     test("An old event should be closed", async ()=>{
         const resp_event = await request(app).post('/events/createIndividual').send({
-            'name': 'prova_close_22',
+            'name': 'prova_close',
             'description': 'descrizione',
             'startDate': yesterday,
             'endDate': yesterday,
@@ -1085,11 +1085,10 @@ describe("GET /closeEvents", () => {
 
 
         const response = await request(app).get('/events/closeEvents');
-        expect(response.status).toBe(200);
-
-        expect(response.text).toBe('Events closed');
         const event = await Event.findById(resp_event.body._id);
         await Event.deleteOne({_id: resp_event.body._id});
+        expect(response.status).toBe(200);
+        expect(response.text).toBe('Events closed');
         expect(event.closed).toBeTruthy();
     })
 
