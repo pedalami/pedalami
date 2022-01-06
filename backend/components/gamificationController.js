@@ -140,5 +140,6 @@ module.exports = {
     assignPoints: assignPoints,
     checkNewBadgesAfterRide: checkNewBadgesAfterRide,
     getBestPlayerIndividualEvent: getBestPlayerIndividualEvent,
-    assignPrizeIndividualEvent: assignPrizeIndividualEvent
+    assignPrizeIndividualEvent: assignPrizeIndividualEvent,
+    assignPrizeTeamEvent: assignPrizeTeamEvent
 };
