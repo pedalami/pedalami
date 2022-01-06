@@ -151,6 +151,7 @@ describe("POST /join & /leave", () => {
         const teamName = "testTeam";
         await request(app).post('/users/initUser').send({ userId: testUser });
         const team = await Team.findOne({name: teamName});
+        await Team.updateOne({name: teamName}, {$set:{members: [team.adminId]}})
         const join_response = await request(app).post('/teams/join').send({
             userId: testUser,
             teamId: team._id
