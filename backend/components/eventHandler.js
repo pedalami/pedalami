@@ -91,11 +91,11 @@ app.post("/createPrivateTeam", async (req, res) => {
         }
     } else {
         console.log('Error in creating the newEvent: missing host or guest team or adminId');
-        res.status(500).send('Error in creating the newEvent: missing host or guest team or adminId');
+        res.status(400).send('Error in creating the newEvent: missing host or guest team or adminId');
     }
 });
 
-app.post("/createPublicTeam", async (req, res) => {
+app.post("/proposePublicTeam", async (req, res) => {
     console.log('Received createPublicTeam POST request:');
     console.log(req.body);
     if (req.body.hostTeamId && req.body.adminId) {
@@ -143,8 +143,8 @@ app.post("/createPublicTeam", async (req, res) => {
 
 
 // APIs USED BY TEAM ADMINS TO MANAGE TEAM EVENTS
-app.post('/enrollTeamPublic', async (req, res) => {
-    console.log('Received enrollTeamPublic POST request:');
+app.post('/enrollToPublicTeam', async (req, res) => {
+    console.log('Received enrollToPublicTeam POST request:');
     console.log(req.body);
     if (req.body.eventId && req.body.teamId && req.body.adminId) {
         var [event, team, admin] = await Promise.all([

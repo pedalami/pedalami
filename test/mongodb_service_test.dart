@@ -118,7 +118,7 @@ void main() {
     instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
-    Event? e = await instance.createPublicTeamEvent(
+    Event? e = await instance.proposePublicTeamEvent(
         adminId, hostTeamId,
         "Vince public event testing", "create public team event testing",
         DateTime.now(), DateTime.now().add(Duration(days: 1))
