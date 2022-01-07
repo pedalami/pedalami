@@ -275,9 +275,8 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                               onPressed: () async {
                                 await controller.enableTracking();
                                 await controller.currentLocation();
-                                //_locationData = await location.getLocation();
-                                //showCurrentAirQuality(_locationData.latitude, _locationData.longitude);
-                                showCurrentAirQuality(0,0);
+                                _locationData = await location.getLocation();
+                                showCurrentAirQuality(_locationData.latitude, _locationData.longitude);
 
                                 if (_isRecording == false) {
                                   BackgroundLocation.startLocationService();
@@ -518,15 +517,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   showCurrentAirQuality(double? latitude, double? longitude) async {
 
-    var lat = 40.4;
-    var long = 14.4;
-
     if(latitude != null && longitude != null) {
       print("AIR QUALITY: LAT & LONG" + latitude.toString() + "   " +
           longitude.toString());
       AirQuality instance = AirQuality.instance;
       int airQualityResultInt = await instance.getAirQualityIndexFromCoords(
-          lat, long);
+          latitude, longitude);
 
       String airQualityResult = "Error";
       if(airQualityResultInt == 1){
