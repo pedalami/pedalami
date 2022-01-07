@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/team.dart';
@@ -29,14 +30,17 @@ class _EventItemState extends State<EventItem> {
   var selectedValueSingleDoneButtonDialog;
   List<DropdownMenuItem>? item;
   Team? selectedTeam;
-
+  late DateTime localStartDate, localEndDate;
 
 
   @override
   void initState() {
+
     joining=false;
     event=widget.event;
     _joined=hasJoined();
+    localStartDate=DateFormat("yyyy-MM-dd HH:mm:ss").parse(event.startDate.toString(),true).toLocal();
+    localEndDate=DateFormat("yyyy-MM-dd HH:mm:ss").parse(event.endDate.toString(),true).toLocal();
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       if(event.isTeam()) {
@@ -160,7 +164,7 @@ class _EventItemState extends State<EventItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Started: "+event.startDate.formatIT,
+                          child: Text("Started: "+localStartDate.formatIT,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -171,7 +175,7 @@ class _EventItemState extends State<EventItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Ends: "+event.endDate.formatIT,
+                          child: Text("Ends: "+localEndDate.formatIT,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,

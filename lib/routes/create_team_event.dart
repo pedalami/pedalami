@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pedala_mi/assets/custom_colors.dart';
 import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/team.dart';
@@ -26,12 +27,20 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
   String opposingTeam="Choose an opposing team...";
   late Team actualTeam;
   var selectedValueSingleDialogFuture;
+  late DateTime utcStartDate, utcEndDate;
 
 
   @override
   void initState() {
     actualTeam=widget.actualTeam;
+    utcStartDate=dateToUtc(selectedStartDate);
+    utcEndDate=dateToUtc(selectedEndDate);
     super.initState();
+  }
+
+  DateTime dateToUtc(DateTime notUtcDate)
+  {
+    return DateFormat("yyyy-MM-dd HH:mm:ss").parse(notUtcDate.toString(),false).toUtc();
   }
 
   @override
@@ -291,7 +300,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                               });
                               if(publicOrPrivateEvent[0])
                               {
-                                Event? event=await MongoDB.instance.createPublicTeamEvent(actualTeam.adminId, actualTeam.id, eventNameController.text.trim(), descriptionNameController.text.trim(), selectedStartDate, selectedEndDate);
+                                Event? event=await MongoDB.instance.createPublicTeamEvent(actualTeam.adminId, actualTeam.id, eventNameController.text.trim(), descriptionNameController.text.trim(), utcStartDate, utcEndDate);
                                 setState(() {
                                   uploadingToDB=false;
                                 });
@@ -313,7 +322,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                               {
                                 if(selectedTeam!=null)
                                 {
-                                  Event? event=await MongoDB.instance.createPrivateTeamEvent(actualTeam.adminId, actualTeam.id, selectedTeam!.id, eventNameController.text.trim(), descriptionNameController.text.trim(), selectedStartDate, selectedEndDate);
+                                  Event? event=await MongoDB.instance.createPrivateTeamEvent(actualTeam.adminId, actualTeam.id, selectedTeam!.id, eventNameController.text.trim(), descriptionNameController.text.trim(), utcStartDate, utcEndDate);
                                   setState(() {
                                     uploadingToDB=false;
                                   });
@@ -399,6 +408,8 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
           setState(() {
             selectedStartDate = picked;
           });
+          utcStartDate=dateToUtc(selectedStartDate);
+
         }
       else
         {
@@ -430,6 +441,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
           setState(() {
             selectedEndDate = picked;
           });
+          utcEndDate=dateToUtc(selectedEndDate);
         }
     else
       {
