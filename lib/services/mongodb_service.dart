@@ -333,7 +333,7 @@ class MongoDB {
   //Used by team admins to create public team events.
   Future<Event?> createPublicTeamEvent(String adminId, String hostTeamId,
       String name, String? description, DateTime startDate, DateTime endDate) async {
-    var url = Uri.parse(baseUri + '/events/createPublicTeam');
+    var url = Uri.parse(baseUri + '/events/proposePublicTeam');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({
