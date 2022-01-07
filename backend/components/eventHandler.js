@@ -154,7 +154,7 @@ app.post("/createPrivateTeam", async (req, res) => {
 });
 
 app.post("/proposePublicTeam", async (req, res) => {
-    console.log('Received createPublicTeam POST request:');
+    console.log('Received proposePublicTeam POST request:');
     console.log(req.body);
     if (req.body.hostTeamId && req.body.adminId) {
         const newEvent = new Event({
