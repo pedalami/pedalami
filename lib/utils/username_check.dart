@@ -53,7 +53,9 @@ Future<void> checkUsername(String newUsername, BuildContext context,
           FirebaseFirestore.instance
               .collection("Users")
               .add(user)
-              .then((value) {
+              .then((value) async {
+            LoggedUser.initInstance(actualUser.uid, actualUser.photoURL ?? "", actualUser.email!, newUsername.trim());
+            await MongoDB.instance.initUser(actualUser.uid);
             Navigator.pushNamedAndRemoveUntil(context, '/switch_page', (route) => false);
           }).catchError((error) {});
         }).catchError((error) {});

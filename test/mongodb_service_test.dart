@@ -180,7 +180,7 @@ void main() {
   test('get joinable events testing', () async {
     //instance.localDebug();
     String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
-    List<Event>? events = await instance.getJoinableEvents(userId);
+    List<Event>? events = await instance.getJoinableEvents(userId,"");
     //print(events);
     print("Involved teams are:");
     events?.forEach((event) {
