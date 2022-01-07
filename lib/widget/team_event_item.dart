@@ -93,28 +93,29 @@ class _TeamEventItemState extends State<TeamEventItem> {
                             ),
                           ),
                         ),
-                        event.isPrivate()&&!loadingOpponentTeam?
+                        event.isPrivate()&&!loadingOpponentTeam&&opposingName!.name!=active.name?
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Opponent: "+opposingName!.name,
+                          child: Text("Opposing Team: "+opposingName!.name,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 2 * SizeConfig.textMultiplier!
                             ),
                           ),
-                        ): /*event.isPrivate() && !loadingOpponentTeam && opposingName==null?Padding(
+                        )://event.isPrivate() && !loadingOpponentTeam && opposingName==null?
+                        Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Opponent: ",
+                          child: Text("Opposing Team: ---",
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 2 * SizeConfig.textMultiplier!
                             ),
                           ),
-                        ):*/SizedBox(),
+                        ),
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
