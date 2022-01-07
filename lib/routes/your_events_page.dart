@@ -31,8 +31,8 @@ class _YourEventsPageState extends State<YourEventsPage> {
     actualTeam=widget.activeTeam;
     loading = true;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-          active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id);
-          requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id);
+          active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id); //("61b67b63d5ba21ba7a232242");  //(actualTeam!.id);
+          requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id); //("61b67b63d5ba21ba7a232242"); //(actualTeam!.id);
           loading = false;
           setState(() {});
     });
@@ -63,7 +63,7 @@ class _YourEventsPageState extends State<YourEventsPage> {
                     child: Column(
                       children: <Widget>[
                       Text(
-                      "Your Events",
+                      "Your Team's Events",
                       style: TextStyle(
                         fontWeight: FontWeight.normal,
                         color: Colors.white,
@@ -84,7 +84,7 @@ class _YourEventsPageState extends State<YourEventsPage> {
                                 physics: const NeverScrollableScrollPhysics(),
                                 shrinkWrap: true,
                                 itemBuilder: (context, i) {
-                                  return TeamEventItem(event: active_events![i], refresh: refresh,);
+                                  return TeamEventItem(event: active_events![i], refresh: refresh, activeTeam: widget.activeTeam,);
                                 }):Column(
                                     children: [
                                       SizedBox(height: MediaQuery.of(context).size.height*.025,),

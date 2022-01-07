@@ -25,6 +25,7 @@ class _RequestItemState extends State<RequestItem> {
   late Event event;
   late Team team;
   late Team? opposingName;
+  bool loadingOpponentTeam = true;
   late bool _accepted, _rejected, _visible;
 
 
@@ -32,19 +33,21 @@ class _RequestItemState extends State<RequestItem> {
   void initState() {
     event=widget.event;
     team=widget.activeTeam;
+    super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      opposingName = (await MongoDB.instance.getTeam(event.enrolledTeamsIds![0]))!;  //gets event's hosting team's details
+      opposingName = (await MongoDB.instance.getTeam(event.enrolledTeamsIds!.first))!;  //gets event's hosting team's details
       print(opposingName!.name);
+      loadingOpponentTeam=false;
       setState(() {});
     });
     _accepted=false;
     _rejected=false;
     _visible=true;
-    super.initState();
+
   }
 
   refresh() {
-    //widget.refresh();
+    widget.refresh();
     setState(() {});
   }
 
@@ -83,10 +86,21 @@ class _RequestItemState extends State<RequestItem> {
                     child: Column(
                       crossAxisAlignment:CrossAxisAlignment.start,
                       children: <Widget>[
+                        !loadingOpponentTeam?
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
                           child: Text("OPPOSING TEAM: "+opposingName!.name,
+                            style: TextStyle(
+                                color: Colors.black54,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 2 * SizeConfig.textMultiplier!
+                            ),
+                          ),
+                        ):Padding(
+                          padding: EdgeInsets.only(
+                              top: 1 * SizeConfig.heightMultiplier!),
+                          child: Text("OPPOSING TEAM: ",
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -134,13 +148,12 @@ class _RequestItemState extends State<RequestItem> {
                               child: Text("Accept"),
                               onPressed: () async{
                                 _accepted = await MongoDB.instance.acceptInvite(event.id, team.adminId, team.id);
-                                print("accepted: ");
-                                print(_accepted);
+                                print("accepted: "+_accepted.toString());
                                   setState(() {
                                     if(_accepted)
                                       _visible = !_visible;
                                   });
-                                  refresh();
+                                 widget.refresh();
                                 }
                           ),
                       ),
@@ -157,12 +170,12 @@ class _RequestItemState extends State<RequestItem> {
                             child: Text(" Reject "),
                             onPressed: () async{
                               _rejected = await MongoDB.instance.rejectInvite(event.id, team.adminId, team.id);
-                              print("rejected: ");
-                              print(_rejected);
+                              print("rejected: "+_rejected.toString());
                               setState(() {
                                 if(_rejected)
                                 _visible = !_visible;
                               });
+                              widget.refresh();
                             }
                         ),
                       ),
