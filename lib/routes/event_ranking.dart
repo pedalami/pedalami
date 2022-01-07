@@ -18,6 +18,7 @@ class _EventRankingPageState extends State<EventRankingPage> {
   late Event event;
   List<LoggedUser> topUsers=[];
   late int userInCurrentEventPosition;
+  bool loadingRanking=true;
 
   @override
   void initState() {
@@ -56,9 +57,17 @@ class _EventRankingPageState extends State<EventRankingPage> {
               topUsers[i]=await topUser(event.scoreboard![i].userId,topUsers[i]);
             }
           //loading = false;
-          setState(() {});
+          setState(() {
+            loadingRanking=false;
+          });
         });
 
+      }
+    else
+      {
+        setState(() {
+          loadingRanking=false;
+        });
       }
   }
 
@@ -86,7 +95,8 @@ class _EventRankingPageState extends State<EventRankingPage> {
                 child: Center(
                   child: Text(
                     event.name+" rankings",
-                    style: TextStyle(color: Colors.white, fontSize: 35),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.white, fontSize: 35, ),
                   ),
                 ),
               ),
@@ -101,19 +111,32 @@ class _EventRankingPageState extends State<EventRankingPage> {
                       Text("Nobody attends this event", style: TextStyle(fontSize: 25,color: Colors.grey),),
                     ],
                   ):SizedBox(),
-                  event.scoreboard!.length>0?
-                  displayTopPlayer("🥇", 0):SizedBox(),
-                  event.scoreboard!.length>1?
-                  displayTopPlayer("🥈", 1):SizedBox(),
-                  event.scoreboard!.length>2?
-                  displayTopPlayer("🥉", 2):SizedBox(),
-                  Padding(padding: EdgeInsets.only(bottom: 15)),
-                  userInCurrentEventPosition!=-1?Column(
-                    children: [
-                      Text("Your score: "+event.scoreboard![userInCurrentEventPosition].points.toStringAsFixed(0)+(event.scoreboard![userInCurrentEventPosition].points.toStringAsFixed(0)=="1"?" point":" points"),style: TextStyle(fontSize: 25)),
-                      Text("Your position: "+(position(userInCurrentEventPosition+1)).toString(),style: TextStyle(fontSize: 25))
-                    ],
-                  ):SizedBox()
+                  AnimatedSwitcher(
+                    duration: Duration(milliseconds: 1000),
+                    child: loadingRanking?Column(
+                      children: [
+                        SizedBox(height: MediaQuery.of(context).size.height*.25,),
+                        CircularProgressIndicator(),
+                      ],
+                    ):Column(
+                      children: [
+                        event.scoreboard!.length>0?
+                        displayTopPlayer("🥇", 0):SizedBox(),
+                        event.scoreboard!.length>1?
+                        displayTopPlayer("🥈", 1):SizedBox(),
+                        event.scoreboard!.length>2?
+                        displayTopPlayer("🥉", 2):SizedBox(),
+                        Padding(padding: EdgeInsets.only(bottom: 15)),
+                        userInCurrentEventPosition!=-1?Column(
+                          children: [
+                            Text("Your score: "+event.scoreboard![userInCurrentEventPosition].points.toStringAsFixed(0)+(event.scoreboard![userInCurrentEventPosition].points.toStringAsFixed(0)=="1"?" point":" points"),style: TextStyle(fontSize: 25)),
+                            Text("Your position: "+(position(userInCurrentEventPosition+1)).toString(),style: TextStyle(fontSize: 25))
+                          ],
+                        ):SizedBox()
+                      ],
+                    ),
+                  ),
+
                 ],
               ),),
           ],
@@ -135,12 +158,25 @@ class _EventRankingPageState extends State<EventRankingPage> {
               topUsers[i].image==NetworkImage("url")?Container(height: 40,width: 40,):Container(
                 height: 40,
                 width: 40,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    image: DecorationImage(
-                      fit: BoxFit.cover,
-                      image: topUsers[i].image,
-                    )),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: Image.network(topUsers[i].image.url,
+                    fit: BoxFit.cover,
+                    errorBuilder:(BuildContext context, Object object, StackTrace? stacktrace){
+                      return Image.asset("lib/assets/app_icon.png");
+                    },
+                    loadingBuilder:(BuildContext context, Widget child,ImageChunkEvent? loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Center(
+                        child: CircularProgressIndicator(
+                          value: loadingProgress.expectedTotalBytes != null ?
+                          loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes as num)
+                              : null,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
               Text(medal, style: TextStyle(fontSize: 40),),
             ],
