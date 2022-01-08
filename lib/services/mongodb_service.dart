@@ -428,4 +428,11 @@ class MongoDB {
       return null;
   }
 
+  Future<bool> leaveEvent(String eventId, String userId) async {
+    var url = Uri.parse(baseUri + '/events/leave');
+    var response = await _serverClient.post(url, headers: _headers,
+        body: json.encode({'eventId': eventId, 'userId': userId}));
+    return response.statusCode == 200 ? true : false;
+  }
+
 }
