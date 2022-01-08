@@ -134,7 +134,7 @@ void main() {
 
   test('accept private team event invite testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d72baa169a3b9e1f3fd03b";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.acceptInvite(eventId, adminId, teamId));
@@ -142,7 +142,7 @@ void main() {
 
   test('reject private team event invite testing', () async {
     instance.localDebug();
-    String eventId = "61d724a8ab1c282cdc6ad488";
+    String eventId = "61d72c8a169a3b9e1f3fd049";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.rejectInvite(eventId, adminId, teamId));
