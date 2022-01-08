@@ -18,20 +18,6 @@ class SwitchPage extends StatefulWidget {
 }
 
 class _SwitchPageState extends State<SwitchPage> {
-  final _navigatorKey = GlobalKey<NavigatorState>();
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  refresh(){
-    setState(() {
-
-    });
-  }
 
   @override
   Widget build(BuildContext context) {

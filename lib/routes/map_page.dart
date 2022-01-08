@@ -39,66 +39,64 @@ class RideData {
   }
 }
 
-class CustomController extends MapController {
-  CustomController({
-    bool initMapWithUserPosition = true,
-    GeoPoint? initPosition,
-    BoundingBox? areaLimit = const BoundingBox.world(),
-  })  : assert(
-          initMapWithUserPosition || initPosition != null,
-        ),
-        super(
-          initMapWithUserPosition: initMapWithUserPosition,
-          initPosition: initPosition,
-          areaLimit: areaLimit,
-        );
-
-  @override
-  void init() {
-    super.init();
-  }
-}
 
 class MapPage extends StatefulWidget {
   MapPage({Key? key}) : super(key: key);
 
   @override
   _MapPageState createState() => _MapPageState();
+
 }
 
-class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
-  late CustomController controller;
-  late GlobalKey<ScaffoldState> scaffoldKey;
-  ValueNotifier<bool> zoomNotifierActivation = ValueNotifier(false);
-  ValueNotifier<bool> visibilityZoomNotifierActivation = ValueNotifier(false);
-  ValueNotifier<bool> advPickerNotifierActivation = ValueNotifier(false);
-  ValueNotifier<bool> trackingNotifier = ValueNotifier(false);
-  ValueNotifier<bool> showFab = ValueNotifier(true);
-  ValueNotifier<GeoPoint?> lastGeoPoint = ValueNotifier(null);
-  Timer? timer;
-  Timer? _stateTick;
+class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBindingObserver {
+  final MapController controller = MapController(initMapWithUserPosition: true);
   double totalElevation = 0;
-  int elapsedTime = 0;
   bool _isRecording = false;
+  bool _hasPermission = false;
+  bool _shouldInitialize = true;
   Color _currentButtonColor = Colors.green[400]!;
   Text _currentButtonText = Text("Start");
   FaIcon _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
-  double _rideDistance = 0;
   List<GeoPoint> path = [];
   RoadInfo? _roadInfo;
-  User? user = FirebaseAuth.instance.currentUser;
   LoggedUser _miUser = LoggedUser.instance!;
   AppLifecycleState _currentState = AppLifecycleState.resumed;
-  List<double>? elevations;
-  late loc.Location location;
-  late loc.LocationData _locationData;
-  var currentRide = <List, String>{
-    []: 'geopoints',
-    []: 'elevation',
-  };
+  List<double> elevations = [];
+  OSMFlutter? map;
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> mapIsReady(bool isReady) async {
+    print("2");
+    if (isReady) {
+      print("Ready");
+      controller.currentLocation();
+      if (_shouldInitialize) {
+        print("initialize");
+        //controller.currentLocation();
+        //controller.enableTracking();
+        _shouldInitialize = false;
+      }
+      controller.setZoom(stepZoom: 10.0);
+      //controller.zoomIn();
+    }
+  }
+
+  @override
+  Future<void> mapRestored() async {
+    super.mapRestored();
+    //print("Map restored");
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print(state);
+    //controller.currentLocation();
+    /*if (state == AppLifecycleState.inactive && !_isRecording) {
+      await controller.disabledTracking();
+    }
+    if (state == AppLifecycleState.resumed) {
+      await controller.enableTracking();
+    }*/
     setState(() {
       _currentState = state;
     });
@@ -106,18 +104,24 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
   }
 
   void getLocationPermission() async {
-    await Permission.locationAlways.request();
+    bool hasPermission = await Permission.locationAlways.request().isGranted;
+    setState(() {
+      _hasPermission = hasPermission;
+    });
   }
 
-  void addPointInBackground(location) {
+  void parseLocation(Location location) {
     if (_currentState != AppLifecycleState.resumed) {
-      if (path.last.latitude == location.latitude &&
-          path.last.longitude == location.longitude) {
-        print("No progress to save in background");
+      if (path.last.latitude == location.latitude && path.last.longitude == location.longitude) {
+        print("No need to save the current position");
       } else {
         if (_isRecording) {
-          path.add(GeoPoint(
-              latitude: location.latitude, longitude: location.longitude));
+          path.add(GeoPoint(latitude: location.latitude!, longitude: location.longitude!));
+          double newAltitude = location.altitude!;
+          if (newAltitude < elevations.last) {
+            totalElevation = (totalElevation + (newAltitude - elevations.last));
+            elevations.add(newAltitude);
+          }
         }
       }
     }
@@ -125,145 +129,114 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    bool _serviceEnabled;
-    PermissionStatus _permissionGranted;
-    elevations = [];
-    location = loc.Location();
-
-    /*
-    OLD. See the above new declaration of _miUser LoggedUser for reference.
-    //TODO: Refactor this, shouldn't write this both in map page and profile page /Marcus
-    firestore.CollectionReference usersCollection =
-        firestore.FirebaseFirestore.instance.collection("Users");
-    usersCollection
-        .where("Mail", isEqualTo: user!.email)
-        .get()
-        .then((firestore.QuerySnapshot querySnapshot) async {
-      //This setState serves no purpose, I leave it here if you want explanation why this is redundant /Marcus
-
-      _miUser = new LoggedUser(
-          querySnapshot.docs[0].id,
-          querySnapshot.docs[0].get("Image"),
-          querySnapshot.docs[0].get("Mail"),
-          querySnapshot.docs[0].get("Username"),
-      0.0); //Added because now the logged user should include the points
-      //TODO - Comment added by Vincenzo:
-      //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
-      //My suggestion is to have a single shared MiUser to use in the whole application.
-    });
-     */
     super.initState();
+    controller.addObserver(this);
     WidgetsBinding.instance?.addObserver(this);
     getLocationPermission();
-    controller = CustomController(initMapWithUserPosition: true);
+    print("1");
   }
 
   @override
   void dispose() {
-    if (timer != null && timer!.isActive) {
-      timer?.cancel();
-    }
-    //controller.listenerMapIsReady.removeListener(mapIsInitialized);
     controller.dispose();
     WidgetsBinding.instance?.removeObserver(this);
-
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
+    if (map == null) {
+      map = OSMFlutter(
+        controller: controller,
+        //onMapIsReady: mapIsReady,
+        mapIsLoading: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              Text("Map is Loading..")
+            ],
+          ),
+        ),
+        initZoom: 17,
+        minZoomLevel: 8,
+        maxZoomLevel: 19,
+        stepZoom: 1.0,
+        //key: widget.key,
+        androidHotReloadSupport: true,
+        /*userLocationMarker: UserLocationMaker(
+          personMarker: MarkerIcon(
+            icon: Icon(
+              Icons.location_history_rounded,
+              color: Colors.red,
+              size: 80,
+            ),
+          ),
+          directionArrowMarker: MarkerIcon(
+            icon: Icon(
+              Icons.double_arrow,
+              size: 48,
+            ),
+          ),
+        ),*/
+        showContributorBadgeForOSM: false,
+        showDefaultInfoWindow: false,
+        //onLocationChanged: (myLocation) { print(myLocation); },
+        onGeoPointClicked: (geoPoint) async {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                "${geoPoint.toMap().toString()}",
+              ),
+              action: SnackBarAction(
+                onPressed: () =>
+                    ScaffoldMessenger.of(context)
+                        .hideCurrentSnackBar(),
+                label: "hide",
+              ),
+            ),
+          );
+        },
+        /*road: Road(
+          startIcon: MarkerIcon(
+            icon: Icon(
+              Icons.person,
+              size: 64,
+              color: Colors.brown,
+            ),
+          ),
+          roadColor: Colors.red,
+        ),*/
+        /*
+        markerOption: MarkerOption(
+          defaultMarker: MarkerIcon(
+            icon: Icon(
+              Icons.home,
+              color: Colors.orange,
+              size: 64,
+            ),
+          ),
+          advancedPickerMarker: MarkerIcon(
+            icon: Icon(
+              Icons.location_searching,
+              color: Colors.green,
+              size: 64,
+            ),
+          ),
+        ),*/
+      );
+    }
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
+    return _hasPermission ? Scaffold(
       body: OrientationBuilder(
         builder: (ctx, orientation) {
           return Container(
             child: Stack(
               children: [
-                OSMFlutter(
-                  controller: controller,
-                  onMapIsReady: (isReady) {
-                    controller.currentLocation();
-                    controller.enableTracking();
-                    controller.setZoom(stepZoom: 10.0);
-                    controller.zoomIn();
-                  },
-                  mapIsLoading: Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        CircularProgressIndicator(),
-                        Text("Map is Loading..")
-                      ],
-                    ),
-                  ),
-                  initZoom: 17,
-                  minZoomLevel: 8,
-                  maxZoomLevel: 19,
-                  stepZoom: 1.0,
-                  userLocationMarker: UserLocationMaker(
-                    personMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.location_history_rounded,
-                        color: Colors.red,
-                        size: 80,
-                      ),
-                    ),
-                    directionArrowMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.double_arrow,
-                        size: 48,
-                      ),
-                    ),
-                  ),
-                  showContributorBadgeForOSM: false,
-                  //trackMyPosition: trackingNotifier.value,
-                  showDefaultInfoWindow: false,
-                  /*onLocationChanged: (myLocation) {
-                    print(myLocation);
-                  },*/
-                  onGeoPointClicked: (geoPoint) async {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          "${geoPoint.toMap().toString()}",
-                        ),
-                        action: SnackBarAction(
-                          onPressed: () => ScaffoldMessenger.of(context)
-                              .hideCurrentSnackBar(),
-                          label: "hide",
-                        ),
-                      ),
-                    );
-                  },
-                  road: Road(
-                    startIcon: MarkerIcon(
-                      icon: Icon(
-                        Icons.person,
-                        size: 64,
-                        color: Colors.brown,
-                      ),
-                    ),
-                    roadColor: Colors.red,
-                  ),
-                  markerOption: MarkerOption(
-                    defaultMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.home,
-                        color: Colors.orange,
-                        size: 64,
-                      ),
-                    ),
-                    advancedPickerMarker: MarkerIcon(
-                      icon: Icon(
-                        Icons.location_searching,
-                        color: Colors.green,
-                        size: 64,
-                      ),
-                    ),
-                  ),
-                ),
+                map!,
                 Positioned(
                     bottom: size.height / 8,
                     width: size.width / 1,
@@ -274,101 +247,42 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                             return ElevatedButton.icon(
                               onPressed: () async {
                                 await controller.enableTracking();
-                                await controller.currentLocation();
-                                _locationData = await location.getLocation();
-                                showCurrentAirQuality(_locationData.latitude, _locationData.longitude);
-
+                                var myLocation = await controller.myLocation();
                                 if (_isRecording == false) {
-                                  BackgroundLocation.startLocationService();
-                                  BackgroundLocation.getLocationUpdates(
-                                      (location) =>
-                                          addPointInBackground(location));
-                                  _locationData = await location.getLocation();
-                                  elevations!.add(_locationData.altitude!);
-                                  _isRecording = true;
-                                  path.add(await controller.myLocation());
-                                  controller.addMarker(path.last,
-                                      markerIcon: MarkerIcon(
-                                        image: AssetImage(
-                                            'lib/assets/map_marker.png'),
-                                      ));
-                                  print(path);
-                                  internalState(() {
-                                    _currentButtonColor = Colors.redAccent;
-                                    _currentButtonText = Text("Stop");
-                                    _currentButtonIcon =
-                                        FaIcon(FontAwesomeIcons.pause);
-                                  });
-                                  _stateTick = Timer.periodic(
-                                      Duration(seconds: 3), (Timer t) async {
-                                    //Ugly and repeating code, but was the only fix for the tracking bug
-                                    await controller.enableTracking();
-                                    await controller.currentLocation();
-                                    await Future.delayed(Duration(seconds: 2));
-                                    controller.removeMarker(path.last);
-                                    var latestLocation =
-                                        await controller.myLocation();
-                                    if (path.last.latitude ==
-                                            latestLocation.latitude &&
-                                        path.last.latitude ==
-                                            latestLocation.latitude) {
-                                      print("No progress to save");
-                                    } else {
-                                      _locationData =
-                                          await location.getLocation();
-                                      double newAltitude =
-                                          _locationData.altitude!;
-
-                                      if (elevations!.last < newAltitude) {
-                                        print(
-                                            "Only downhill or no change in altitude, don't save");
-                                      } else {
-                                        elevations!.add(newAltitude);
-                                        totalElevation = (totalElevation +
-                                            (newAltitude - elevations!.last));
-                                      }
-                                      path.add(latestLocation);
-                                    }
-                                    if (path.length > 2) {
-                                      controller.removeLastRoad();
-                                      _roadInfo = await controller.drawRoad(
-                                          path.first, path.last,
-                                          intersectPoint:
-                                              path.sublist(1, path.length - 1),
-                                          roadType: RoadType.bike,
-                                          roadOption: RoadOption(
-                                            roadWidth: 10,
-                                            roadColor: Colors.green,
-                                          ));
-                                    }
+                                    showCurrentAirQuality(myLocation.latitude, myLocation.longitude);
+                                    _isRecording = true;
+                                    BackgroundLocation.startLocationService();
+                                    BackgroundLocation.getLocationUpdates((location) {
+                                        controller.removeMarker(path.last);
+                                        parseLocation(location);
+                                        controller.addMarker(path.last,
+                                            markerIcon: MarkerIcon(
+                                                image: AssetImage('lib/assets/map_marker.png')
+                                            ));
+                                      });
                                     internalState(() {
-                                      elapsedTime += 15;
+                                      _currentButtonColor = Colors.redAccent;
+                                      _currentButtonText = Text("Stop");
+                                      _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
                                     });
-                                    controller.addMarker(path.last,
-                                        markerIcon: MarkerIcon(
-                                            image: AssetImage(
-                                          'lib/assets/map_marker.png',
-                                        )));
-                                  });
                                 } else {
                                   BackgroundLocation.stopLocationService();
                                   if (path.length < 3) {
                                     showAlertDialog(context);
                                   } else {
                                     Ride finishedRide = Ride(
-                                        nStringToNNString(_miUser.userId),
-                                        nStringToNNString(_miUser.username),
+                                        _miUser.userId,
+                                        _miUser.username,
                                         null,
                                         _roadInfo!.duration,
                                         _roadInfo!.distance,
                                         null,
                                         DateTime.now(),
                                         totalElevation,
-                                        500.0,
+                                        null,
                                         path);
 
-                                    Ride? response = await MongoDB.instance
-                                        .recordRide(finishedRide);
+                                    Ride? response = await MongoDB.instance.recordRide(finishedRide);
                                     if (response != null) {
                                       showRideCompleteDialog(
                                           context, size, response);
@@ -378,17 +292,12 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                     controller.removeMarker(element);
                                   });
                                   setState(() {
-                                    //Added this code because it stopped removing the drawn roads after finish for some reason/Marcus
-                                  });
-                                  path.clear();
-                                  _isRecording = false;
-                                  internalState(() {
+                                    path.clear();
+                                    _isRecording = false;
                                     _currentButtonText = Text("Start");
                                     _currentButtonColor = Colors.green[400]!;
-                                    _currentButtonIcon =
-                                        FaIcon(FontAwesomeIcons.play);
+                                    _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
                                   });
-                                  _stateTick!.cancel();
                                 }
                               },
                               label: _currentButtonText,
@@ -405,6 +314,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                             );
                           },
                         ))),
+                //DEMO BUTTON
                 Positioned(
                     bottom: size.height / 4,
                     width: size.width / 0.6,
@@ -420,38 +330,36 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                 shape: MaterialStateProperty.all(
                                     RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(25.0),
-                                ))),
+                            ))),
                             onPressed: () async {
+                              var fakePath = [
+                                GeoPoint(
+                                  latitude: 45.47706577107621,
+                                  longitude: 9.225647327123237),
+                                GeoPoint(
+                                    latitude: 45.47911197529172,
+                                    longitude: 9.22567362278855)
+                              ];
                               var road = await controller.drawRoad(
-                                  GeoPoint(
-                                      latitude: 45.47706577107621,
-                                      longitude: 9.225647327123237),
-                                  GeoPoint(
-                                      latitude: 45.47911197529172,
-                                      longitude: 9.22567362278855),
+                                  fakePath[0], fakePath[1],
                                   roadType: RoadType.bike,
                                   roadOption: RoadOption(
                                     roadWidth: 10,
                                     roadColor: Colors.green,
-                                  ));
+                              ));
 
                               Ride finishedRide = Ride(
-                                  nStringToNNString(_miUser.userId),
-                                  nStringToNNString(_miUser.username),
+                                  _miUser.userId,
+                                  _miUser.username,
                                   null,
                                   road.duration,
                                   road.distance,
                                   null,
                                   DateTime.now(),
                                   totalElevation,
-                                  500.0, [
-                                GeoPoint(
-                                    latitude: 45.47706577107621,
-                                    longitude: 9.225647327123237),
-                                GeoPoint(
-                                    latitude: 45.47911197529172,
-                                    longitude: 9.22567362278855)
-                              ]);
+                                  null,
+                                  fakePath
+                              );
 
                               Ride? response = await MongoDB.instance
                                   .recordRide(finishedRide);
@@ -462,8 +370,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                       List.empty(growable: true);
                                 }
                                 _miUser.rideHistory!.add(response);
-                                MongoDB.instance.initUser(_miUser.userId);
-                                //_miUser.notifyListeners();
+                                //MongoDB.instance.initUser(_miUser.userId);
                                 showRideCompleteDialog(context, size, response);
                               }
                             },
@@ -476,7 +383,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
           );
         },
       ),
-    );
+    ) : Container();
   }
 
   showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide) {
