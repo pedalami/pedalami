@@ -58,17 +58,22 @@ class MongoDB {
         var points = double.parse(decodedBody["points"].toString());
         Statistics stats = Statistics.fromJson(decodedBody["statistics"]);
         List<Team> teamList = decodedBody["teams"]
-            ?.map<Team>((team) => Team.fromJson(team))
-            .toList() ?? [];
+                ?.map<Team>((team) => Team.fromJson(team))
+                .toList() ??
+            [];
         List<Badge> badgeList = decodedBody["badges"]
-            ?.map<Badge>((badge) => Badge.fromJson(badge))
-            .toList() ?? [];
+                ?.map<Badge>((badge) => Badge.fromJson(badge))
+                .toList() ??
+            [];
         List<RedeemedReward> rewardsList = decodedBody["rewards"]
-            ?.map<RedeemedReward>((reward) => RedeemedReward.fromJson(reward))
-            .toList() ?? [];
+                ?.map<RedeemedReward>(
+                    (reward) => RedeemedReward.fromJson(reward))
+                .toList() ??
+            [];
         List<Event> eventsList = decodedBody["joinedEvents"]
-            ?.map<Event>((event) => Event.fromJson(event))
-            .toList() ?? [];
+                ?.map<Event>((event) => Event.fromJson(event))
+                .toList() ??
+            [];
         LoggedUser.completeInstance(
             points, teamList, stats, badgeList, rewardsList, eventsList);
       } catch (ex, st) {
@@ -91,20 +96,21 @@ class MongoDB {
     return querySnapshot.docs.first.get("Username");
   }
 
-
-
   //TEAMS
 
   //Returns the team_id if everything went fine
   //Returns null in case of error
-  Future<Team?> createTeam(String adminId, String name, String? description) async {
+  Future<Team?> createTeam(
+      String adminId, String name, String? description) async {
     var url = Uri.parse(baseUri + '/teams/create');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode(
             {'adminId': adminId, 'name': name, 'description': description}));
-    if (response.statusCode == 200 && json.decode(response.body)["teamId"] != null) {
-      return new Team(json.decode(response.body)["teamId"], adminId, name, description, [adminId], null);
+    if (response.statusCode == 200 &&
+        json.decode(response.body)["teamId"] != null) {
+      return new Team(json.decode(response.body)["teamId"], adminId, name,
+          description, [adminId], null);
     } else
       return null;
   }
@@ -158,8 +164,6 @@ class MongoDB {
       return null;
   }
 
-
-
   // RIDES
 
   //To get the history of rides of a user
@@ -201,8 +205,6 @@ class MongoDB {
     } else
       return null;
   }
-
-
 
   // REWARDS
 
@@ -249,23 +251,22 @@ class MongoDB {
       return null;
   }
 
-
-
-
   // EVENTS
 
   //Returns an array of the events with the name matching the query if everything went fine
   //Returns null in case of error.
   //Used by team admins to search an event in which enroll the team identified by teamId
-  Future<List<Event>?> searchEvent(String name, String teamId, String adminId) async {
+  Future<List<Event>?> searchEvent(
+      String name, String teamId, String adminId) async {
     var url = Uri.parse(baseUri + '/events/search');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'teamId': teamId, 'adminId': adminId, 'name': name}));
+        body:
+            json.encode({'teamId': teamId, 'adminId': adminId, 'name': name}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
-      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+          decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
       return eventList;
     } else
       return null;
@@ -290,7 +291,7 @@ class MongoDB {
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
-      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+          decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
       return eventList;
     } else
       return null;
@@ -298,18 +299,26 @@ class MongoDB {
 
   //Returns true if everything went fine, false otherwise.
   //Used by users to join events. teamId required if the event to join is a team event
-  Future<bool> joinEvent(String eventId, String userId, {String? teamId}) async {
+  Future<bool> joinEvent(String eventId, String userId,
+      {String? teamId}) async {
     var url = Uri.parse(baseUri + '/events/join');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'teamId': teamId, 'userId': userId, 'eventId': eventId}));
+        body: json
+            .encode({'teamId': teamId, 'userId': userId, 'eventId': eventId}));
     return response.statusCode == 200 ? true : false;
   }
 
   //Returns the event if everything went fine, null otherwise.
   //Used by team admins to create private team events.
-  Future<Event?> createPrivateTeamEvent(String adminId, String hostTeamId, String invitedTeamId,
-      String name, String? description, DateTime startDate, DateTime endDate) async {
+  Future<Event?> createPrivateTeamEvent(
+      String adminId,
+      String hostTeamId,
+      String invitedTeamId,
+      String name,
+      String? description,
+      DateTime startDate,
+      DateTime endDate) async {
     var url = Uri.parse(baseUri + '/events/createPrivateTeam');
     var response = await _serverClient.post(url,
         headers: _headers,
@@ -331,8 +340,13 @@ class MongoDB {
 
   //Returns the event if everything went fine, null otherwise.
   //Used by team admins to create public team events.
-  Future<Event?> proposePublicTeamEvent(String adminId, String hostTeamId,
-      String name, String? description, DateTime startDate, DateTime endDate) async {
+  Future<Event?> proposePublicTeamEvent(
+      String adminId,
+      String hostTeamId,
+      String name,
+      String? description,
+      DateTime startDate,
+      DateTime endDate) async {
     var url = Uri.parse(baseUri + '/events/proposePublicTeam');
     var response = await _serverClient.post(url,
         headers: _headers,
@@ -353,41 +367,53 @@ class MongoDB {
 
   //Returns true if everything went fine, false otherwise.
   //Used by team admins to subscribe one of their teams to a public event.
-  Future<bool> enrollTeamToPublicEvent(String eventId, String adminId, String teamId) async {
+  Future<bool> enrollTeamToPublicEvent(
+      String eventId, String adminId, String teamId) async {
     var url = Uri.parse(baseUri + '/events/enrollToPublicTeam');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+        body: json.encode(
+            {'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
     return response.statusCode == 200 ? true : false;
   }
 
   //Returns true if everything went fine, false otherwise.
   //Used by team admins to accept an invite to an event.
-  Future<bool> acceptInvite(String eventId, String adminId, String teamId) async {
+  Future<bool> acceptInvite(
+      String eventId, String adminId, String teamId) async {
     var url = Uri.parse(baseUri + '/events/acceptPrivateTeamInvite');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+        body: json.encode(
+            {'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
     return response.statusCode == 200 ? true : false;
   }
 
   //Returns true if everything went fine, false otherwise.
   //Used by team admins to reject an invite to an event.
-  Future<bool> rejectInvite(String eventId, String adminId, String teamId) async {
+  Future<bool> rejectInvite(
+      String eventId, String adminId, String teamId) async {
     var url = Uri.parse(baseUri + '/events/rejectPrivateTeamInvite');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
+        body: json.encode(
+            {'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
     return response.statusCode == 200 ? true : false;
   }
 
   //Returns true if everything went fine, false otherwise.
   //Used by team admins to reject an invite to an event.
-  Future<bool> sendInvite(String eventId, String adminId, String hostTeamId, String invitedTeamId) async {
+  Future<bool> sendInvite(String eventId, String adminId, String hostTeamId,
+      String invitedTeamId) async {
     var url = Uri.parse(baseUri + '/events/invitePrivateTeam');
     var response = await _serverClient.post(url,
         headers: _headers,
-        body: json.encode({'hostTeamId': hostTeamId, 'invitedTeamId': invitedTeamId, 'adminId': adminId, 'eventId': eventId}));
+        body: json.encode({
+          'hostTeamId': hostTeamId,
+          'invitedTeamId': invitedTeamId,
+          'adminId': adminId,
+          'eventId': eventId
+        }));
     return response.statusCode == 200 ? true : false;
   }
 
@@ -396,12 +422,13 @@ class MongoDB {
   //Used by a user to retrieve the list of his events
   Future<List<Event>?> getUserEvents(String userId) async {
     var url = Uri.parse(baseUri + '/events/getUsersEvents');
-    var response = await _serverClient.post(url, headers: _headers,
-        body: json.encode({'userId': userId}));
+    var response = await _serverClient.post(url,
+        headers: _headers, body: json.encode({'userId': userId}));
     if (response.statusCode == 200) {
-      var decodedBody = json.decode(response.body) as List;
-      List<Event> eventList =
-      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+      var decodedBody = json.decode(response.body) as List?;
+      List<Event>? eventList = decodedBody
+          ?.map<Event>((event) => Event.fromJsonWithTeams(event))
+          .toList();
       return eventList;
     } else
       return null;
@@ -411,12 +438,12 @@ class MongoDB {
   //Returns null in case of error
   Future<List<Event>?> getTeamActiveEvents(String teamId) async {
     var url = Uri.parse(baseUri + '/events/getTeamActiveEvents');
-    var response = await _serverClient.post(url, headers: _headers,
-        body: json.encode({'teamId': teamId}));
+    var response = await _serverClient.post(url,
+        headers: _headers, body: json.encode({'teamId': teamId}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
-      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+          decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
       return eventList;
     } else
       return null;
@@ -426,15 +453,22 @@ class MongoDB {
   //Returns null in case of error
   Future<List<Event>?> getTeamEventRequests(String teamId) async {
     var url = Uri.parse(baseUri + '/events/getTeamEventRequests');
-    var response = await _serverClient.post(url, headers: _headers,
-        body: json.encode({'teamId': teamId}));
+    var response = await _serverClient.post(url,
+        headers: _headers, body: json.encode({'teamId': teamId}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;
       List<Event> eventList =
-      decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
+          decodedBody.map<Event>((event) => Event.fromJson(event)).toList();
       return eventList;
     } else
       return null;
   }
 
+  Future<bool> leaveEvent(String eventId, String userId) async {
+    var url = Uri.parse(baseUri + '/events/leave');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({'eventId': eventId, 'userId': userId}));
+    return response.statusCode == 200 ? true : false;
+  }
 }

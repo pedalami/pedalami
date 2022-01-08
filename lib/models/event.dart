@@ -24,26 +24,43 @@ class Event {
   double? prize;
 
   // Start of private event attributes
-  String? hostTeam;
-  String? guestTeam;
+  String? hostTeamId;
+  String? guestTeamId;
+  Team?
+      hostTeam; //Only for private team events when the getUsersEvents is called
+  Team?
+      guestTeam; //Only for private team events when the getUsersEvents is called
   String? pendingRequest;
   // End of private event attributes
 
+  List<Team>?
+      enrolledTeams; //Only for public team events when the getUsersEvents is called
   List<String>? involvedTeamsIds; //Only for public team events
   List<ScoreboardEntry>? scoreboard;
 
-
-  Event(this.id,this.name, this.description, this.startDate, this.endDate, this._type,
-      this._visibility, this.prize, this.hostTeam, this.guestTeam, this.pendingRequest, this.involvedTeamsIds, this.scoreboard);
-
+  Event(
+      this.id,
+      this.name,
+      this.description,
+      this.startDate,
+      this.endDate,
+      this._type,
+      this._visibility,
+      this.prize,
+      this.hostTeamId,
+      this.guestTeamId,
+      this.hostTeam,
+      this.guestTeam,
+      this.pendingRequest,
+      this.involvedTeamsIds,
+      this.enrolledTeams,
+      this.scoreboard);
 
   factory Event.fromJson(dynamic json) {
     List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
-      .map<ScoreboardEntry>((e) => new ScoreboardEntry(
-        e['userId'] as String,
-        e['teamId'] as String?,
-        double.parse(e['points'].toString()))
-      ).toList();
+        .map<ScoreboardEntry>((e) => new ScoreboardEntry(e['userId'] as String,
+            e['teamId'] as String?, double.parse(e['points'].toString())))
+        .toList();
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
     List<String>? involvedTeamsIds;
@@ -58,42 +75,114 @@ class Event {
       }
     }
     return Event(
-      json['_id'] as String,
-      json['name'] as String,
-      json['description'] as String,
-      MongoDB.parseDate(json['startDate'] as String), //parse server date format
-      MongoDB.parseDate(json['endDate'] as String),   //parse server date format
-      type,
-      visibility,
-      double.tryParse(json['prize'].toString()),
-      json['hostTeam'] as String?,
-      json['guestTeam'] as String?,
-      pendingRequest,
-      involvedTeamsIds,
-      scoreboard
-    );
+        json['_id'] as String,
+        json['name'] as String,
+        json['description'] as String,
+        MongoDB.parseDate(
+            json['startDate'] as String), //parse server date format
+        MongoDB.parseDate(json['endDate'] as String), //parse server date format
+        type,
+        visibility,
+        double.tryParse(json['prize'].toString()),
+        json['hostTeam'] as String?,
+        json['guestTeam'] as String?,
+        null,
+        null,
+        pendingRequest,
+        involvedTeamsIds,
+        null,
+        scoreboard);
+  }
+
+  factory Event.fromJsonWithTeams(dynamic json) {
+    List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
+        .map<ScoreboardEntry>((e) => new ScoreboardEntry(e['userId'] as String,
+            e['teamId'] as String?, double.parse(e['points'].toString())))
+        .toList();
+    String type = json['type'] as String;
+    String visibility = json['visibility'] as String;
+    List<String>? involvedTeamsIds;
+    List<Team>? enrolledTeams;
+    Team? hostTeam;
+    Team? guestTeam;
+    String? pendingRequest;
+    if (type == 'team') {
+      enrolledTeams = (json['involvedTeams'] as List<dynamic>?)
+          ?.map<Team>((team) => Team.fromJson(team))
+          .toList();
+      involvedTeamsIds = enrolledTeams?.map((e) => e.id).toList();
+      if (visibility == 'private') {
+        hostTeam = Team.fromJson(json['hostTeam'][0]);
+        if (json['guestTeam'] != [] && json['guestTeam'] != null) {
+          // if the private team event has a guestTeam
+          guestTeam = Team.fromJson(json['guestTeam'][0]);
+        } else {
+          // if there is no opponent team
+          pendingRequest = involvedTeamsIds?.first;
+        }
+      }
+    }
+    return Event(
+        json['_id'] as String,
+        json['name'] as String,
+        json['description'] as String,
+        MongoDB.parseDate(
+            json['startDate'] as String), //parse server date format
+        MongoDB.parseDate(json['endDate'] as String), //parse server date format
+        type,
+        visibility,
+        double.tryParse(json['prize'].toString()),
+        hostTeam?.id,
+        guestTeam?.id,
+        hostTeam,
+        guestTeam,
+        pendingRequest,
+        involvedTeamsIds,
+        enrolledTeams,
+        scoreboard);
   }
 
   bool isPublic() {
     return _visibility == "public";
   }
+
   bool isPrivate() {
     return _visibility == "private";
   }
+
   bool isTeam() {
     return _type == "team";
   }
+
   bool isIndividual() {
     return _type == "individual";
   }
+
   bool isInviteAccepted() {
-    return isPrivate() && isTeam() && guestTeam != null && pendingRequest == null ? true : false;
+    return isPrivate() &&
+            isTeam() &&
+            guestTeam != null &&
+            pendingRequest == null
+        ? true
+        : false;
   }
+
   bool isInvitePending() {
-    return isPrivate() && isTeam() && guestTeam == null && pendingRequest != null ? true : false;
+    return isPrivate() &&
+            isTeam() &&
+            guestTeam == null &&
+            pendingRequest != null
+        ? true
+        : false;
   }
+
   bool isInviteRejected() {
-    return isPrivate() && isTeam() && guestTeam == null && pendingRequest == null ? true : false;
+    return isPrivate() &&
+            isTeam() &&
+            guestTeam == null &&
+            pendingRequest == null
+        ? true
+        : false;
   }
 
   String displayStartDate() {
@@ -106,8 +195,10 @@ class Event {
 
   @override
   String toString() {
-    return 'Event { id: $id, name: $name, description: $description, start: '+displayStartDate()+
-        ', end: '+displayEndDate()+', $_visibility, $_type }';
+    return 'Event { id: $id, name: $name, description: $description, start: ' +
+        displayStartDate() +
+        ', end: ' +
+        displayEndDate() +
+        ', $_visibility, $_type }';
   }
-
 }
