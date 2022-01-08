@@ -101,7 +101,7 @@ void main() {
 
 
   test('create private team event testing', () async {
-    instance.localDebug();
+    //instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
     String invitedTeamId = "61b7e246f34ee1e975875025"; //Lorenzo's team - adminId: bRyLXZg1VNQIAq4fSC1REbaXMhi1
@@ -137,15 +137,15 @@ void main() {
 
   test('accept private team event invite testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d973959bb79e9845222e13";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.acceptInvite(eventId, adminId, teamId));
   });
 
   test('reject private team event invite testing', () async {
-    instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    //instance.localDebug();
+    String eventId = "61d975299bb79e9845222e34";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.rejectInvite(eventId, adminId, teamId));
@@ -179,14 +179,32 @@ void main() {
 
   test('get joinable events testing', () async {
     //instance.localDebug();
-    String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
+    String userId = "wqYXryHv31anGdjr2AsjjijLH0y1";
     List<Event>? events = await instance.getJoinableEvents(userId,"");
-    //print(events);
+    print(events);
     print("Involved teams are:");
     events?.forEach((event) {
-      if (!event.isIndividual()) {
-        print(event.id);
-        print(event.enrolledTeamsIds);
+      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+        print(event.hostTeam);
+        print(event.guestTeam);
+        print(event.pendingRequest);
+      }
+    });
+    assert(events != null);
+  });
+
+  test('get teams events requests testing', () async {
+    //instance.localDebug();
+    String teamId = "61b7e246f34ee1e975875025";
+    List<Event>? events = await instance.getTeamEventRequests(teamId);
+    print(events);
+    print("Involved teams are:");
+    events?.forEach((event) {
+      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+        //print(event.id);
+        print(event.hostTeam);
+        print(event.guestTeam);
+        print(event.pendingRequest);
       }
     });
     assert(events != null);
