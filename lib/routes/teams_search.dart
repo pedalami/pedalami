@@ -101,35 +101,52 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                   ),
                 ),
               ),
-              !hasSearched
-                  ? Container(
-                      child: SingleChildScrollView(
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                SizedBox(
-                                  width: 7.0 * SizeConfig.widthMultiplier!,
-                                ),
-                                //)
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    )
+              AnimatedSwitcher(duration: const Duration(milliseconds: 250),
+              child: !hasSearched
+                  ? SizedBox()
                   : loading
-                      ? Text("Loading...")
-                      : (foundTeams != null && foundTeams!.length > 0
-                          ? Column(
-                            children: [
-                              TeamSearchButton(teamsFound: foundTeams!),
-                              Divider(
-                                color: Colors.grey[500],
-                              ),
-                            ],
-                          )
-                          : Text("No teams found")),
+                  ?  Container(
+                  height: 100,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                          height:25,
+                          width: 25,
+                          child: CircularProgressIndicator()),
+                      SizedBox(height: 10,),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text("Loading...", textAlign: TextAlign.center,style: TextStyle(
+                              color: Colors.black54,
+                            ),),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ))
+                  : (foundTeams != null && foundTeams!.length > 0
+                  ? Column(
+                children: [
+                  TeamSearchButton(teamsFound: foundTeams!),
+                  Divider(
+                    color: Colors.grey[500],
+                  ),
+                ],
+              )
+                  : Container(
+                  height: 100,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text("No teams found", textAlign: TextAlign.center,style: TextStyle(
+                          color: Colors.black54,
+                        ),),
+                      ),
+                    ],
+                  ))),),
+
 
               //TODO: better ui loading or no results
               Padding(
