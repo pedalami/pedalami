@@ -46,7 +46,7 @@ class _GetRewardButtonState extends State<GetRewardButton> {
           child: Text(price + (price == "1" ? " point" : " points")),
           onPressed: () {
             ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text("You don\'t have enogh points for " +
+                content: Text("You don\'t have enough points for " +
                     reward.description +
                     "!")));
           });

@@ -44,8 +44,7 @@ class _RewardItemState extends State<RewardItem> {
             padding: EdgeInsets.symmetric(vertical: 8),
             decoration: BoxDecoration(border: Border(
               bottom: BorderSide( color: Colors.grey),
-            ),
-              color: Colors.white,),
+            ),),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [Expanded(flex:2,child: Image.memory(base64Decode(rewards[i].image.replaceAll("data:image/png;base64,","").replaceAll("\"", "")))),
