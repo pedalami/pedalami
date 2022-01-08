@@ -203,7 +203,7 @@ void main() {
         print(event.guestTeam);
         print(event.pendingRequest);
       }
-    });*/
+    });
     assert(events != null);
   });
 }
