@@ -29,8 +29,9 @@ class _TeamProfileState extends State<TeamProfile> {
     super.initState();
   }
 
-  String getAdminUsername() {
-    return widget.team.getAdminName() ?? "Username of the admin not found";
+  String? getAdminUsername() {
+    //return widget.team.getAdminName() ?? "Username of the admin not found";
+    return widget.team.getAdminName();
   }
 
   @override
@@ -122,13 +123,20 @@ class _TeamProfileState extends State<TeamProfile> {
                           color: Colors.black54,
                           fontSize: 2.5 * SizeConfig.textMultiplier!,),
                       ),
-                      Text(
-                        getAdminUsername(),
+                      AnimatedSwitcher(duration: Duration(milliseconds: 250),
+                      child: getAdminUsername()!=null?Text(
+                        getAdminUsername()!,
                         style: TextStyle(
                           fontWeight: FontWeight.normal,
                           color: Colors.black54,
                           fontSize: 2.3 * SizeConfig.textMultiplier!,),
-                      ),
+                      ):Container(
+                        height: 2.3 * SizeConfig.textMultiplier!,
+                        width: 2.3 * SizeConfig.textMultiplier!,
+                        child: CircularProgressIndicator(
+                        ),
+                      )),
+
                       Padding(
                         padding: EdgeInsets.only(
                             top: 3 * SizeConfig.heightMultiplier!,
