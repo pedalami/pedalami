@@ -45,124 +45,126 @@ class _EnrollEventState extends State<EnrollEvent> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(bottom: 30),
-            child: Column(
-              children: <Widget>[
-                Container(
-                  color: Colors.green[600],
-                  height: 30 * SizeConfig.heightMultiplier!,
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                        left: 30.0,
-                        right: 30.0,
-                        top: 8 * SizeConfig.heightMultiplier!),
-                    child: Column(
-                      children: <Widget>[
-                        Text(
-                          "Enroll to Events",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            fontSize: 4 * SizeConfig.textMultiplier!,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 30),
+              child: Column(
+                children: <Widget>[
+                  Container(
+                    color: Colors.green[600],
+                    height: 30 * SizeConfig.heightMultiplier!,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          left: 30.0,
+                          right: 30.0,
+                          top: 8 * SizeConfig.heightMultiplier!),
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            "Enroll to Events",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black54,
+                              fontSize: 4 * SizeConfig.textMultiplier!,
+                            ),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 5 * SizeConfig.heightMultiplier!),
-                          child: Column(
-                            children: <Widget>[
-                              Padding(
-                                padding: EdgeInsets.only(
-                                    left: 20.0,
-                                    //top: 1 * SizeConfig.heightMultiplier!,
-                                    right: 20),
-                                child: TextField(
-                                  style: TextStyle(color: Colors.white),
-                                  cursorColor: CustomColors.green,
-                                  decoration: InputDecoration(
-                                      counterStyle: TextStyle(
-                                        color: CustomColors.silver,
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20.0),
-                                        borderSide:
-                                        BorderSide(color: CustomColors.silver),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(20.0),
-                                        borderSide:
-                                        BorderSide(color: CustomColors.green),
-                                      ),
-                                      hintText: "Search for an event",
-                                      hintStyle:
-                                      TextStyle(color: CustomColors.silver)),
-                                  controller: eventSearchController,
-                                  onSubmitted: (value) async {
-                                    if(eventSearchController.text!="")
-                                    {
-                                      setState(() {
-                                        hasSearched = true;
-                                        loading = true;
-                                      });
-                                      events = (await MongoDB.instance.searchEvent(eventSearchController.text, actualTeam.id, actualTeam.adminId))!;
-                                      setState(() {
-                                        loading = false;
-                                      });
-                                    }
-                                  },
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top: 5 * SizeConfig.heightMultiplier!),
+                            child: Column(
+                              children: <Widget>[
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: 20.0,
+                                      //top: 1 * SizeConfig.heightMultiplier!,
+                                      right: 20),
+                                  child: TextField(
+                                    style: TextStyle(color: Colors.white),
+                                    decoration: InputDecoration(
+                                        counterStyle: TextStyle(
+                                          color: CustomColors.silver,
+                                        ),
+                                        enabledBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20.0),
+                                          borderSide:
+                                          BorderSide(color: Colors.white),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(20.0),
+                                          borderSide:
+                                          BorderSide(color: CustomColors.green),
+                                        ),
+                                        hintText: "Search for an event",
+                                        hintStyle:
+                                        TextStyle(color: CustomColors.silver)),
+                                    controller: eventSearchController,
+                                    onSubmitted: (value) async {
+                                      if(eventSearchController.text!="")
+                                      {
+                                        setState(() {
+                                          hasSearched = true;
+                                          loading = true;
+                                        });
+                                        events = (await MongoDB.instance.searchEvent(eventSearchController.text, actualTeam.id, actualTeam.adminId))!;
+                                        setState(() {
+                                          loading = false;
+                                        });
+                                      }
+                                    },
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                !hasSearched
-                    ? SizedBox()
-                    : loading
-                    ? Column(
-                  children: [
-                    SizedBox(height: MediaQuery.of(context).size.width*.05,),
-                    CircularProgressIndicator(color: Colors.green[600],),
-                    SizedBox(height: MediaQuery.of(context).size.width*.05,),
-                    Text("Loading", style: TextStyle(fontSize: 17),)
-                  ],
-                )
-                    : (events.length > 0
-                    ? Column(
-                  children: [Container(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 15),
-                        child: Text(
-                          "Available Events",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                            fontSize: 4 * SizeConfig.textMultiplier!,
+                  !hasSearched
+                      ? SizedBox()
+                      : loading
+                      ? Column(
+                    children: [
+                      SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                      CircularProgressIndicator(color: Colors.green[600],),
+                      SizedBox(height: MediaQuery.of(context).size.width*.05,),
+                      Text("Loading", style: TextStyle(fontSize: 17),)
+                    ],
+                  )
+                      : (events.length > 0
+                      ? Column(
+                    children: [Container(
+                      child: Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 15),
+                          child: Text(
+                            "Available Events",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                              fontSize: 4 * SizeConfig.textMultiplier!,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                    ListView.builder(
-                        itemCount: events.length,
-                        physics: const NeverScrollableScrollPhysics(),
-                        shrinkWrap: true,
-                        itemBuilder: (context, i) {
-                          return EnrollItem(event: events[i], refresh: refresh, actualTeam: actualTeam);
-                        }),
-                  ],
-                )  : Padding( padding: EdgeInsets.only(top: 15),
-                    child: Text("No events found"))),
-              ],
+                      ListView.builder(
+                          itemCount: events.length,
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, i) {
+                            return EnrollItem(event: events[i], refresh: refresh, actualTeam: actualTeam);
+                          }),
+                    ],
+                  )  : Padding( padding: EdgeInsets.only(top: 15),
+                      child: Text("No events found"))),
+                ],
+              ),
             ),
-          ),
-        ));
+          )),
+    );
   }
 }
