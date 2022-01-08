@@ -35,7 +35,7 @@ class _RequestItemState extends State<RequestItem> {
     team=widget.activeTeam;
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      opposingName = (await MongoDB.instance.getTeam(event.enrolledTeamsIds!.first))!;  //gets event's hosting team's details
+      opposingName = (await MongoDB.instance.getTeam(event.involvedTeamsIds!.first))!;  //gets event's hosting team's details
       print(opposingName!.name);
       loadingOpponentTeam=false;
       setState(() {});

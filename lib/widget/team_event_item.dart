@@ -39,7 +39,7 @@ class _TeamEventItemState extends State<TeamEventItem> {
     _visible=true;
     active=widget.activeTeam;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      opposingName = (await MongoDB.instance.getTeam(event.enrolledTeamsIds![1]))!;  //gets event's opposing team's details
+      opposingName = (await MongoDB.instance.getTeam(event.involvedTeamsIds![1]))!;  //gets event's opposing team's details
       print(opposingName!.name);
       loadingOpponentTeam=false;
       setState(() {});
@@ -243,7 +243,7 @@ class _TeamEventItemState extends State<TeamEventItem> {
                                 ),
                                 child: Text("Invite Team"),
                                 onPressed: () async{
-                                  _invited = await MongoDB.instance.sendInvite(event.id, active.adminId, event.enrolledTeamsIds![0], selectedTeam!.id);
+                                  _invited = await MongoDB.instance.sendInvite(event.id, active.adminId, event.involvedTeamsIds![0], selectedTeam!.id);
                                   print("Invited: "+_invited.toString());
                                   setState(() {
                                     if(_invited)

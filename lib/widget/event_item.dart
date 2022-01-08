@@ -46,7 +46,7 @@ class _EventItemState extends State<EventItem> {
       if(event.isTeam()) {
         if(!_joined)
           {
-            for(String enrolledTeamId in event.enrolledTeamsIds!)
+            for(String enrolledTeamId in event.involvedTeamsIds!)
             {
               for(int i=0;i<LoggedUser.instance!.teams!.length;i++)
               {

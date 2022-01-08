@@ -13,7 +13,7 @@ class ScoreboardEntry {
   ScoreboardEntry(this.userId, this.teamId, this.points);
 }
 
-class Event{
+class Event {
   String id;
   String name;
   String description;
@@ -22,12 +22,19 @@ class Event{
   String _type;
   String _visibility;
   double? prize;
-  List<String>? enrolledTeamsIds;
+
+  // Start of private event attributes
+  String? hostTeam;
+  String? guestTeam;
+  String? pendingRequest;
+  // End of private event attributes
+
+  List<String>? involvedTeamsIds; //Only for public team events
   List<ScoreboardEntry>? scoreboard;
 
 
   Event(this.id,this.name, this.description, this.startDate, this.endDate, this._type,
-      this._visibility, this.prize, this.enrolledTeamsIds, this.scoreboard);
+      this._visibility, this.prize, this.hostTeam, this.guestTeam, this.pendingRequest, this.involvedTeamsIds, this.scoreboard);
 
 
   factory Event.fromJson(dynamic json) {
@@ -39,15 +46,15 @@ class Event{
       ).toList();
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
-    List<String>? enrolledTeamsIds;
+    List<String>? involvedTeamsIds;
+    String? pendingRequest;
     if (type == 'team') {
-      if (visibility == 'public') {
-        enrolledTeamsIds = (json['involvedTeams'] as List<dynamic>).map<String>((team) => team.toString()).toList();
-      } else if (visibility == 'private') {
-        enrolledTeamsIds = [];
-        enrolledTeamsIds.add(json['hostTeam'] as String);
-        String? guestTeam = json['guestTeam'] as String?;
-        if (guestTeam != null) enrolledTeamsIds.add(guestTeam);
+      involvedTeamsIds = (json['involvedTeams'] as List<dynamic>?)?.map<String>((team) => team.toString()).toList();
+      if (visibility == 'private') {
+        pendingRequest = null;
+        if (involvedTeamsIds != null && involvedTeamsIds.isNotEmpty) {
+          pendingRequest = involvedTeamsIds.first;
+        }
       }
     }
     return Event(
@@ -59,7 +66,10 @@ class Event{
       type,
       visibility,
       double.tryParse(json['prize'].toString()),
-      enrolledTeamsIds,
+      json['hostTeam'] as String?,
+      json['guestTeam'] as String?,
+      pendingRequest,
+      involvedTeamsIds,
       scoreboard
     );
   }
@@ -67,15 +77,23 @@ class Event{
   bool isPublic() {
     return _visibility == "public";
   }
-  bool isTeam() {
-    return _type == "team";
-  }
   bool isPrivate() {
     return _visibility == "private";
   }
-
+  bool isTeam() {
+    return _type == "team";
+  }
   bool isIndividual() {
     return _type == "individual";
+  }
+  bool isInviteAccepted() {
+    return isPrivate() && isTeam() && guestTeam != null && pendingRequest == null ? true : false;
+  }
+  bool isInvitePending() {
+    return isPrivate() && isTeam() && guestTeam == null && pendingRequest != null ? true : false;
+  }
+  bool isInviteRejected() {
+    return isPrivate() && isTeam() && guestTeam == null && pendingRequest == null ? true : false;
   }
 
   String displayStartDate() {
