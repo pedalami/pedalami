@@ -94,12 +94,22 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Container(
           height: 20 * SizeConfig.heightMultiplier!,
-          child: ListView(
+          child:
+          _miUser.getNNBadges().isNotEmpty ?
+          ListView(
             scrollDirection: Axis.horizontal,
             children: LoggedUser.instance?.badges
                     ?.map<Widget>((badge) => displayBadge(badge))
                     .toList() ??
                 [Image.asset("badge_placeholder.png")],
+          )
+          :
+          Center(
+            child: Text(
+              "Continue riding to earn badges.\nAll badges will be display here later",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            )
           ),
         ),
       ],
@@ -357,7 +367,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(15.0),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -372,14 +382,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Total Rides: ",
+                          "Total Rides",
                           LoggedUser.instance!.statistics!.numberOfRides
                               .toString(),
                           ''),
                     ),
                     Expanded(
                       child: singleStat(
-                          "Total Distance: ",
+                          "Total Distance",
                           LoggedUser.instance!.statistics!.totalKm
                               .toStringAsFixed(2),
                           ' km'),
@@ -391,14 +401,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Total Ride Duration: ",
+                          "Total Ride Duration",
                           timeDuration(
                               LoggedUser.instance!.statistics!.totalDuration),
                           ''),
                     ),
                     Expanded(
                       child: singleStat(
-                        "Total Elevation Gain: ",
+                        "Total Elevation Gain",
                         meterDistance(LoggedUser
                             .instance!.statistics!.totalElevationGain),
                         '',
@@ -410,14 +420,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Average Speed: ",
+                          "Average Speed",
                           LoggedUser.instance!.statistics!.averageSpeed
                               .toStringAsFixed(2),
                           " km/h"),
                     ),
                     Expanded(
                       child: singleStat(
-                          "Average Distance: ",
+                          "Average Distance",
                           LoggedUser.instance!.statistics!.averageKm
                               .toStringAsFixed(2),
                           " km"),
@@ -428,14 +438,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Average Duration: ",
+                          "Average Duration",
                           timeDuration(
                               LoggedUser.instance!.statistics!.averageDuration),
                           ''),
                     ),
                     Expanded(
                       child: singleStat(
-                          "Average Elevation Gain: ",
+                          "Average Elevation Gain",
                           meterDistance(LoggedUser
                               .instance!.statistics!.averageElevationGain),
                           ''),
@@ -443,7 +453,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height / 18,
+                  height: 1//MediaQuery.of(context).size.height / 18,
                 )
               ],
             ),
@@ -527,9 +537,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget decideHistoryToShow() {
     //TODO: prob needs some refactoring
     Widget returnWidget;
-    _miUser.rideHistory == null
-        ? returnWidget = displayEmptyRideHistory()
-        : returnWidget = displayRideHistory();
+    returnWidget = displayEmptyRideHistory();
+    if (_miUser.rideHistory != null && _miUser.rideHistory!.isNotEmpty)
+        returnWidget = displayRideHistory();
     return returnWidget;
   }
 
@@ -537,7 +547,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: Center(
           child: Text(
-        "Currently you have no ride history, all rides will be displayed here later",
+        "You have never recorded a ride.\nAll rides will be displayed here later",
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       )),
