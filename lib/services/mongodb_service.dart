@@ -354,7 +354,7 @@ class MongoDB {
   //Returns true if everything went fine, false otherwise.
   //Used by team admins to subscribe one of their teams to a public event.
   Future<bool> enrollTeamToPublicEvent(String eventId, String adminId, String teamId) async {
-    var url = Uri.parse(baseUri + '/events/enrollTeamPublic');
+    var url = Uri.parse(baseUri + '/events/enrollToPublicTeam');
     var response = await _serverClient.post(url,
         headers: _headers,
         body: json.encode({'teamId': teamId, 'adminId': adminId, 'eventId': eventId}));
