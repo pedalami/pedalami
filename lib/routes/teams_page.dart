@@ -36,9 +36,9 @@ class _TeamProfileState extends State<TeamProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
-        child: Stack(
-          clipBehavior: Clip.none,
+        child: Column(
           children: <Widget>[
             Container(
               color: Colors.green[600],
@@ -58,7 +58,10 @@ class _TeamProfileState extends State<TeamProfile> {
                           width: 32 * SizeConfig.widthMultiplier!,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: Colors.lightGreen,
+                            color: Colors.white,
+                            image: DecorationImage(
+                              image: AssetImage("lib/assets/app_icon.png")
+                            )
                           ),
                         ),
                         Text(
@@ -81,235 +84,202 @@ class _TeamProfileState extends State<TeamProfile> {
                 ),
               ),
             ),
-            Padding (
-              padding: EdgeInsets.only(top: 10 * SizeConfig.heightMultiplier!),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[]
-              ),
-            ),
-            Padding(
-              padding: EdgeInsets.only(top: 40 * SizeConfig.heightMultiplier!),
+            Transform.translate(
+              offset: const Offset(0,-30),
               child: Container(
-                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topRight: Radius.circular(30.0),
                       topLeft: Radius.circular(30.0),
                     )),
-                child: Container(
-                  //child: SingleChildScrollView(
-                  child: Padding(
-                    padding: EdgeInsets.only(left: 30.0, top: 4 * SizeConfig.heightMultiplier!, right: 30.0,),
-                    child: Column(
-                      children: <Widget> [
-                        Text( "Description",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            fontSize: 2.5 * SizeConfig.textMultiplier!,),
-                        ),
-                        Text( widget.team.description ?? "This team has no description",
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black54,
-                            fontSize: 2 * SizeConfig.textMultiplier!,),
-                        ),
-                        Divider(
+                //child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 30.0, top: 4 * SizeConfig.heightMultiplier!, right: 30.0,),
+                  child: Column(
+                    children: <Widget> [
+                      Text( "Description",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
                           color: Colors.black54,
+                          fontSize: 2.5 * SizeConfig.textMultiplier!,),
+                      ),
+                      Text( widget.team.description ?? "This team has no description",
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.black54,
+                          fontSize: 2 * SizeConfig.textMultiplier!,),
+                      ),
+                      Divider(
+                        color: Colors.black54,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 3 * SizeConfig.heightMultiplier!),),
+                      Text( "Team Admin",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black54,
+                          fontSize: 2.5 * SizeConfig.textMultiplier!,),
+                      ),
+                      Text(
+                        getAdminUsername(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: Colors.black54,
+                          fontSize: 2.3 * SizeConfig.textMultiplier!,),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 3 * SizeConfig.heightMultiplier!,
+                            ),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            pushNewScreen(
+                              context,
+                              screen: TeamMembers(team: widget.team),
+                              pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                            );
+                          },
+                          child: Text("Team Members"),
+                          style: ButtonStyle(
+                              fixedSize: MaterialStateProperty.all(
+                                  Size(200, 35)),
+                              backgroundColor: MaterialStateProperty.all(
+                                  Colors.lightGreen),
+                              shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(
+                                          color: Colors.lightGreen)))),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 3 * SizeConfig.heightMultiplier!),),
-                        Text( "Team Admin",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black54,
-                            fontSize: 2.5 * SizeConfig.textMultiplier!,),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 3 * SizeConfig.heightMultiplier!,),
+                        child: ElevatedButton(
+                          onPressed: () async{
+                            var response = await MongoDB.instance.leaveTeam(widget.team.id, LoggedUser.instance!.userId);
+                            if(response.item1)
+                            {
+                              LoggedUser.instance!.teams?.remove(widget.team);
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  widget.team.name+" left successfully!",),
+                              ));
+                              setState(() {
+
+                              });
+                            }
+                            else
+                            {
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(SnackBar(
+                                content: Text(
+                                  response.item2,),
+                              ));
+                            }
+                            Navigator.of(context).pop();
+                          },
+                          child: Text("Leave team", style: TextStyle(color: Colors.grey[800]),),
+                          style: ButtonStyle(
+                              fixedSize: MaterialStateProperty.all(
+                                  Size(200, 35)),
+                              backgroundColor: MaterialStateProperty.all(
+                                  Colors.redAccent),
+                              shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(
+                                          color: Colors.redAccent)))),
                         ),
-                        Text(
-                          getAdminUsername(),
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: Colors.black54,
-                            fontSize: 2.3 * SizeConfig.textMultiplier!,),
-                        ),
-                        /*Padding(
-                                    padding: EdgeInsets.only(
-                                      top: 5 * SizeConfig.heightMultiplier!),),
-                                   ElevatedButton(
-                                    onPressed: () {
-                                      pushNewScreen(
-                                        context,
-                                        screen: EventsPage(),
-                                        pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                                      );
-                                    },
-                                    child: Text("Events", textAlign: TextAlign.center,),
-                                    style: ButtonStyle(
-                                        fixedSize: MaterialStateProperty.all(
-                                            Size(200, 35)),
-                                        backgroundColor: MaterialStateProperty.all(
-                                            Colors.lightGreen),
-                                            shape: MaterialStateProperty.all(
-                                                 RoundedRectangleBorder(
-                                                     borderRadius: BorderRadius.circular(18.0),
-                                                     side: BorderSide(
-                                                color: Colors.lightGreen)))),
-                                    ),*/
-                        Padding(
-                          padding: EdgeInsets.only(
+                      ),
+                      getAdminUsername()==LoggedUser.instance!.username?(
+                      Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
                               top: 3 * SizeConfig.heightMultiplier!,
-                              ),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              pushNewScreen(
-                                context,
-                                screen: TeamMembers(team: widget.team),
-                                pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                              );
-                            },
-                            child: Text("Team Members"),
-                            style: ButtonStyle(
-                                fixedSize: MaterialStateProperty.all(
-                                    Size(200, 35)),
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen),
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(
-                                            color: Colors.lightGreen)))),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 3 * SizeConfig.heightMultiplier!,),
-                          child: ElevatedButton(
-                            onPressed: () async{
-                              var response = await MongoDB.instance.leaveTeam(widget.team.id, LoggedUser.instance!.userId);
-                              if(response.item1)
-                              {
-                                LoggedUser.instance!.teams?.remove(widget.team);
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                    widget.team.name+" left successfully!",),
-                                ));
-                                setState(() {
-
-                                });
-                              }
-                              else
-                              {
-                                ScaffoldMessenger.of(context)
-                                    .showSnackBar(SnackBar(
-                                  content: Text(
-                                    response.item2,),
-                                ));
-                              }
-                              Navigator.of(context).pop();
-                            },
-                            child: Text("Leave team", style: TextStyle(color: Colors.grey[800]),),
-                            style: ButtonStyle(
-                                fixedSize: MaterialStateProperty.all(
-                                    Size(200, 35)),
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.redAccent),
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(
-                                            color: Colors.redAccent)))),
-                          ),
-                        ),
-                        getAdminUsername()==LoggedUser.instance!.username?(
-                        Column(
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(
-                                top: 3 * SizeConfig.heightMultiplier!,
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  pushNewScreen(
-                                    context,
-                                    screen: EnrollEvent(actualTeam: widget.team,),
-                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                                  );
-                                },
-                                child: Text("Enroll to event"),
-                                style: ButtonStyle(
-                                    fixedSize: MaterialStateProperty.all(
-                                        Size(200, 35)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.lightGreen),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(18.0),
-                                            side: BorderSide(
-                                                color: Colors.lightGreen)))),
-                              ),
                             ),
-                            Padding(
-                              padding: EdgeInsets.only(
-                                top: 3 * SizeConfig.heightMultiplier!,
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  pushNewScreen(
-                                    context,
-                                    screen: YourEventsPage(activeTeam: widget.team,),
-                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                                  );
-                                },
-                                child: Text("Your events"),
-                                style: ButtonStyle(
-                                    fixedSize: MaterialStateProperty.all(
-                                        Size(200, 35)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.lightGreen),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(18.0),
-                                            side: BorderSide(
-                                                color: Colors.lightGreen)))),
-                              ),
-                            ),Padding(
-                              padding: EdgeInsets.only(
-                                top: 3 * SizeConfig.heightMultiplier!,
-                                bottom: 3 * SizeConfig.heightMultiplier!,
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  pushNewScreen(
-                                    context,
-                                    screen: CreateTeamEvent(actualTeam: widget.team,),
-                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                                  );
-                                },
-                                child: Text("Create event"),
-                                style: ButtonStyle(
-                                    fixedSize: MaterialStateProperty.all(
-                                        Size(200, 35)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.lightGreen),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(18.0),
-                                            side: BorderSide(
-                                                color: Colors.lightGreen)))),
-                              ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                pushNewScreen(
+                                  context,
+                                  screen: EnrollEvent(actualTeam: widget.team,),
+                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                );
+                              },
+                              child: Text("Enroll to event"),
+                              style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                      Size(200, 35)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Colors.lightGreen)))),
                             ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: 3 * SizeConfig.heightMultiplier!,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                pushNewScreen(
+                                  context,
+                                  screen: YourEventsPage(activeTeam: widget.team,),
+                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                );
+                              },
+                              child: Text("Your events"),
+                              style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                      Size(200, 35)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Colors.lightGreen)))),
+                            ),
+                          ),Padding(
+                            padding: EdgeInsets.only(
+                              top: 3 * SizeConfig.heightMultiplier!,
+                              bottom: 3 * SizeConfig.heightMultiplier!,
+                            ),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                pushNewScreen(
+                                  context,
+                                  screen: CreateTeamEvent(actualTeam: widget.team,),
+                                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
+                                );
+                              },
+                              child: Text("Create event"),
+                              style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                      Size(200, 35)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Colors.lightGreen)))),
+                            ),
+                          ),
 
 
-                          ],
+                        ],
 
-                        )
-                        ):SizedBox()
-                      ],
-                    ),
+                      )
+                      ):Container()
+                    ],
                   ),
                 ),
               ),

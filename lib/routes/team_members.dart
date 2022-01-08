@@ -22,46 +22,31 @@ class _TeamMembersState extends State<TeamMembers> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        clipBehavior: Clip.none,
-        children: <Widget>[
-          Container(
-            color: Colors.green[600],
-            height: 40 * SizeConfig.heightMultiplier!,
-            child: Padding(
-              padding: EdgeInsets.only(
-                  left: 30.0,
-                  right: 30.0,
-              top: 15.0 * SizeConfig.heightMultiplier!),
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              color: Colors.green[600],
+              height: 30 * SizeConfig.heightMultiplier!,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Column(
-                    children: <Widget> [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                          // Team's Name Goes here
-                          widget.team.name,
-                          style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 4 * SizeConfig.textMultiplier!,
-                              decoration: TextDecoration.underline),
-                          ),
-                        ],
-                      ),
-                    ],
+                children: [
+                  Expanded(
+                    child: Text(
+                    widget.team.name,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        color: Colors.black54,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 4 * SizeConfig.textMultiplier!,),
+                    ),
                   ),
                 ],
               ),
             ),
-          ),
-          Padding(
-              padding: EdgeInsets.only(top: 25 * SizeConfig.heightMultiplier!),
+            Transform.translate(
+              offset: const Offset(0,-30),
               child: Container(
-                width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
@@ -70,38 +55,49 @@ class _TeamMembersState extends State<TeamMembers> {
                     )
                 ),
                 // Team Members
-                child: Container(
-                  height: MediaQuery.of(context).size.height/2,
-                  child: ListView.builder(
-                      itemCount: widget.team.membersId.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!,
-                              left: 10 * SizeConfig.widthMultiplier!),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                (index+1).toString()+": "+getUsername(index),
-                                style: TextStyle(
-                                  color: Colors.black54,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize:
-                                      2.5 * SizeConfig.textMultiplier!,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 2 * SizeConfig.heightMultiplier!,
-                              ),
-                            ],
-                          ),
-                        );
-                      }),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.symmetric(vertical: 20),
+                      child: Text("Members",
+                        style: TextStyle(
+                          color: Colors.black54,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 2.5 * SizeConfig.textMultiplier!,),),
                     ),
+                    ListView.builder(
+                        itemCount: widget.team.membersId.length,
+                        physics: const NeverScrollableScrollPhysics(),
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context, int index) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 5 * SizeConfig.widthMultiplier!),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  (index+1).toString()+": "+getUsername(index),
+                                  style: TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize:
+                                        2.5 * SizeConfig.textMultiplier!,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 2 * SizeConfig.heightMultiplier!,
+                                ),
+                              ],
+                            ),
+                          );
+                        }),
+                  ],
+                ),
               ),
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }

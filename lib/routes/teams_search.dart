@@ -69,7 +69,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),
                                     borderSide:
-                                        BorderSide(color: CustomColors.silver),
+                                        BorderSide(color: Colors.white),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),
@@ -93,9 +93,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                               },
                             ),
                           ),
-                          /*SizedBox(
-                                height: 3 * SizeConfig.heightMultiplier!,
-                              ),*/
                         ],
                       ),
                     ),
@@ -108,38 +105,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          /*Padding(
-                        padding: EdgeInsets.only(
-                            left: 40.0, top: 1 * SizeConfig.heightMultiplier!,
-                            right: 30.0,),
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Align(alignment: Alignment.center),
-                              Text(
-                                "My Teams",
-                                style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 3 * SizeConfig.textMultiplier!),
-                              ),
-                              SizedBox(
-                                width: 15 * SizeConfig.heightMultiplier!,
-                              ),
-                              Align(alignment: Alignment.centerRight),
-                              FloatingActionButton.extended(backgroundColor: Colors.lightGreen,
-                                label: FaIcon(FontAwesomeIcons.plus),
-                                onPressed: () {
-                                  pushNewScreen(
-                                    context,
-                                    screen: TeamCreation(),
-                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                                  );
-                                },
-                              ), */
-                          Divider(
-                            color: Colors.grey[500],
-                          ),
                           Row(
                             children: [
                               SizedBox(
@@ -155,11 +120,16 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 : loading
                     ? Text("Loading...")
                     : (foundTeams != null && foundTeams!.length > 0
-                        ? TeamSearchButton(teamsFound: foundTeams!)
+                        ? Column(
+                          children: [
+                            TeamSearchButton(teamsFound: foundTeams!),
+                            Divider(
+                              color: Colors.grey[500],
+                            ),
+                          ],
+                        )
                         : Text("No teams found")),
-            Divider(
-              color: Colors.grey[500],
-            ),
+
             //TODO: better ui loading or no results
             Padding(
               padding: EdgeInsets.only(
@@ -174,7 +144,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                   Text(
                     "My Teams",
                     style: TextStyle(
-                        color: Colors.grey[500],
                         fontWeight: FontWeight.bold,
                         fontSize: 3 * SizeConfig.textMultiplier!),
                   ),
