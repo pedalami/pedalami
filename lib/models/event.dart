@@ -23,11 +23,12 @@ class Event{
   String _visibility;
   double? prize;
   List<String>? enrolledTeamsIds;
+  List<Team>? enrolledTeams;
   List<ScoreboardEntry>? scoreboard;
 
 
   Event(this.id,this.name, this.description, this.startDate, this.endDate, this._type,
-      this._visibility, this.prize, this.enrolledTeamsIds, this.scoreboard);
+      this._visibility, this.prize, this.enrolledTeamsIds, this.enrolledTeams, this.scoreboard);
 
 
   factory Event.fromJson(dynamic json) {
@@ -60,9 +61,55 @@ class Event{
       visibility,
       double.tryParse(json['prize'].toString()),
       enrolledTeamsIds,
+      null,
       scoreboard
     );
   }
+
+  factory Event.fromJsonWithTeams(dynamic json) {
+    List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
+        .map<ScoreboardEntry>((e) => new ScoreboardEntry(
+        e['userId'] as String,
+        e['teamId'] as String?,
+        double.parse(e['points'].toString()))
+    ).toList();
+    String type = json['type'] as String;
+    String visibility = json['visibility'] as String;
+    List<String>? enrolledTeamsIds;
+    List<Team>? enrolledTeams;
+    if (type == 'team') {
+      if (visibility == 'public') {
+        enrolledTeams = (json['involvedTeams'] as List<dynamic>).map<Team>((team) => Team.fromJson(team)).toList();
+        enrolledTeamsIds = (json['involvedTeams'] as dynamic).map<String>((team) => team['_id'].toString()).toList();
+      } else if (visibility == 'private') {
+        enrolledTeamsIds = [];
+        enrolledTeams = [];
+        Team hostTeam = Team.fromJson(json['hostTeam'][0]);
+        enrolledTeams.add(hostTeam);
+        enrolledTeamsIds.add(hostTeam.id);
+        Team? guestTeam;
+        if(json['guestTeam'] != [] && json['guestTeam']!=null) {
+          guestTeam = Team.fromJson(json['guestTeam'][0]);
+          enrolledTeams.add(guestTeam);
+          enrolledTeamsIds.add(guestTeam.id);
+        }
+      }
+    }
+    return Event(
+        json['_id'] as String,
+        json['name'] as String,
+        json['description'] as String,
+        MongoDB.parseDate(json['startDate'] as String), //parse server date format
+        MongoDB.parseDate(json['endDate'] as String),   //parse server date format
+        type,
+        visibility,
+        double.tryParse(json['prize'].toString()),
+        enrolledTeamsIds,
+        enrolledTeams,
+        scoreboard
+    );
+  }
+
 
   bool isPublic() {
     return _visibility == "public";

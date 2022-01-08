@@ -10,6 +10,7 @@ import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
+import 'package:pedala_mi/utils/mobile_library.dart';
 
 MongoDB instance = MongoDB.instance;
 
@@ -179,6 +180,22 @@ void main() {
     String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
     List<Event>? events = await instance.getJoinableEvents(userId);
     print(events);
+    /*print("Involved teams are:");
+    events?.forEach((event) {
+      if (!event.isIndividual()) {
+        print(event.id);
+        print(event.enrolledTeamsIds);
+      }
+    });*/
+    assert(events != null);
+  });
+
+  test('get events of a user testing', () async {
+    instance.localDebug();
+    String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
+    List<Event>? events = await instance.getUserEvents(userId);
+    //print(events);
+    //events!.forEach((element) {print(element);print(element.enrolledTeams); print("\n");});
     /*print("Involved teams are:");
     events?.forEach((event) {
       if (!event.isIndividual()) {

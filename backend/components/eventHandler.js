@@ -667,8 +667,8 @@ app.post("/getUsersEvents", async (req, res) => {
                 }
               },
               {
-                $unset: ["hostTeam.adminId", "hostTeam.activeEvents", "hostTeam.eventRequests" , "guestTeam.adminId", "guestTeam.activeEvents", "guestTeam.eventRequests" ,
-                "involvedTeams.adminId", "involvedTeams.activeEvents", "involvedTeams.eventRequests" ,]
+                $unset: ["hostTeam.activeEvents", "hostTeam.eventRequests" , "guestTeam.activeEvents", "guestTeam.eventRequests" ,
+                 "involvedTeams.activeEvents", "involvedTeams.eventRequests" ,]
               }
         ]).exec().catch(err => {
             console.log('Error while getting the events: ' + err);
