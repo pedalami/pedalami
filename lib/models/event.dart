@@ -13,7 +13,7 @@ class ScoreboardEntry {
   ScoreboardEntry(this.userId, this.teamId, this.points);
 }
 
-class Event{
+class Event {
   String id;
   String name;
   String description;
@@ -22,28 +22,53 @@ class Event{
   String _type;
   String _visibility;
   double? prize;
-  List<String>? enrolledTeamsIds;
-  List<Team>? enrolledTeams;
+
+  // Start of private event attributes
+  String? hostTeamId;
+  String? guestTeamId;
+  Team?
+      hostTeam; //Only for private team events when the getUsersEvents is called
+  Team?
+      guestTeam; //Only for private team events when the getUsersEvents is called
+  String? pendingRequest;
+  // End of private event attributes
+
+  List<Team>?
+      enrolledTeams; //Only for public team events when the getUsersEvents is called
+  List<String>? involvedTeamsIds; //Only for public team events
   List<ScoreboardEntry>? scoreboard;
 
-
-  Event(this.id,this.name, this.description, this.startDate, this.endDate, this._type,
-      this._visibility, this.prize, this.enrolledTeamsIds, this.enrolledTeams, this.scoreboard);
-
+  Event(
+      this.id,
+      this.name,
+      this.description,
+      this.startDate,
+      this.endDate,
+      this._type,
+      this._visibility,
+      this.prize,
+      this.hostTeamId,
+      this.guestTeamId,
+      this.hostTeam,
+      this.guestTeam,
+      this.pendingRequest,
+      this.involvedTeamsIds,
+      this.enrolledTeams,
+      this.scoreboard);
 
   factory Event.fromJson(dynamic json) {
     List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
-      .map<ScoreboardEntry>((e) => new ScoreboardEntry(
-        e['userId'] as String,
-        e['teamId'] as String?,
-        double.parse(e['points'].toString()))
-      ).toList();
+        .map<ScoreboardEntry>((e) => new ScoreboardEntry(e['userId'] as String,
+            e['teamId'] as String?, double.parse(e['points'].toString())))
+        .toList();
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
     List<String>? enrolledTeamsIds;
     if (type == 'team') {
       if (visibility == 'public') {
-        enrolledTeamsIds = (json['involvedTeams'] as List<dynamic>).map<String>((team) => team.toString()).toList();
+        enrolledTeamsIds = (json['involvedTeams'] as List<dynamic>)
+            .map<String>((team) => team.toString())
+            .toList();
       } else if (visibility == 'private') {
         enrolledTeamsIds = [];
         enrolledTeamsIds.add(json['hostTeam'] as String);
@@ -52,46 +77,50 @@ class Event{
       }
     }
     return Event(
-      json['_id'] as String,
-      json['name'] as String,
-      json['description'] as String,
-      MongoDB.parseDate(json['startDate'] as String), //parse server date format
-      MongoDB.parseDate(json['endDate'] as String),   //parse server date format
-      type,
-      visibility,
-      double.tryParse(json['prize'].toString()),
-      enrolledTeamsIds,
-      null,
-      scoreboard
-    );
+        json['_id'] as String,
+        json['name'] as String,
+        json['description'] as String,
+        MongoDB.parseDate(
+            json['startDate'] as String), //parse server date format
+        MongoDB.parseDate(json['endDate'] as String), //parse server date format
+        type,
+        visibility,
+        double.tryParse(json['prize'].toString()),
+        json['hostTeam'] as String?,
+        json['guestTeam'] as String?,
+        null,
+        null,
+        pendingRequest,
+        involvedTeamsIds,
+        null,
+        scoreboard);
   }
 
   factory Event.fromJsonWithTeams(dynamic json) {
     List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
-        .map<ScoreboardEntry>((e) => new ScoreboardEntry(
-        e['userId'] as String,
-        e['teamId'] as String?,
-        double.parse(e['points'].toString()))
-    ).toList();
+        .map<ScoreboardEntry>((e) => new ScoreboardEntry(e['userId'] as String,
+            e['teamId'] as String?, double.parse(e['points'].toString())))
+        .toList();
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
-    List<String>? enrolledTeamsIds;
+    List<String>? involvedTeamsIds;
     List<Team>? enrolledTeams;
+    Team? hostTeam;
+    Team? guestTeam;
+    String? pendingRequest;
     if (type == 'team') {
-      if (visibility == 'public') {
-        enrolledTeams = (json['involvedTeams'] as List<dynamic>).map<Team>((team) => Team.fromJson(team)).toList();
-        enrolledTeamsIds = (json['involvedTeams'] as dynamic).map<String>((team) => team['_id'].toString()).toList();
-      } else if (visibility == 'private') {
-        enrolledTeamsIds = [];
-        enrolledTeams = [];
-        Team hostTeam = Team.fromJson(json['hostTeam'][0]);
-        enrolledTeams.add(hostTeam);
-        enrolledTeamsIds.add(hostTeam.id);
-        Team? guestTeam;
-        if(json['guestTeam'] != [] && json['guestTeam']!=null) {
+      enrolledTeams = (json['involvedTeams'] as List<dynamic>?)
+          ?.map<Team>((team) => Team.fromJson(team))
+          .toList();
+      involvedTeamsIds = enrolledTeams?.map((e) => e.id).toList();
+      if (visibility == 'private') {
+        hostTeam = Team.fromJson(json['hostTeam'][0]);
+        if (json['guestTeam'] != [] && json['guestTeam'] != null) {
+          // if the private team event has a guestTeam
           guestTeam = Team.fromJson(json['guestTeam'][0]);
-          enrolledTeams.add(guestTeam);
-          enrolledTeamsIds.add(guestTeam.id);
+        } else {
+          // if there is no opponent team
+          pendingRequest = involvedTeamsIds?.first;
         }
       }
     }
@@ -99,23 +128,55 @@ class Event{
         json['_id'] as String,
         json['name'] as String,
         json['description'] as String,
-        MongoDB.parseDate(json['startDate'] as String), //parse server date format
-        MongoDB.parseDate(json['endDate'] as String),   //parse server date format
+        MongoDB.parseDate(
+            json['startDate'] as String), //parse server date format
+        MongoDB.parseDate(json['endDate'] as String), //parse server date format
         type,
         visibility,
         double.tryParse(json['prize'].toString()),
-        enrolledTeamsIds,
+        hostTeam?.id,
+        guestTeam?.id,
+        hostTeam,
+        guestTeam,
+        pendingRequest,
+        involvedTeamsIds,
         enrolledTeams,
-        scoreboard
-    );
+        scoreboard);
   }
-
 
   bool isPublic() {
     return _visibility == "public";
   }
+
   bool isIndividual() {
     return _type == "individual";
+  }
+
+  bool isInviteAccepted() {
+    return isPrivate() &&
+            isTeam() &&
+            guestTeamId != null &&
+            pendingRequest == null
+        ? true
+        : false;
+  }
+
+  bool isInvitePending() {
+    return isPrivate() &&
+            isTeam() &&
+            guestTeamId == null &&
+            pendingRequest != null
+        ? true
+        : false;
+  }
+
+  bool isInviteRejected() {
+    return isPrivate() &&
+            isTeam() &&
+            guestTeamId == null &&
+            pendingRequest == null
+        ? true
+        : false;
   }
 
   String displayStartDate() {
@@ -128,8 +189,10 @@ class Event{
 
   @override
   String toString() {
-    return 'Event { id: $id, name: $name, description: $description, start: '+displayStartDate()+
-        ', end: '+displayEndDate()+', $_visibility, $_type }';
+    return 'Event { id: $id, name: $name, description: $description, start: ' +
+        displayStartDate() +
+        ', end: ' +
+        displayEndDate() +
+        ', $_visibility, $_type }';
   }
-
 }

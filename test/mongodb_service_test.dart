@@ -97,17 +97,20 @@ void main() {
     assert(t != null);
   });
 
-
   test('create private team event testing', () async {
     instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
-    String invitedTeamId = "61b7e246f34ee1e975875025"; //Lorenzo's team - adminId: bRyLXZg1VNQIAq4fSC1REbaXMhi1
+    String invitedTeamId =
+        "61b7e246f34ee1e975875025"; //Lorenzo's team - adminId: bRyLXZg1VNQIAq4fSC1REbaXMhi1
     Event? e = await instance.createPrivateTeamEvent(
-        adminId, hostTeamId, invitedTeamId,
-        "private team event 2", "create private team event testing",
-        DateTime.now(), DateTime.now().add(Duration(days: 4))
-    );
+        adminId,
+        hostTeamId,
+        invitedTeamId,
+        "private team event 2",
+        "create private team event testing",
+        DateTime.now(),
+        DateTime.now().add(Duration(days: 4)));
     print(e?.id ?? "Null event");
     assert(e != null);
   });
@@ -117,10 +120,12 @@ void main() {
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
     Event? e = await instance.proposePublicTeamEvent(
-        adminId, hostTeamId,
-        "Vince public event testing", "create public team event testing",
-        DateTime.now(), DateTime.now().add(Duration(days: 1))
-    );
+        adminId,
+        hostTeamId,
+        "Vince public event testing",
+        "create public team event testing",
+        DateTime.now(),
+        DateTime.now().add(Duration(days: 1)));
     print(e?.id ?? "Null event");
     assert(e != null);
   });
@@ -155,14 +160,16 @@ void main() {
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince userId
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
     String invitedTeamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
-    assert(await instance.sendInvite(eventId, adminId, hostTeamId, invitedTeamId));
+    assert(
+        await instance.sendInvite(eventId, adminId, hostTeamId, invitedTeamId));
   });
 
   test('search event testing', () async {
     instance.localDebug();
     String teamId = "61b7e246f34ee1e975875025"; //Lorenzo's team -
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo
-    List<Event>? events = await instance.searchEvent("private", teamId, adminId);
+    List<Event>? events =
+        await instance.searchEvent("private", teamId, adminId);
     print(events);
     assert(events != null);
   });
@@ -182,9 +189,10 @@ void main() {
     print(events);
     /*print("Involved teams are:");
     events?.forEach((event) {
-      if (!event.isIndividual()) {
-        print(event.id);
-        print(event.enrolledTeamsIds);
+      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+        print(event.hostTeamId);
+        print(event.guestTeamId);
+        print(event.pendingRequest);
       }
     });*/
     assert(events != null);
@@ -198,9 +206,34 @@ void main() {
     //events!.forEach((element) {print(element);print(element.enrolledTeams); print("\n");});
     /*print("Involved teams are:");
     events?.forEach((event) {
-      if (!event.isIndividual()) {
+      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+        //print(event.id);
+        print(event.hostTeamId);
+        print(event.guestTeamId);
+        print(event.pendingRequest);
+      }
+    });
+    assert(events != null);
+  });
+
+
+  test('get events of a user testing', () async {
+    //instance.localDebug();
+    String userId = "CO64i9QNqEewozGVxBfywjjwsFq2";
+    List<Event>? events = await instance.getUserEvents(userId);
+    //print(events);
+    //events!.forEach((element) {print(element);print(element.hostTeam); print(element.hostTeam); print("\n");});
+    print("Involved teams are:");
+    events?.forEach((event) {
+      if (event.isTeam() && event.isPrivate()) {
+        print("\n");
         print(event.id);
-        print(event.enrolledTeamsIds);
+        print(event.hostTeam);
+        print(event.guestTeam);
+      } else if (event.isTeam()) {
+        print("\n");
+        print(event.id);
+        print(event.enrolledTeams);
       }
     });*/
     assert(events != null);
