@@ -63,7 +63,8 @@ class Event {
         .toList();
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
-    List<String>? enrolledTeamsIds;
+    List<String>? involvedTeamsIds;
+    String? pendingRequest;
     if (type == 'team') {
       if (visibility == 'public') {
         enrolledTeamsIds = (json['involvedTeams'] as List<dynamic>)
@@ -148,8 +149,43 @@ class Event {
     return _visibility == "public";
   }
 
+  bool isPrivate() {
+    return _visibility == "private";
+  }
+
+  bool isTeam() {
+    return _type == "team";
+  }
+
   bool isIndividual() {
     return _type == "individual";
+  }
+
+  bool isInviteAccepted() {
+    return isPrivate() &&
+            isTeam() &&
+            guestTeam != null &&
+            pendingRequest == null
+        ? true
+        : false;
+  }
+
+  bool isInvitePending() {
+    return isPrivate() &&
+            isTeam() &&
+            guestTeam == null &&
+            pendingRequest != null
+        ? true
+        : false;
+  }
+
+  bool isInviteRejected() {
+    return isPrivate() &&
+            isTeam() &&
+            guestTeam == null &&
+            pendingRequest == null
+        ? true
+        : false;
   }
 
   bool isInviteAccepted() {

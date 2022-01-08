@@ -21,8 +21,7 @@ import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 class ProfilePage extends StatefulWidget {
-  ProfilePage({Key? key, required this.refreshBottomBar}) : super(key: key);
-  final Function refreshBottomBar;
+  ProfilePage({Key? key}) : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -95,12 +94,22 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Container(
           height: 20 * SizeConfig.heightMultiplier!,
-          child: ListView(
+          child:
+          _miUser.getNNBadges().isNotEmpty ?
+          ListView(
             scrollDirection: Axis.horizontal,
             children: LoggedUser.instance?.badges
                     ?.map<Widget>((badge) => displayBadge(badge))
                     .toList() ??
                 [Image.asset("badge_placeholder.png")],
+          )
+          :
+          Center(
+            child: Text(
+              "Continue riding to earn badges.\nAll badges will be display here later",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            )
           ),
         ),
       ],
@@ -136,26 +145,33 @@ class _ProfilePageState extends State<ProfilePage> {
           children: <Widget>[
             Row(
               children: <Widget>[
-                GestureDetector(
-                  child: Container(
-                    height: 11 * SizeConfig.heightMultiplier!,
-                    width: 22 * SizeConfig.widthMultiplier!,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: DecorationImage(
-                          fit: BoxFit.cover,
-                          image: _miUser.image,
-                        )),
+                Container(
+                  height: 11 * SizeConfig.heightMultiplier!,
+                  width: 22 * SizeConfig.widthMultiplier!,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: Image.network(
+                      _miUser.image.url,
+                      fit: BoxFit.cover,
+                      errorBuilder: (BuildContext context, Object object,
+                          StackTrace? stacktrace) {
+                        return Image.asset("lib/assets/app_icon.png");
+                      },
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
+                        if (loadingProgress == null) return child;
+                        return Center(
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes as num)
+                                : null,
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                  onTap: () async {
-                    await Authentication.signOut(context: context);
-                    setState(() {
-                      widget.refreshBottomBar();
-                      Navigator.of(context).pushAndRemoveUntil(
-                          _routeToSignInScreen(),
-                          (Route<dynamic> route) => false);
-                    });
-                  },
                 ),
                 SizedBox(
                   width: 5 * SizeConfig.widthMultiplier!,
@@ -164,7 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      nStringToNNString(_miUser.username),
+                      _miUser.username,
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 3 * SizeConfig.textMultiplier!,
@@ -238,29 +254,63 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 ),
-                GestureDetector(
-                  onTap: () {
-                    pushNewScreen(context,
-                        screen: ProfileEditing(),
-                        pageTransitionAnimation:
-                            PageTransitionAnimation.cupertino);
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white60),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Text(
-                        "EDIT PROFILE",
-                        style: TextStyle(
-                            color: Colors.white60,
-                            fontSize: 1.8 * SizeConfig.textMultiplier!),
+                Column(
+                  children: <Widget>[
+                    GestureDetector(
+                      onTap: () {
+                        pushNewScreen(context,
+                            screen: ProfileEditing(),
+                            pageTransitionAnimation:
+                                PageTransitionAnimation.cupertino);
+                      },
+                      child: Container(
+                        /*width: 15 * SizeConfig.heightMultiplier!,*/
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white60),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Text(
+                            "EDIT PROFILE",
+                            style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 1.8 * SizeConfig.textMultiplier!),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
+                    SizedBox(
+                      height: 1 * SizeConfig.heightMultiplier!,
+                    ),
+                    GestureDetector(
+                      onTap: () async {
+                        await Authentication.signOut(context: context);
+                        setState(() {
+                          Navigator.of(context, rootNavigator: true)
+                              .pushAndRemoveUntil(
+                                  _routeToSignInScreen(), (_) => false);
+                        });
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.white60),
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(
+                              left: 16.0, right: 16.0, top: 5.0, bottom: 5.0),
+                          child: Text(
+                            "SIGN OUT",
+                            style: TextStyle(
+                                color: Colors.white60,
+                                fontSize: 1.8 * SizeConfig.textMultiplier!),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                )
               ],
             ),
           ],
@@ -317,7 +367,7 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.all(20.0),
+          padding: EdgeInsets.all(15.0),
           child: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(20.0)),
@@ -332,14 +382,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Total Rides: ",
+                          "Total Rides",
                           LoggedUser.instance!.statistics!.numberOfRides
                               .toString(),
                           ''),
                     ),
                     Expanded(
                       child: singleStat(
-                          "Total Distance: ",
+                          "Total Distance",
                           LoggedUser.instance!.statistics!.totalKm
                               .toStringAsFixed(2),
                           ' km'),
@@ -351,14 +401,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Total Ride Duration: ",
+                          "Total Ride Duration",
                           timeDuration(
                               LoggedUser.instance!.statistics!.totalDuration),
                           ''),
                     ),
                     Expanded(
                       child: singleStat(
-                        "Total Elevation Gain: ",
+                        "Total Elevation Gain",
                         meterDistance(LoggedUser
                             .instance!.statistics!.totalElevationGain),
                         '',
@@ -370,14 +420,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Average Speed: ",
+                          "Average Speed",
                           LoggedUser.instance!.statistics!.averageSpeed
                               .toStringAsFixed(2),
                           " km/h"),
                     ),
                     Expanded(
                       child: singleStat(
-                          "Average Distance: ",
+                          "Average Distance",
                           LoggedUser.instance!.statistics!.averageKm
                               .toStringAsFixed(2),
                           " km"),
@@ -388,14 +438,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   children: [
                     Expanded(
                       child: singleStat(
-                          "Average Duration: ",
+                          "Average Duration",
                           timeDuration(
                               LoggedUser.instance!.statistics!.averageDuration),
                           ''),
                     ),
                     Expanded(
                       child: singleStat(
-                          "Average Elevation Gain: ",
+                          "Average Elevation Gain",
                           meterDistance(LoggedUser
                               .instance!.statistics!.averageElevationGain),
                           ''),
@@ -403,7 +453,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 ),
                 SizedBox(
-                  height: MediaQuery.of(context).size.height / 18,
+                  height: 1//MediaQuery.of(context).size.height / 18,
                 )
               ],
             ),
@@ -487,9 +537,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget decideHistoryToShow() {
     //TODO: prob needs some refactoring
     Widget returnWidget;
-    _miUser.rideHistory == null
-        ? returnWidget = displayEmptyRideHistory()
-        : returnWidget = displayRideHistory();
+    returnWidget = displayEmptyRideHistory();
+    if (_miUser.rideHistory != null && _miUser.rideHistory!.isNotEmpty)
+        returnWidget = displayRideHistory();
     return returnWidget;
   }
 
@@ -497,7 +547,7 @@ class _ProfilePageState extends State<ProfilePage> {
     return Container(
       child: Center(
           child: Text(
-        "Currently you have no ride history, all rides will be displayed here later",
+        "You have never recorded a ride.\nAll rides will be displayed here later",
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       )),
@@ -571,7 +621,10 @@ class _ProfilePageState extends State<ProfilePage> {
                               style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                           ),
-                          Expanded(child: FaIcon(FontAwesomeIcons.greaterThan), flex: 1,),
+                          Expanded(
+                            child: FaIcon(FontAwesomeIcons.greaterThan),
+                            flex: 1,
+                          ),
                         ],
                       )),
                     ],

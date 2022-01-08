@@ -79,61 +79,69 @@ class _TeamSearchButtonState extends State<TeamSearchButton> {
                         ),
                       ),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: Align(
-                                alignment: Alignment.bottomLeft,
-                                child: FittedBox(
-                                    fit: BoxFit.contain,
-                                    child: Text(
-                                      teamsFound[i].name,
-                                      style: TextStyle(
-                                          fontSize: MediaQuery.of(context)
-                                              .size
-                                              .width *
-                                              (.05),
-                                          color: Colors.white),
-                                    ))),
-                          ),
-                          !checkUserInTeam(teamsFound[i].membersId.cast<String>() )?Padding(padding: const EdgeInsets.all(12),
-                          child: Align(
-                            alignment: Alignment.bottomRight,
-                            child: FittedBox(
-                              fit: BoxFit.contain,
-                              child:
-                              ElevatedButton(
-                                onPressed: () async {
-                                  Team toJoin = teamsFound[i];
-                                  if (await MongoDB.instance.joinTeam(toJoin.id, LoggedUser.instance!.userId)) {
-                                    if (LoggedUser.instance!.teams == null)
-                                      LoggedUser.instance!.teams = List.empty(growable: true);
-                                    LoggedUser.instance!.teams!.add(toJoin);
-                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                                      content: Text("Joined "+toJoin.name+" successfully!"),
-                                    ));
-                                    toJoin.membersId.cast<String>().add(LoggedUser.instance!.userId);
-                                    teamsFound.remove(toJoin);
-                                    LoggedUser.instance!.notifyListeners();
-                                    setState(() {});
-                                  } else {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text("Something wrong happened... Please try again."),
-                                    ));
-                                  }
-                          },
-                            child: Text("Join"),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen),
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0)))),
-                          ),
-                              
+                          Expanded(
+                            flex: 9,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Align(
+                                  alignment: Alignment.bottomLeft,
+                                  child: FittedBox(
+                                      fit: BoxFit.contain,
+                                      child: Text(
+                                        teamsFound[i].name,
+                                        style: TextStyle(
+                                            fontSize: MediaQuery.of(context)
+                                                .size
+                                                .width *
+                                                (.05),
+                                            color: Colors.white),
+                                      ))),
                             ),
-                          ),):SizedBox()
+                          ),
+                          !checkUserInTeam(teamsFound[i].membersId.cast<String>() )?
+                          Expanded(
+                            flex: 3,
+                            child: Padding(padding: const EdgeInsets.all(12),
+                            child: Align(
+                              alignment: Alignment.bottomRight,
+                              child: FittedBox(
+                                fit: BoxFit.contain,
+                                child:
+                                ElevatedButton(
+                                  onPressed: () async {
+                                    Team toJoin = teamsFound[i];
+                                    if (await MongoDB.instance.joinTeam(toJoin.id, LoggedUser.instance!.userId)) {
+                                      if (LoggedUser.instance!.teams == null)
+                                        LoggedUser.instance!.teams = List.empty(growable: true);
+                                      LoggedUser.instance!.teams!.add(toJoin);
+                                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                        content: Text("Joined "+toJoin.name+" successfully!"),
+                                      ));
+                                      toJoin.membersId.cast<String>().add(LoggedUser.instance!.userId);
+                                      teamsFound.remove(toJoin);
+                                      LoggedUser.instance!.notifyListeners();
+                                      setState(() {});
+                                    } else {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text("Something wrong happened... Please try again."),
+                                      ));
+                                    }
+                            },
+                              child: Text("Join"),
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0)))),
+                            ),
+
+                              ),
+                            ),),
+                          ):Expanded(child: SizedBox())
                         ],
                       )
                     ],

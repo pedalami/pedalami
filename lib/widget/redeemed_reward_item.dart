@@ -40,7 +40,6 @@ class _RedeemedRewardItemState extends State<RedeemedRewardItem> {
               border: Border(
                 bottom: BorderSide(color: Colors.grey),
               ),
-              color: Colors.white,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,

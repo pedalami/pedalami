@@ -89,7 +89,7 @@ class _EventsPageState extends State<EventsPage> {
                                       loading = true;
                                     });
                                     events = (await MongoDB.instance
-                                        .searchEvent(eventSearchController.text, "", ""))!;
+                                        .getJoinableEvents(FirebaseAuth.instance.currentUser!.uid,eventSearchController.text,))!;
                                     setState(() {
                                       loading = false;
                                     });
@@ -158,7 +158,7 @@ class _EventsPageState extends State<EventsPage> {
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (context, j) {
-                  return EventItem(event: LoggedUser.instance!.joinedEvents![0], refresh: refresh,);
+                  return EventItem(event: LoggedUser.instance!.joinedEvents![j], refresh: refresh,);
                 }):Column(
               children: [
                 SizedBox(height: MediaQuery.of(context).size.height*.025,),

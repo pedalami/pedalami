@@ -192,9 +192,17 @@ class _InsertUsernameScreenState extends State<InsertUsernameScreen> {
     setState(() {
       check = true;
     });
-    await checkUsername(usernameController.text, context, _user, imageData);
-    setState(() {
-      check = false;
-    });
+    try
+    {
+      await checkUsername(usernameController.text, context, _user, imageData).then((value) => null);
+
+    }
+    finally
+    {
+      setState(() {
+        check = false;
+      });
+    }
+
   }
 }

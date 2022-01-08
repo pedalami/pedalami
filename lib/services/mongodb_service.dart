@@ -275,9 +275,18 @@ class MongoDB {
   //Returns an array of the events with the name matching the query if everything went fine
   //Returns null in case of error
   //Used by a user to retrieve the list of joinable events
-  Future<List<Event>?> getJoinableEvents(String userId) async {
-    var url = Uri.parse(baseUri + '/events/getJoinableEvents')
-        .replace(queryParameters: {'userId': userId});
+  Future<List<Event>?> getJoinableEvents(String userId,String name) async {
+    var url;
+    if(name.trim()!="")
+    {
+      url = Uri.parse(baseUri + '/events/getJoinableEvents')
+          .replace(queryParameters: {'userId': userId, 'name':name});
+    }
+    else
+    {
+      url = Uri.parse(baseUri + '/events/getJoinableEvents')
+          .replace(queryParameters: {'userId': userId});
+    }
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List;

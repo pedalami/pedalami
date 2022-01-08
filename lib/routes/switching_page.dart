@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/routes/events_page.dart';
@@ -41,14 +40,13 @@ class _SwitchPageState extends State<SwitchPage> {
       navBarStyle: NavBarStyle.style9,
       resizeToAvoidBottomInset: true,
       hideNavigationBarWhenKeyboardShows: true,
-      hideNavigationBar: FirebaseAuth.instance.currentUser==null,
       decoration: NavBarDecoration(
         borderRadius: BorderRadius.circular(10.0),
         colorBehindNavBar: Colors.white
       ),
       screens: [
         MapPage(),
-        ProfilePage(refreshBottomBar:refresh),
+        ProfilePage(),
         TeamsSearchPage(),
         EventsPage(),
         RewardPage()

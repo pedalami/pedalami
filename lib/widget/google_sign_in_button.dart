@@ -64,28 +64,36 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                     setState(() {
                       _isSigningIn = true;
                     });
-                    User? user =
-                    await Authentication.signInWithGoogle(context: context);
-                    setState(() {
+                    try{
+                      User? user =
+                      await Authentication.signInWithGoogle(context: context);
+                      /*setState(() {
                       _isSigningIn = false;
-                    });
-                    if (user != null) {
-                      print(user.displayName);
-                      CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
-                      QuerySnapshot querySnapshot = await usersCollection
-                          .where("Mail", isEqualTo: user.email)
-                          .get();
-                      if (querySnapshot.docs.isNotEmpty) {
-                        String? username = querySnapshot.docs[0].get("Username");
+                    });*/
+                      if (user != null) {
+                        print(user.displayName);
+                        CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+                        QuerySnapshot querySnapshot = await usersCollection
+                            .where("Mail", isEqualTo: user.email)
+                            .get();
+                        if (querySnapshot.docs.isNotEmpty) {
+                          String? username = querySnapshot.docs[0].get("Username");
+                          String? imageUrl= querySnapshot.docs[0].get("Image");
+                          if (username != null) {
+                            LoggedUser.initInstance(user.uid, imageUrl ?? "", user.email!, username);
+                            await MongoDB.instance.initUser(user.uid);
 
-                        if (username != null) {
-                          LoggedUser.initInstance(user.uid, user.photoURL ?? "", user.email!, username);
-                          await MongoDB.instance.initUser(user.uid);
 
 
-
-                          Navigator.pushNamedAndRemoveUntil(
-                              context, '/switch_page', (route) => false);
+                            Navigator.pushNamedAndRemoveUntil(
+                                context, '/switch_page', (route) => false);
+                          } else {
+                            Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (BuildContext context) =>
+                                        InsertUsernameScreen(user: user)));
+                          }
                         } else {
                           Navigator.pushReplacement(
                               context,
@@ -93,18 +101,20 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
                                   builder: (BuildContext context) =>
                                       InsertUsernameScreen(user: user)));
                         }
-                      } else {
-                        Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    InsertUsernameScreen(user: user)));
                       }
                     }
+                    catch (e){
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content:
+                          Text("Ouch! Something is wrong. Please try again!")));
+                    }
+                    finally
+                    {
+                      setState(() {
+                        _isSigningIn = false;
+                      });
+                    }
 
-                    setState(() {
-                      _isSigningIn = false;
-                    });
                   }
                 else
                   {

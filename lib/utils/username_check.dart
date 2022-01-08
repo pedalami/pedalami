@@ -53,7 +53,9 @@ Future<void> checkUsername(String newUsername, BuildContext context,
           FirebaseFirestore.instance
               .collection("Users")
               .add(user)
-              .then((value) {
+              .then((value) async {
+            LoggedUser.initInstance(actualUser.uid, actualUser.photoURL ?? "", actualUser.email!, newUsername.trim());
+            await MongoDB.instance.initUser(actualUser.uid);
             Navigator.pushNamedAndRemoveUntil(context, '/switch_page', (route) => false);
           }).catchError((error) {});
         }).catchError((error) {});
@@ -75,8 +77,7 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
     );
   } else {
     String trimmedUsername=newUsername.trim();
-    CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection("Users");
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
     usersCollection
         .where("Username", isEqualTo: trimmedUsername)
         .get()
@@ -91,11 +92,18 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
           },
         );
       } else {
+        String docID="";
+        await usersCollection
+            .where("Mail", isEqualTo: FirebaseAuth.instance.currentUser!.email)
+            .get()
+            .then((QuerySnapshot querySnapshot) async {
+          docID=querySnapshot.docs[0].id;
+        });
         FirebaseFirestore.instance
             .collection("Users")
-            .doc(LoggedUser.instance!.userId)
+            .doc(docID)
             .update({'Username': trimmedUsername}).then((value) async {
-          LoggedUser.instance!.username = trimmedUsername;
+          LoggedUser.instance!.updateUsername(trimmedUsername);
           Navigator.pop(context);
           return showDialog<void>(
               context: context,

@@ -69,7 +69,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                                   enabledBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),
                                     borderSide:
-                                        BorderSide(color: CustomColors.silver),
+                                        BorderSide(color: Colors.white),
                                   ),
                                   focusedBorder: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(20.0),
@@ -93,9 +93,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                               },
                             ),
                           ),
-                          /*SizedBox(
-                                height: 3 * SizeConfig.heightMultiplier!,
-                              ),*/
                         ],
                       ),
                     ),
@@ -108,38 +105,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                     child: SingleChildScrollView(
                       child: Column(
                         children: [
-                          /*Padding(
-                        padding: EdgeInsets.only(
-                            left: 40.0, top: 1 * SizeConfig.heightMultiplier!,
-                            right: 30.0,),
-                        child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Align(alignment: Alignment.center),
-                              Text(
-                                "My Teams",
-                                style: TextStyle(
-                                    color: Colors.grey[500],
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 3 * SizeConfig.textMultiplier!),
-                              ),
-                              SizedBox(
-                                width: 15 * SizeConfig.heightMultiplier!,
-                              ),
-                              Align(alignment: Alignment.centerRight),
-                              FloatingActionButton.extended(backgroundColor: Colors.lightGreen,
-                                label: FaIcon(FontAwesomeIcons.plus),
-                                onPressed: () {
-                                  pushNewScreen(
-                                    context,
-                                    screen: TeamCreation(),
-                                    pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                                  );
-                                },
-                              ), */
-                          Divider(
-                            color: Colors.grey[500],
-                          ),
                           Row(
                             children: [
                               SizedBox(
@@ -155,11 +120,16 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                 : loading
                     ? Text("Loading...")
                     : (foundTeams != null && foundTeams!.length > 0
-                        ? TeamSearchButton(teamsFound: foundTeams!)
+                        ? Column(
+                          children: [
+                            TeamSearchButton(teamsFound: foundTeams!),
+                            Divider(
+                              color: Colors.grey[500],
+                            ),
+                          ],
+                        )
                         : Text("No teams found")),
-            Divider(
-              color: Colors.grey[500],
-            ),
+
             //TODO: better ui loading or no results
             Padding(
               padding: EdgeInsets.only(
@@ -174,7 +144,6 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                   Text(
                     "My Teams",
                     style: TextStyle(
-                        color: Colors.grey[500],
                         fontWeight: FontWeight.bold,
                         fontSize: 3 * SizeConfig.textMultiplier!),
                   ),
@@ -184,7 +153,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                   Align(alignment: Alignment.centerRight),
                   FloatingActionButton.extended(
                     backgroundColor: Colors.lightGreen,
-                    label: FaIcon(FontAwesomeIcons.plus),
+                    label: FaIcon(FontAwesomeIcons.plus, color: Colors.white,),
                     onPressed: () {
                       pushNewScreen(
                         context,
@@ -201,6 +170,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
               height: 3 * SizeConfig.heightMultiplier!,
             ),*/
             displayTeam(),
+            SizedBox(height: MediaQuery.of(context).size.height*.02,)
             /*Padding(
               padding: EdgeInsets.only(
                   left: 10,
@@ -254,65 +224,64 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
   }
 
   Widget displayTeam() {
-    return Container(
-      height: MediaQuery.of(context).size.height / 1.8,
-      child: ListView.builder(
-          itemCount: LoggedUser.instance!.teams?.length ?? 0,
-          itemBuilder: (BuildContext context, int index) {
-            return GestureDetector(
-              child: Stack(
-                children: [
-                  GestureDetector(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                       children: [
-                         ClipRRect(
-                         borderRadius: BorderRadius.circular(70),
-                         child: Image(
-                          image: AssetImage('lib/assets/app_icon.png'),
-                          height: 16 * SizeConfig.heightMultiplier!,
-                          width: 32 * SizeConfig.widthMultiplier!,
-                        ),
-                      ),],
-                    ),
-                    onTap: () async {
-                      Team selectedTeam = LoggedUser.instance!.teams![index];
-                      if (selectedTeam.members == null) {
-                        print("Getting team data");
-                        selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
-                        LoggedUser.instance!.teams![index] = selectedTeam;
-                      }
-                      print("Showing team details");
-                      pushNewScreen(
-                        context,
-                        screen: TeamProfile(team: selectedTeam),
-                        pageTransitionAnimation:
-                            PageTransitionAnimation.cupertino,
-                      );
-                    },
+    return ListView.builder(
+        itemCount: LoggedUser.instance!.teams?.length ?? 0,
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            child: Stack(
+              children: [
+                GestureDetector(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                     children: [
+                       ClipRRect(
+                       borderRadius: BorderRadius.circular(70),
+                       child: Image(
+                        image: AssetImage('lib/assets/app_icon.png'),
+                        height: 16 * SizeConfig.heightMultiplier!,
+                        width: 32 * SizeConfig.widthMultiplier!,
+                      ),
+                    ),],
                   ),
-                  Positioned.fill(
-                      child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Text(
-                            LoggedUser.instance!.teams![index].name,
-                            style: TextStyle(
-                                fontSize: 2 * SizeConfig.textMultiplier!,
-                                fontWeight: FontWeight.bold),
-                          )))
-                ],
-              ),
-              onTap: () {
-                pushNewScreen(
-                  context,
-                  screen: TeamProfile(
-                    team: LoggedUser.instance!.teams![index],
-                  ),
-                  pageTransitionAnimation: PageTransitionAnimation.cupertino,
-                );
-              },
-            );
-          }),
-    );
+                  onTap: () async {
+                    Team selectedTeam = LoggedUser.instance!.teams![index];
+                    if (selectedTeam.members == null) {
+                      print("Getting team data");
+                      selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
+                      LoggedUser.instance!.teams![index] = selectedTeam;
+                    }
+                    print("Showing team details");
+                    pushNewScreen(
+                      context,
+                      screen: TeamProfile(team: selectedTeam),
+                      pageTransitionAnimation:
+                          PageTransitionAnimation.cupertino,
+                    );
+                  },
+                ),
+                Positioned.fill(
+                    child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Text(
+                          LoggedUser.instance!.teams![index].name,
+                          style: TextStyle(
+                              fontSize: 2 * SizeConfig.textMultiplier!,
+                              fontWeight: FontWeight.bold),
+                        )))
+              ],
+            ),
+            onTap: () {
+              pushNewScreen(
+                context,
+                screen: TeamProfile(
+                  team: LoggedUser.instance!.teams![index],
+                ),
+                pageTransitionAnimation: PageTransitionAnimation.cupertino,
+              );
+            },
+          );
+        });
   }
 }

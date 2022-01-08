@@ -53,4 +53,15 @@ class LoggedUser extends ChangeNotifier {
     instance!.teams?.add(t);
     notifyListeners();
   }
+
+  void changeProfileImage(String url) {
+    instance!.image=NetworkImage(url);
+    notifyListeners();
+  }
+
+  void updateUsername(String un) {
+    instance!.username = un;
+    notifyListeners();
+  }
+
 }

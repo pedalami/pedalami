@@ -321,6 +321,7 @@ class _TeamEventItemState extends State<TeamEventItem> {
                                 ),
                               )
                             : SizedBox(),
+                        //****************************************************//
                       ],
                     ),
                   ),

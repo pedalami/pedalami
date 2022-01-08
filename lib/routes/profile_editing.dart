@@ -33,52 +33,29 @@ class _ProfileEditingState extends State<ProfileEditing> {
     setState(() {
       usernameController.value = usernameController.value.copyWith(text: username);
     });
-    /*
-    CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
-    usersCollection
-        .where("Mail", isEqualTo: user!.email)
-        .get()
-        .then((QuerySnapshot querySnapshot) async {
-          querySnapshot.docs[0].get("Image");
-      setState(() {
-        _miUser = new LoggedUser(
-            querySnapshot.docs[0].id,
-            querySnapshot.docs[0].get("Image"),
-            querySnapshot.docs[0].get("Mail"),
-            querySnapshot.docs[0].get("Username"), 0.0);
-        usernameController.value =
-            usernameController.value.copyWith(text: _miUser.username);
-        //emailController.value =
-        //   emailController.value.copyWith(text: _miUser.mail);
-        //TODO - Comment added by Vincenzo:
-        //This should not be there for sure. Every time the app is opened points are retrieved from MongoDB.
-        //My suggestion is to have a single shared MiUser to use in the whole application.
-      });
-    });
-     */
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        clipBehavior: Clip.none,
-        children: <Widget>[
-          Container(
-            color: Colors.green[600],
-            height: 40 * SizeConfig.heightMultiplier!,
-            child: Padding(
-              padding: EdgeInsets.only(
-                  left: 30.0,
-                  right: 30.0,
-                  top: 10 * SizeConfig.heightMultiplier!),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      GestureDetector(
-                          child: Container(
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              color: Colors.green[600],
+              height: 30 * SizeConfig.heightMultiplier!,
+              child: Transform.translate(
+                offset: const Offset(0,-10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: Row(
+                        children: <Widget>[
+                          Container(
                             height: 11 * SizeConfig.heightMultiplier!,
                             width: 22 * SizeConfig.widthMultiplier!,
                             decoration: BoxDecoration(
@@ -88,59 +65,49 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                   image: NetworkImage(imageUrl),
                                 )),
                           ),
-                          onTap: () async {
-                            Map<Permission, PermissionStatus> statuses = await [
-                              Permission.camera,
-                              Permission.storage,
-                            ].request();
-
-                            _showPicker(context);
-                          }),
-                      SizedBox(
-                        width: 5 * SizeConfig.widthMultiplier!,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            username,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 3 * SizeConfig.textMultiplier!,
-                                fontWeight: FontWeight.bold),
-                          ),
                           SizedBox(
-                            height: 1 * SizeConfig.heightMultiplier!,
+                            width: 5 * SizeConfig.widthMultiplier!,
                           ),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
-                              Row(
-                                children: <Widget>[
-                                  Text(
-                                    LoggedUser.instance!.mail,
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize:
-                                          1.5 * SizeConfig.textMultiplier!,
-                                    ),
-                                  ),
-                                ],
+                              Text(
+                                username,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 3 * SizeConfig.textMultiplier!,
+                                    fontWeight: FontWeight.bold),
                               ),
                               SizedBox(
-                                width: 3 * SizeConfig.widthMultiplier!,
+                                height: 1 * SizeConfig.heightMultiplier!,
                               ),
+                              Row(
+                                children: <Widget>[
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        LoggedUser.instance!.mail,
+                                        style: TextStyle(
+                                          color: Colors.white60,
+                                          fontSize:
+                                              1.5 * SizeConfig.textMultiplier!,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              )
                             ],
                           )
                         ],
-                      )
-                    ],
-                  ),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-              padding: EdgeInsets.only(top: 35 * SizeConfig.heightMultiplier!),
+            Transform.translate(
+              offset: const Offset(0,-30),
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
@@ -154,32 +121,58 @@ class _ProfileEditingState extends State<ProfileEditing> {
                     child: Column(
                       children: [
                         Padding(
-                            padding: EdgeInsets.only(
-                                left: 10.0,
-                                top: 10 * SizeConfig.heightMultiplier!,
-                                right: 10),
-                            child: TextField(
-                              cursorColor: CustomColors.green,
-                              decoration: InputDecoration(
-                                  counterStyle: TextStyle(
-                                    color: CustomColors.silver,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.silver),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.green),
-                                  ),
-                                  hintText: "Insert new username",
-                                  hintStyle:
-                                      TextStyle(color: CustomColors.silver)),
-                              controller: usernameController,
-                              maxLength: 20,
-                              style: TextStyle(color: Colors.black),
-                            )),
-                        Container(
+                          padding: EdgeInsets.only(
+                              top: 3 * SizeConfig.heightMultiplier!,),
+                          child: !imgInserted?ElevatedButton(
+                              onPressed: () async {
+                                Map<Permission, PermissionStatus> statuses = await [
+                                  Permission.camera,
+                                  Permission.storage,
+                                ].request();
+                                _showPicker(context);
+                              },
+                              child: Text("Change profile picture"),
+                              style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                      Size(200, 35)),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0))))):CircularProgressIndicator(
+                            color: Colors.lightGreen,
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              left: 15,
+                              top: 3 * SizeConfig.heightMultiplier!,
+                              right: 15.0),
+                          child: TextField(
+                            cursorColor: Colors.lightGreen,
+                            decoration: InputDecoration(
+                                counterStyle: TextStyle(
+                                  color: CustomColors.silver,
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: CustomColors.silver),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.lightGreen),
+                                ),
+                                hintText: "Insert new username",
+                                hintStyle:
+                                    TextStyle(color: CustomColors.silver)),
+                            controller: usernameController,
+                            maxLength: 20,
+                            style: TextStyle(color: Colors.black),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(
+                              top: 1 * SizeConfig.heightMultiplier!,),
                           child: ElevatedButton(
                             onPressed: () {
                               checkValue();
@@ -194,56 +187,14 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                 RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(18.0))))),
                         ),
-                        Padding(
-                            padding: EdgeInsets.only(
-                                left: 10,
-                                top: 3 * SizeConfig.heightMultiplier!,
-                                right: 10.0),
-                            /*child: TextField(
-                              cursorColor: CustomColors.green,
-                              decoration: InputDecoration(
-                                  counterStyle: TextStyle(
-                                    color: CustomColors.silver,
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.silver),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: CustomColors.green),
-                                  ),
-                                  hintText: "Insert new email address",
-                                  hintStyle:
-                                      TextStyle(color: CustomColors.silver)),
-                              //controller: emailController,
-                              maxLength: 40,
-                              style: TextStyle(color: Colors.black),
-                            )),
-                        Container(
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            child: Text("Change email address"),
-                            style: ButtonStyle(
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen)),
-                          ),*/
-                        ),
-                        SizedBox(
-                          height: 30 * SizeConfig.heightMultiplier!,
-                        ),
-                        Container(
-                          height: 20 * SizeConfig.heightMultiplier!,
-                        ),
-                        Divider(
-                          color: Colors.grey,
-                        )
                       ],
                     ),
                   ),
                 ),
-              ))
-        ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -295,7 +246,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                     "To use this funcion, please allow access to storage in settings.",),
                                 action: SnackBarAction(
                                   label: "Settings",
-                                  textColor: CustomColors.green,
+                                  textColor: Colors.lightGreen,
                                   onPressed: () {
                                     openAppSettings();
                                   },
@@ -331,7 +282,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                                 "To use this funcion, please allow access to camera in settings.",),
                               action: SnackBarAction(
                                 label: "Settings",
-                                textColor: CustomColors.green,
+                                textColor: Colors.lightGreen,
                                 onPressed: () {
                                   openAppSettings();
                                 },
@@ -354,24 +305,48 @@ class _ProfileEditingState extends State<ProfileEditing> {
 
   void loadImageToFirebase(File? image) async {
     var uuid = Uuid().v4();
-    if (image != null) {
-      FirebaseStorage storage = FirebaseStorage.instance;
-      Reference storageRef = storage.ref();
-      Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
-      await imageRef.putFile(image);
-      await imageRef.getDownloadURL().then( (url) async {
-        await FirebaseFirestore.instance
-          .collection("Users")
-          .doc(LoggedUser.instance!.userId)
-          .update({"Image": url})
-          .then( (value) {
-            FirebaseStorage.instance.refFromURL(imageUrl).delete();
+    try
+    {
+      if (image != null) {
+        FirebaseStorage storage = FirebaseStorage.instance;
+        Reference storageRef = storage.ref();
+        Reference imageRef = storageRef.child(uuid.toString() + ".jpg");
+        await imageRef.putFile(image);
+        CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
+        String docID="";
+        String urlFirebase="";
+        await usersCollection
+            .where("Mail", isEqualTo: user!.email)
+            .get()
+            .then((QuerySnapshot querySnapshot) async {
+          docID=querySnapshot.docs[0].id;
+          urlFirebase=querySnapshot.docs[0].get("Image");
+        });
+        await imageRef.getDownloadURL().then( (url) async {
+          await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(docID)
+              .update({"Image": url})
+              .then( (value) async{
+            LoggedUser.instance!.changeProfileImage(url);
+            await FirebaseStorage.instance.refFromURL(urlFirebase).delete();
+            imageUrl=url;
             setState(() {
-              LoggedUser.instance!.image = NetworkImage(url);
+
             });
           });
+        });
+
+      }
+    }
+    finally
+    {
+      imgInserted=false;
+      setState(() {
+
       });
     }
+
   }
 
 }

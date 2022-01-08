@@ -41,13 +41,13 @@ class _RewardPageState extends State<RewardPage> {
         floatingActionButton: Container(
           height: 50,
           child: FloatingActionButton.extended(
-            backgroundColor: Colors.green[600],
+            backgroundColor: Colors.green,
             heroTag: "btnShowRedeemedRewards",
             onPressed: () {
               pushNewScreen(context, screen: RedeemedRewardsPage());
             },
-            label: Text("Redeemed Rewards"),
-            icon: Icon(Icons.list),
+            label: Text("Redeemed Rewards", style: TextStyle(color: Colors.white),),
+            icon: Icon(Icons.list, color: Colors.white,),
           ),
         ),
         body: SingleChildScrollView(
