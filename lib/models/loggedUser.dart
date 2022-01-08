@@ -54,9 +54,13 @@ class LoggedUser extends ChangeNotifier {
     notifyListeners();
   }
 
-  void changeProfileImage(String url)
-  {
+  void changeProfileImage(String url) {
     instance!.image=NetworkImage(url);
+    notifyListeners();
+  }
+
+  void updateUsername(String un) {
+    instance!.username = un;
     notifyListeners();
   }
 

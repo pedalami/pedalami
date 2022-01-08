@@ -180,7 +180,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Text(
-                      nStringToNNString(_miUser.username),
+                      _miUser.username,
                       style: TextStyle(
                           color: Colors.white,
                           fontSize: 3 * SizeConfig.textMultiplier!,

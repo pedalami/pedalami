@@ -77,8 +77,7 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
     );
   } else {
     String trimmedUsername=newUsername.trim();
-    CollectionReference usersCollection =
-    FirebaseFirestore.instance.collection("Users");
+    CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
     usersCollection
         .where("Username", isEqualTo: trimmedUsername)
         .get()
@@ -104,7 +103,7 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
             .collection("Users")
             .doc(docID)
             .update({'Username': trimmedUsername}).then((value) async {
-          LoggedUser.instance!.username = trimmedUsername;
+          LoggedUser.instance!.updateUsername(trimmedUsername);
           Navigator.pop(context);
           return showDialog<void>(
               context: context,
