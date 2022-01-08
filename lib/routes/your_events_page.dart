@@ -31,15 +31,29 @@ class _YourEventsPageState extends State<YourEventsPage> {
     actualTeam=widget.activeTeam;
     loading = true;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-          active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id); //("61b67b63d5ba21ba7a232242");  //(actualTeam!.id);
-          requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id); //("61b67b63d5ba21ba7a232242"); //(actualTeam!.id);
+          active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id);
+          requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id);
           loading = false;
           setState(() {});
     });
     super.initState();
   }
 
-  refresh(){
+  refresh(Event e, bool accepted){
+    if(!accepted) {
+      requested_events!.remove(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+          Text("Event rejected!")));
+
+    }
+    else {
+      active_events!.add(e);
+      requested_events!.remove(e);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+          Text("Event accepted!")));
+    }
     setState((){});
   }
 

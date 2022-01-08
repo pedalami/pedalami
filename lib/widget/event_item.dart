@@ -295,7 +295,7 @@ class _EventItemState extends State<EventItem> {
                                 {
                                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                                       content:
-                                      Text("You cannot join multiple active events simultaneously.")));
+                                      Text("Please try again!")));
                                 }
                               }
                               if(event.isTeam())

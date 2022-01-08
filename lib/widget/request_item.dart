@@ -24,7 +24,7 @@ class _RequestItemState extends State<RequestItem> {
 
   late Event event;
   late Team team;
-  late Team? opposingName;
+  late Team? opposingTeam;
   bool loadingOpponentTeam = true;
   late bool _accepted, _rejected, _visible;
 
@@ -35,8 +35,8 @@ class _RequestItemState extends State<RequestItem> {
     team=widget.activeTeam;
     super.initState();
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      opposingName = (await MongoDB.instance.getTeam(event.involvedTeamsIds!.first))!;  //gets event's hosting team's details
-      print(opposingName!.name);
+      opposingTeam = (await MongoDB.instance.getTeam(event.hostTeam!))!;  //gets event's hosting team's details
+      print(opposingTeam!.name);
       loadingOpponentTeam=false;
       setState(() {});
     });
@@ -90,7 +90,7 @@ class _RequestItemState extends State<RequestItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("OPPOSING TEAM: "+opposingName!.name,
+                          child: Text("OPPOSING TEAM: "+opposingTeam!.name,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
@@ -138,13 +138,13 @@ class _RequestItemState extends State<RequestItem> {
                       AnimatedOpacity(
                             opacity: _visible ? 1.0 : 0.0,
                             duration: const Duration(milliseconds: 500),
-                            child: ElevatedButton(
-                              style: !_accepted?ButtonStyle(
+                            child: !_accepted?
+                            ElevatedButton(
+                              style: ButtonStyle(
                                   backgroundColor: MaterialStateProperty.all(Colors.lightGreen),
                                   shape: MaterialStateProperty.all(RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(18.0),
-                                      side: BorderSide(color: Colors.lightGreen)))):ButtonStyle(
-                              ),
+                                      side: BorderSide(color: Colors.lightGreen)))),
                               child: Text("Accept"),
                               onPressed: () async{
                                 _accepted = await MongoDB.instance.acceptInvite(event.id, team.adminId, team.id);
@@ -153,20 +153,19 @@ class _RequestItemState extends State<RequestItem> {
                                     if(_accepted)
                                       _visible = !_visible;
                                   });
-                                 widget.refresh();
+                                 widget.refresh(event, true);
                                 }
-                          ),
+                          ): SizedBox(),
                       ),
                       AnimatedOpacity(
                         opacity: _visible ? 1.0 : 0.0,
                         duration: const Duration(milliseconds: 500),
-                        child: ElevatedButton(
-                            style: !_rejected?ButtonStyle(
+                        child: !_rejected?ElevatedButton(
+                            style: ButtonStyle(
                                 backgroundColor: MaterialStateProperty.all(Colors.redAccent),
                                 shape: MaterialStateProperty.all(RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(18.0),
-                                    side: BorderSide(color: Colors.redAccent)))):ButtonStyle(
-                            ),
+                                    side: BorderSide(color: Colors.redAccent)))),
                             child: Text(" Reject "),
                             onPressed: () async{
                               _rejected = await MongoDB.instance.rejectInvite(event.id, team.adminId, team.id);
@@ -175,9 +174,9 @@ class _RequestItemState extends State<RequestItem> {
                                 if(_rejected)
                                 _visible = !_visible;
                               });
-                              widget.refresh();
+                              widget.refresh(event, false);
                             }
-                        ),
+                        ): SizedBox(),
                       ),
                     ],
                   ),

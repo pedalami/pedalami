@@ -28,9 +28,10 @@ class _TeamEventItemState extends State<TeamEventItem> {
   late Team active;
 
   Team? selectedTeam;
-  late Team? opposingName;
+  late Team? opposingTeam;
+  late Team? host;
   var selectedValueSingleDialogFuture;
-  bool loadingOpponentTeam = true;
+  bool loadingTeam = true;
 
   @override
   void initState() {
@@ -39,9 +40,11 @@ class _TeamEventItemState extends State<TeamEventItem> {
     _visible=true;
     active=widget.activeTeam;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-      opposingName = (await MongoDB.instance.getTeam(event.involvedTeamsIds![1]))!;  //gets event's opposing team's details
-      print(opposingName!.name);
-      loadingOpponentTeam=false;
+      host = (await MongoDB.instance.getTeam(event.hostTeam!))!;  //gets event's hosting team's details
+      opposingTeam = (await MongoDB.instance.getTeam(event.guestTeam!))!;  //gets event's opposing team's details
+      print("HOST: "+host!.name);
+      print("OPPONENT: "+opposingTeam!.name);
+      loadingTeam=false;
       setState(() {});
     });
     super.initState();
@@ -85,27 +88,30 @@ class _TeamEventItemState extends State<TeamEventItem> {
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Hosting Team: "+active.name,
+                          child:
+                          !loadingTeam?
+                          Text("Hosting Team: "+host!.name,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 2 * SizeConfig.textMultiplier!
                             ),
-                          ),
+                          ):SizedBox(),
                         ),
-                        event.isPrivate()&&!loadingOpponentTeam&&opposingName!.name!=active.name?
+                        event.isPrivate()&&!loadingTeam?
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Opposing Team: "+opposingName!.name,
+                          child:
+                          Text("Opposing Team: "+opposingTeam!.name,
                             style: TextStyle(
                                 color: Colors.black54,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 2 * SizeConfig.textMultiplier!
                             ),
                           ),
-                        )://event.isPrivate() && !loadingOpponentTeam && opposingName==null?
-                        Padding(
+                        ):SizedBox(),
+                       /* Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
                           child: Text("Opposing Team: ---",
@@ -115,7 +121,7 @@ class _TeamEventItemState extends State<TeamEventItem> {
                                 fontSize: 2 * SizeConfig.textMultiplier!
                             ),
                           ),
-                        ),
+                        ),*/
                         Padding(
                           padding: EdgeInsets.only(
                               top: 1 * SizeConfig.heightMultiplier!),
