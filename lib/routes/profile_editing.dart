@@ -39,73 +39,75 @@ class _ProfileEditingState extends State<ProfileEditing> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
-        clipBehavior: Clip.none,
-        children: <Widget>[
-          Container(
-            color: Colors.green[600],
-            height: 40 * SizeConfig.heightMultiplier!,
-            child: Padding(
-              padding: EdgeInsets.only(
-                  left: 30.0,
-                  right: 30.0,
-                  top: 10 * SizeConfig.heightMultiplier!),
-              child: Column(
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Container(
-                        height: 11 * SizeConfig.heightMultiplier!,
-                        width: 22 * SizeConfig.widthMultiplier!,
-                        decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: NetworkImage(imageUrl),
-                            )),
-                      ),
-                      SizedBox(
-                        width: 5 * SizeConfig.widthMultiplier!,
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: Colors.white,
+      body: SingleChildScrollView(
+        child: Column(
+          children: <Widget>[
+            Container(
+              color: Colors.green[600],
+              height: 30 * SizeConfig.heightMultiplier!,
+              child: Transform.translate(
+                offset: const Offset(0,-10),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 15),
+                      child: Row(
                         children: <Widget>[
-                          Text(
-                            username,
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 3 * SizeConfig.textMultiplier!,
-                                fontWeight: FontWeight.bold),
+                          Container(
+                            height: 11 * SizeConfig.heightMultiplier!,
+                            width: 22 * SizeConfig.widthMultiplier!,
+                            decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                image: DecorationImage(
+                                  fit: BoxFit.cover,
+                                  image: NetworkImage(imageUrl),
+                                )),
                           ),
                           SizedBox(
-                            height: 1 * SizeConfig.heightMultiplier!,
+                            width: 5 * SizeConfig.widthMultiplier!,
                           ),
-                          Row(
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: <Widget>[
+                              Text(
+                                username,
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 3 * SizeConfig.textMultiplier!,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox(
+                                height: 1 * SizeConfig.heightMultiplier!,
+                              ),
                               Row(
                                 children: <Widget>[
-                                  Text(
-                                    LoggedUser.instance!.mail,
-                                    style: TextStyle(
-                                      color: Colors.white60,
-                                      fontSize:
-                                          1.5 * SizeConfig.textMultiplier!,
-                                    ),
+                                  Row(
+                                    children: <Widget>[
+                                      Text(
+                                        LoggedUser.instance!.mail,
+                                        style: TextStyle(
+                                          color: Colors.white60,
+                                          fontSize:
+                                              1.5 * SizeConfig.textMultiplier!,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
-                              ),
+                              )
                             ],
                           )
                         ],
-                      )
-                    ],
-                  ),
-                ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-          ),
-          Padding(
-              padding: EdgeInsets.only(top: 35 * SizeConfig.heightMultiplier!),
+            Transform.translate(
+              offset: const Offset(0,-30),
               child: Container(
                 width: MediaQuery.of(context).size.width,
                 decoration: BoxDecoration(
@@ -143,9 +145,9 @@ class _ProfileEditingState extends State<ProfileEditing> {
                         ),
                         Padding(
                           padding: EdgeInsets.only(
-                              left: 10,
+                              left: 15,
                               top: 3 * SizeConfig.heightMultiplier!,
-                              right: 10.0),
+                              right: 15.0),
                           child: TextField(
                             cursorColor: Colors.lightGreen,
                             decoration: InputDecoration(
@@ -189,8 +191,10 @@ class _ProfileEditingState extends State<ProfileEditing> {
                     ),
                   ),
                 ),
-              ))
-        ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

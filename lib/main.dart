@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
         builder: (context, orientation) {
           SizeConfig().init(constraints, orientation);
           return MaterialApp(
+            debugShowCheckedModeBanner: false,
             theme: ThemeData().copyWith(
                 colorScheme: ColorScheme.light(
                   primary: Colors.green.shade600,
