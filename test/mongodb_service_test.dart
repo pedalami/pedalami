@@ -210,7 +210,7 @@ void main() {
         print(event.guestTeamId);
         print(event.pendingRequest);
       }
-    });*/
+    });
     assert(events != null);
   });
 

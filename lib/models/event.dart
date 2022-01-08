@@ -66,15 +66,12 @@ class Event {
     List<String>? involvedTeamsIds;
     String? pendingRequest;
     if (type == 'team') {
-      if (visibility == 'public') {
-        enrolledTeamsIds = (json['involvedTeams'] as List<dynamic>)
-            .map<String>((team) => team.toString())
-            .toList();
-      } else if (visibility == 'private') {
-        enrolledTeamsIds = [];
-        enrolledTeamsIds.add(json['hostTeam'] as String);
-        String? guestTeam = json['guestTeam'] as String?;
-        if (guestTeam != null) enrolledTeamsIds.add(guestTeam);
+      involvedTeamsIds = (json['involvedTeams'] as List<dynamic>?)?.map<String>((team) => team.toString()).toList();
+      if (visibility == 'private') {
+        pendingRequest = null;
+        if (involvedTeamsIds != null && involvedTeamsIds.isNotEmpty) {
+          pendingRequest = involvedTeamsIds.first;
+        }
       }
     }
     return Event(
@@ -183,33 +180,6 @@ class Event {
     return isPrivate() &&
             isTeam() &&
             guestTeam == null &&
-            pendingRequest == null
-        ? true
-        : false;
-  }
-
-  bool isInviteAccepted() {
-    return isPrivate() &&
-            isTeam() &&
-            guestTeamId != null &&
-            pendingRequest == null
-        ? true
-        : false;
-  }
-
-  bool isInvitePending() {
-    return isPrivate() &&
-            isTeam() &&
-            guestTeamId == null &&
-            pendingRequest != null
-        ? true
-        : false;
-  }
-
-  bool isInviteRejected() {
-    return isPrivate() &&
-            isTeam() &&
-            guestTeamId == null &&
             pendingRequest == null
         ? true
         : false;
