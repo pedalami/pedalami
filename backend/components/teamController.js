@@ -73,9 +73,12 @@ app.post('/join', (req, res) => {
         User.findOne({ userId: req.body.userId }).session(session).exec(),
         Team.findOne({ _id: req.body.teamId }).session(session).exec()
       ]);
-      if (team.members.includes(req.body.userId)) {
+      if (team && team.members.includes(req.body.userId)) {
         throw new Error('Error: User already in team.');
       } else {
+        if (!user) {
+          throw new Error('User not found');
+        }
         if (user.teams == null) {
           user.teams = [];
         }
@@ -119,12 +122,12 @@ app.post('/leave', (req, res) => {
         } else {
           user.teams.splice(user.teams.indexOf(ObjectId(req.body.teamId)), 1);
           team.members.splice(team.members.indexOf(req.body.userId), 1);
-          await connection.transaction((session) => {
+          //await connection.transaction((session) => {
             return Promise.all([
               team.save({ session }),
               user.save({ session })
             ]);
-          });
+          //});
         }
       }
     })

@@ -60,12 +60,12 @@ event_indiv = {
 
 
 describe("POST /createPrivateTeam", () => {
-    test("Create a Private Team event without a host team should return 500", async () => {
+    test("Create a Private Team event without a host team should return 400", async () => {
         const response = await request(app).post('/events/createPrivateTeam').send(event_no_host_team);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the newEvent: missing host or guest team or adminId');
     })
-    test("Create a Private Team event without a guest team should return 500", async () => {
+    test("Create a Private Team event without a guest team should return 400", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = hostTeam.adminId
         var event_no_guest = {
@@ -79,10 +79,10 @@ describe("POST /createPrivateTeam", () => {
             'adminId': adminId
         }
         const response = await request(app).post('/events/createPrivateTeam').send(event_no_guest);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the newEvent: missing host or guest team or adminId');
     })
-    test("Create a Private Team event without the adminId should return 500", async () => {
+    test("Create a Private Team event without the adminId should return 400", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         var event_no_admin = {
@@ -96,10 +96,10 @@ describe("POST /createPrivateTeam", () => {
             'invitedTeamId': guestTeam._id
         }
         const response = await request(app).post('/events/createPrivateTeam').send(event_no_admin);
-        expect(response.status).toBe(500);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the newEvent: missing host or guest team or adminId');
     })
-    test("Create a Private Team without be the host team admin should return 500", async () => {
+    test("Create a Private Team with a wrong host team admin should return 500", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         const adminId = "carlo"
@@ -160,14 +160,14 @@ describe("POST /createPrivateTeam", () => {
 
 })
 
-describe("POST /createPublicTeam", () => {
-    test("Create a Private Team event without a host team should return 500", async () => {
-        const response = await request(app).post('/events/createPublicTeam').send(event_no_host_team);
-        expect(response.status).toBe(500);
-        expect(response.text).toBe("Error in creating the new Public Team Event: missing host team or adminId");
+describe("POST /proposePublicTeam", () => {
+    test("Propose a Public Team event without a host team should return 400", async () => {
+        const response = await request(app).post('/events/proposePublicTeam').send(event_no_host_team);
+        expect(response.status).toBe(400);
+        expect(response.text).toBe('Error in creating the new Public Team Event: missing host team or adminId');
     })
 
-    test("Create a Public Team event without the adminId should return 500", async () => {
+    test("Propose a Public Team event without the adminId should return 400", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         var event_no_admin = {
             'name': 'prova_private_event',
@@ -178,11 +178,11 @@ describe("POST /createPublicTeam", () => {
             'visibility': 'private',
             'hostTeamId': hostTeam._id
         }
-        const response = await request(app).post('/events/createPublicTeam').send(event_no_admin);
-        expect(response.status).toBe(500);
+        const response = await request(app).post('/events/proposePublicTeam').send(event_no_admin);
+        expect(response.status).toBe(400);
         expect(response.text).toBe('Error in creating the new Public Team Event: missing host team or adminId');
     })
-    test("Create a Public Team without be the host team admin should return 500", async () => {
+    test("Propose a Public Team with a wrong host team admin should return 500", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = "carlo"
         var event_fake_admin = {
@@ -195,12 +195,12 @@ describe("POST /createPublicTeam", () => {
             'hostTeamId': hostTeam._id,
             'adminId': adminId
         }
-        const response = await request(app).post('/events/createPublicTeam').send(event_fake_admin);
+        const response = await request(app).post('/events/proposePublicTeam').send(event_fake_admin);
         expect(response.status).toBe(500);
         expect(response.text).toBe('Could not find host team or admin');
     })
 
-    test("Create a Public Team event correctly should return 200", async () => {
+    test("Propose a Public Team event correctly should return 200", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = hostTeam.adminId
         var event_team_pub = {
@@ -213,7 +213,7 @@ describe("POST /createPublicTeam", () => {
             'hostTeamId': hostTeam._id,
             'adminId': adminId
         }
-        const response = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const response = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         await Event.deleteOne({_id: response.body._id})
         expect(response.status).toBe(200);
         expect(response.body.name).toBe('prova_public_event');
@@ -250,7 +250,7 @@ describe("POST /invitePrivateTeam", () => {
             adminId: 'admin'
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error in inviting the team to the event: teams or event not found');
+        expect(response.text).toBe('Teams or event not found');
     })
     test("Invite with conditions not matched should return 500", async () => {
         const resp_event = await request(app).post('/events/createIndividual').send(event_indiv);
@@ -263,7 +263,7 @@ describe("POST /invitePrivateTeam", () => {
             adminId: 'carlo' // is not the admin
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error in inviting the team to the event: conditions not matched');
+        expect(response.text).toBe('Conditions not matched');
     })
     test("A team which invites correctly another should receive 200", async () => {
         const hostTeam = await Team.findOne({name :'testTeam'});
@@ -294,7 +294,8 @@ describe("POST /invitePrivateTeam", () => {
         });
         await Event.deleteOne({_id: resp_event.body._id});
         expect(response.status).toBe(200);
-        expect(response.body._id).toStrictEqual(resp_event.body._id);
+        expect(response.text).toBe('Team invited correctly')
+        //expect(response.body._id).toStrictEqual(resp_event.body._id);
     })
 })
 
@@ -347,7 +348,8 @@ describe("POST /acceptPrivateTeamInvite", () => {
         await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({_id: guestTeam._id}, { $set: {activeEvents: [], eventRequests: []}});
         expect(response.status).toBe(200);
-        expect(response.body._id).toStrictEqual(resp_event.body._id);
+        expect(response.text).toBe('Invite accepted')
+        //expect(response.body._id).toStrictEqual(resp_event.body._id);
     })
 })
 
@@ -434,7 +436,7 @@ describe("POST /approvePublicTeam", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const response = await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
@@ -458,7 +460,7 @@ describe("POST /approvePublicTeam", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const resp_act =await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
@@ -544,7 +546,7 @@ describe("POST /rejectPublicTeam", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const response = await request(app).post('/events/rejectPublicTeam').send({
             'eventId': resp_event.body._id
         });
@@ -568,7 +570,7 @@ describe("POST /rejectPublicTeam", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const resp_act =await request(app).post('/events/rejectPublicTeam').send({
             'eventId': resp_event.body._id
         });
@@ -664,7 +666,7 @@ describe("POST /search", () => {
             'hostTeamId': team1._id,
             'adminId': adminId1
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         await request(app).post('/events/approvePublicTeam').send({
             'eventId': resp_event.body._id
         });
@@ -732,7 +734,7 @@ describe("POST /join", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const eventId = resp_event.body._id;
         await request(app).post('/events/approvePublicTeam').send({'eventId': eventId});
         const response = await request(app).post('/events/join').send({
@@ -761,7 +763,7 @@ describe("POST /join", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const eventId = resp_event.body._id;
         await request(app).post('/events/approvePublicTeam').send({'eventId': eventId});
         const response = await request(app).post('/events/join').send({
@@ -791,7 +793,7 @@ describe("POST /join", () => {
             'hostTeamId': team._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const eventId = resp_event.body._id;
         await request(app).post('/events/approvePublicTeam').send({'eventId': eventId});
         const response = await request(app).post('/events/join').send({
@@ -842,7 +844,7 @@ describe("POST /leave", () => {
             'eventId': 'aaaaaaaaaaaa'
         });
         expect(response.status).toBe(500);
-        expect(response.text).toBe('Error while leaving the event: user or event not found');
+        expect(response.text).toBe('User or event not found');
     })
     test("Leaving request for an event not joined should return 500", async () => {
         const name = 'leave_test_wrong';
@@ -864,14 +866,14 @@ describe("POST /leave", () => {
     })
 })
 
-describe("POST /enrollTeamPublic", () => {
+describe("POST /enrollToPublicTeam", () => {
     test("Enroll request with missing parameters should return 400", async () => {
-        const response = await request(app).post('/events/enrollTeamPublic').send({});
+        const response = await request(app).post('/events/enrollToPublicTeam').send({});
         expect(response.status).toBe(400);
         expect(response.text).toBe('Error in enrolling the team to the event: missing parameters');
     })
     test("Enroll request with wrong parameters should return 500", async () => {
-        const response = await request(app).post('/events/enrollTeamPublic').send({
+        const response = await request(app).post('/events/enrollToPublicTeam').send({
             'eventId': 'aaaaaaaaaaaa',
             'teamId': 'bbbbbbbbbbbb',
             'adminId': 'carlo'
@@ -893,7 +895,7 @@ describe("POST /enrollTeamPublic", () => {
         const team = await Team.findOne({'name': 'testTeam'});
         const teamId = team._id;
         const adminId = team.adminId;
-        const response = await request(app).post('/events/enrollTeamPublic').send({
+        const response = await request(app).post('/events/enrollToPublicTeam').send({
             'eventId': eventId,
             'teamId': teamId,
             'adminId': adminId
@@ -916,12 +918,12 @@ describe("POST /enrollTeamPublic", () => {
             'hostTeamId': hostTeam._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const eventId = resp_event.body._id;
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         const guestTeamId = guestTeam._id;
         const guestAdminId = guestTeam.adminId;
-        const response = await request(app).post('/events/enrollTeamPublic').send({
+        const response = await request(app).post('/events/enrollToPublicTeam').send({
             'eventId': eventId,
             'teamId': guestTeamId,
             'adminId': guestAdminId
@@ -929,7 +931,8 @@ describe("POST /enrollTeamPublic", () => {
         await Event.deleteOne({_id: resp_event.body._id});
         await Team.updateOne({'_id': guestTeamId}, { $set: {'activeEvents': [], 'eventRequests': []}});
         expect(response.status).toBe(200);
-        expect(response.body._id).toStrictEqual(eventId);
+        expect(response.text).toBe('Team successfully enrolled to event!')
+        //expect(response.body._id).toStrictEqual(eventId);
     })
     test("Enroll a team event for the second time should return 500", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
@@ -945,17 +948,17 @@ describe("POST /enrollTeamPublic", () => {
             'hostTeamId': hostTeam._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const eventId = resp_event.body._id;
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         const guestTeamId = guestTeam._id;
         const guestAdminId = guestTeam.adminId;
-        const resp_one = await request(app).post('/events/enrollTeamPublic').send({
+        const resp_one = await request(app).post('/events/enrollToPublicTeam').send({
             'eventId': eventId,
             'teamId': guestTeamId,
             'adminId': guestAdminId
         });
-        const response = await request(app).post('/events/enrollTeamPublic').send({
+        const response = await request(app).post('/events/enrollToPublicTeam').send({
             'eventId': eventId,
             'teamId': guestTeamId,
             'adminId': guestAdminId
@@ -968,7 +971,7 @@ describe("POST /enrollTeamPublic", () => {
     test("To enroll a team event you should be the admin", async () => {
         const hostTeam = await Team.findOne({'name': 'testTeam'});
         const adminId = hostTeam.adminId
-        const name = 'enroll_test'
+        const name = 'enroll_test_'
         var event_team_pub = {
             'name': name,
             'description': 'descrizione',
@@ -979,11 +982,11 @@ describe("POST /enrollTeamPublic", () => {
             'hostTeamId': hostTeam._id,
             'adminId': adminId
         }
-        const resp_event = await request(app).post('/events/createPublicTeam').send(event_team_pub);
+        const resp_event = await request(app).post('/events/proposePublicTeam').send(event_team_pub);
         const eventId = resp_event.body._id;
         const guestTeam = await Team.findOne({'name': 'guestTeam'});
         const guestTeamId = guestTeam._id;
-        const response = await request(app).post('/events/enrollTeamPublic').send({
+        const response = await request(app).post('/events/enrollToPublicTeam').send({
             'eventId': eventId,
             'teamId': guestTeamId,
             'adminId': adminId
@@ -1076,7 +1079,7 @@ describe("POST /getTeamEventRequests", () => {
 describe("GET /closeEvents", () => {
     test("An old event should be closed", async ()=>{
         const resp_event = await request(app).post('/events/createIndividual').send({
-            'name': 'prova_close_22',
+            'name': 'prova_close',
             'description': 'descrizione',
             'startDate': yesterday,
             'endDate': yesterday,
@@ -1085,11 +1088,10 @@ describe("GET /closeEvents", () => {
 
 
         const response = await request(app).get('/events/closeEvents');
-        expect(response.status).toBe(200);
-
-        expect(response.text).toBe('Events closed');
         const event = await Event.findById(resp_event.body._id);
         await Event.deleteOne({_id: resp_event.body._id});
+        expect(response.status).toBe(200);
+        expect(response.text).toBe('Events closed');
         expect(event.closed).toBeTruthy();
     })
 

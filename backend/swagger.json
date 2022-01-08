@@ -5,7 +5,7 @@
     "title": "PedalaMi",
     "description": "PedalaMi: cycling and having fun in your city"
   },
-  "basePath": "/api/",
+  "basePath": "/",
   "tags": [
     {
       "name": "Users"
@@ -301,7 +301,7 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Reward"
+              "$ref": "#/definitions/ArrayRewards"
             }
           },
           "400": {
@@ -338,13 +338,841 @@
             "description": "Missing parameters"
           },
           "500": {
+            "description": "Error while getting the rewards"
+          }
+        }
+      }
+    },
+    "/rides/record": {
+      "post": {
+        "tags": [
+          "Rides"
+        ],
+        "summary": "Record a ride",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the user record a ride",
+            "schema": {
+              "$ref": "#/definitions/BaseRide"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "points": {
+                  "type": "number"
+                },
+                "pace": {
+                  "type": "number"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
             "description": "Error while searching the teams"
+          }
+        }
+      }
+    },
+    "/rides/getAllByUser": {
+      "get": {
+        "tags": [
+          "Rides"
+        ],
+        "summary": "Get all the rides that a user has recorded",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "type": "string",
+            "description": "Id of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/RidesArray"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the rewards"
+          }
+        }
+      }
+    },
+    "/events/createIndividual": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create an individual event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the system admin create an individual event",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseEvent"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "prize": {
+                      "type": "number"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/IndividualEvent"
+            }
+          },
+          "500": {
+            "description": "Error while creating the event"
+          }
+        }
+      }
+    },
+    "/events/createPrivateTeam": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create a private team event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the team admin create a private event",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseEvent"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "hostTeamId": {
+                      "type": "string"
+                    },
+                    "adminId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PrivateTeamEvent"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while creating the event"
+          }
+        }
+      }
+    },
+    "/events/acceptPrivateTeamInvite": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Accept an invite to a private team event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a team admin accept an invite to let his team enroll to a private event",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "adminId": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while accepting the invite to the event"
+          }
+        }
+      }
+    },
+    "/events/rejectPrivateTeamInvite": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Reject an invite to a private team event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a team admin reject an invite to a private event",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "adminId": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while rejecting the invite to the event"
+          }
+        }
+      }
+    },
+    "/events/proposePublicTeam": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Create a public team event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a team admin propose a public event",
+            "schema": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/BaseEvent"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "hostTeamId": {
+                      "type": "string"
+                    },
+                    "adminId": {
+                      "type": "string"
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PublicTeamEvent"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while proposing the event"
+          }
+        }
+      }
+    },
+    "/events/enrollToPublicTeam": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Enroll a team to a public team event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a team admin enroll his team to a public event",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "adminId": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/PublicTeamEvent"
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while enrolling to the event"
+          }
+        }
+      }
+    },
+    "/events/join": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Join an event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the user join an event",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "userId": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while joining the event"
+          }
+        }
+      }
+    },
+    "/events/leave": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Leave an event",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let the user leave an event",
+            "schema": {
+              "properties": {
+                "userId": {
+                  "type": "string"
+                },
+                "eventId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while leaving the event"
+          }
+        }
+      }
+    },
+    "/events/search": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Search an event to enroll for",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a team admin search for an event in which enroll his team",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                },
+                "adminId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Response's attributes depend on the event",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GeneralEvent"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the events"
+          }
+        }
+      }
+    },
+    "/events/getJoinableEvents": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get the list of all the events that a user can join",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "userId",
+            "type": "string",
+            "description": "Id of the user"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Response's attributes depend on the event type",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GeneralEvent"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the events"
+          }
+        }
+      }
+    },
+    "/events/getUsersEvents": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get all the events joined by a user",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a user retrieve all his joined events",
+            "schema": {
+              "properties": {
+                "userId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Response's attributes depend on the event",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GeneralEvent"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the events"
+          }
+        }
+      }
+    },
+    "/events/getTeamActiveEvents": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get all the active events of a team",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Get all the active events of a team",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Response's attributes depend on the event",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GeneralEvent"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the events"
+          }
+        }
+      }
+    },
+    "/events/getTeamEventRequests": {
+      "post": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Get all the pending event invites of a team",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Request",
+            "description": "Let a user retrieve all the pending invites of a team",
+            "schema": {
+              "properties": {
+                "teamId": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK. Response's attributes depend on the event",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/GeneralEvent"
+              }
+            }
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while getting the events"
+          }
+        }
+      }
+    },
+    "/events/closeEvents": {
+      "get": {
+        "tags": [
+          "Events"
+        ],
+        "summary": "Mark as closed all the ended events",
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Missing parameters"
+          },
+          "500": {
+            "description": "Error while closing the events"
           }
         }
       }
     }
   },
   "definitions": {
+    "BaseEvent": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        }
+      }
+    },
+    "FullEvent": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "visibility": {
+              "type": "string"
+            },
+            "closed": {
+              "type": "boolean"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/BaseEvent"
+        }
+      ]
+    },
+    "ScoreboardEntryOfIndividualEvent": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "points": {
+          "type": "number"
+        }
+      }
+    },
+    "ScoreboardEntryOfTeamEvent": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "teamId": {
+          "type": "string"
+        },
+        "points": {
+          "type": "number"
+        }
+      }
+    },
+    "IndividualEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/FullEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "prize": {
+              "type": "number"
+            },
+            "scoreboard": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ScoreboardEntryOfIndividualEvent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PublicTeamEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/FullEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "hostTeam": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "involvedTeams": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scoreboard": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ScoreboardEntryOfTeamEvent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "PrivateTeamEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/FullEvent"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "hostTeam": {
+              "type": "string"
+            },
+            "guestTeam": {
+              "type": "string"
+            },
+            "involvedTeams": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "scoreboard": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/ScoreboardEntryOfTeamEvent"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "GeneralEvent": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivateTeamEvent"
+        },
+        {
+          "$ref": "#/definitions/PublicTeamEvent"
+        },
+        {
+          "$ref": "#/definitions/IndividualEvent"
+        }
+      ]
+    },
+    "BaseRide": {
+      "properties": {
+        "userId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "durationInSeconds": {
+          "type": "number"
+        },
+        "totalKm": {
+          "type": "number"
+        },
+        "date": {
+          "type": "string"
+        },
+        "elevationGain": {
+          "type": "number"
+        },
+        "path": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GeoPoint"
+          }
+        }
+      }
+    },
+    "FullRide": {
+      "allOf": [
+        {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string"
+            },
+            "points": {
+              "type": "number"
+            },
+            "pace": {
+              "type": "number"
+            }
+          }
+        },
+        {
+          "$ref": "#/definitions/BaseRide"
+        }
+      ]
+    },
+    "RidesArray": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/FullRide"
+      }
+    },
     "Badge": {
       "properties": {
         "criteria": {
@@ -494,6 +1322,22 @@
         }
       }
     },
+    "GeoPoint": {
+      "properties": {
+        "latitude": {
+          "type": "number"
+        },
+        "longitude": {
+          "type": "number"
+        }
+      }
+    },
+    "Path": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/GeoPoint"
+      }
+    },
     "Reward": {
       "properties": {
         "price": {
@@ -530,6 +1374,12 @@
       "type": "array",
       "items": {
         "$ref": "#/definitions/RedeemedReward"
+      }
+    },
+    "ArrayRewards": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Reward"
       }
     },
     "ArrayTeamWithoutJoinedMembers": {

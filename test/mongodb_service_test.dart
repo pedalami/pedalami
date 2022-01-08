@@ -97,9 +97,6 @@ void main() {
   });
 
 
-
-
-
   test('create private team event testing', () async {
     //instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
@@ -118,10 +115,10 @@ void main() {
     instance.localDebug();
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
-    Event? e = await instance.createPublicTeamEvent(
+    Event? e = await instance.proposePublicTeamEvent(
         adminId, hostTeamId,
-        "create public team event testing", "create public team event testing",
-        DateTime.now(), DateTime.now().add(Duration(days: 10))
+        "Vince public event testing", "create public team event testing",
+        DateTime.now(), DateTime.now().add(Duration(days: 1))
     );
     print(e?.id ?? "Null event");
     assert(e != null);
@@ -129,7 +126,7 @@ void main() {
 
   test('enroll to public event testing', () async {
     instance.localDebug();
-    String eventId = "61cdfd80683f4d8b1163a576";
+    String eventId = "61d6cbaaabb678931acd381c";
     String adminId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1"; //Lorenzo userId
     String teamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
     assert(await instance.enrollTeamToPublicEvent(eventId, adminId, teamId));
@@ -153,7 +150,7 @@ void main() {
 
   test('send private team event invite testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d724a8ab1c282cdc6ad488";
     String adminId = "wqYXryHv31anGdjr2AsjjijLH0y1"; //vince userId
     String hostTeamId = "61b64efb747c3add24055e25"; //teamvince
     String invitedTeamId = "61b7e246f34ee1e975875025"; //"Lorenzo's team" id
@@ -171,7 +168,7 @@ void main() {
 
   test('join event testing', () async {
     instance.localDebug();
-    String eventId = "61ce12b0a1e789d3bd01ab95";
+    String eventId = "61d6cbaaabb678931acd381c";
     String userId = "bRyLXZg1VNQIAq4fSC1REbaXMhi1";
     String? teamId = "61b7e246f34ee1e975875025";
     assert(await instance.joinEvent(eventId, userId, teamId: teamId));
@@ -206,7 +203,7 @@ void main() {
         print(event.guestTeam);
         print(event.pendingRequest);
       }
-    });
+    });*/
     assert(events != null);
   });
 }

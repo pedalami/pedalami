@@ -17,6 +17,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:location/location.dart' as loc;
+import 'package:pedala_mi/widget/custom_alert_dialog.dart';
+import 'package:pedala_mi/services/external_api_service.dart';
 
 class RideData {
   double? duration;
@@ -273,6 +275,9 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                               onPressed: () async {
                                 await controller.enableTracking();
                                 await controller.currentLocation();
+                                _locationData = await location.getLocation();
+                                showCurrentAirQuality(_locationData.latitude, _locationData.longitude);
+
                                 if (_isRecording == false) {
                                   BackgroundLocation.startLocationService();
                                   BackgroundLocation.getLocationUpdates(
@@ -325,6 +330,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                       path.add(latestLocation);
                                     }
                                     if (path.length > 2) {
+                                      controller.removeLastRoad();
                                       _roadInfo = await controller.drawRoad(
                                           path.first, path.last,
                                           intersectPoint:
@@ -364,18 +370,15 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                     Ride? response = await MongoDB.instance
                                         .recordRide(finishedRide);
                                     if (response != null) {
-                                      if (_miUser.rideHistory == null) {
-                                        _miUser.rideHistory =
-                                            List.empty(growable: true);
-                                      }
-                                      _miUser.rideHistory!.add(response);
-                                      MongoDB.instance.initUser(_miUser.userId);
                                       showRideCompleteDialog(
                                           context, size, response);
                                     }
                                   }
                                   path.forEach((element) {
                                     controller.removeMarker(element);
+                                  });
+                                  setState(() {
+                                    //Added this code because it stopped removing the drawn roads after finish for some reason/Marcus
                                   });
                                   path.clear();
                                   _isRecording = false;
@@ -510,6 +513,46 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
           ],
         ));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  showCurrentAirQuality(double? latitude, double? longitude) async {
+
+    if(latitude != null && longitude != null) {
+      print("AIR QUALITY: LAT & LONG" + latitude.toString() + "   " +
+          longitude.toString());
+      AirQuality instance = AirQuality.instance;
+      int airQualityResultInt = await instance.getAirQualityIndexFromCoords(
+          latitude, longitude);
+
+      String airQualityResult = "Error";
+      if(airQualityResultInt == 1){
+        airQualityResult = "Good";
+      }
+      else if(airQualityResultInt == 2){
+        airQualityResult = "Fair";
+      }
+      else if(airQualityResultInt == 3){
+        airQualityResult = "Moderate";
+      }
+      else if(airQualityResultInt == 4){
+        airQualityResult = "Poor";
+      }
+      else if(airQualityResultInt == 5){
+        airQualityResult = "Very Poor";
+      }
+
+      return showDialog<void>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return buildCustomAlertOKDialog(context, "Air Quality",
+              "Currently is: " + airQualityResult);
+        },
+      );
+    }
+    else{
+      print("AIR QUALITY: LAT & LONG ARE NULL");
+      }
   }
 
   String nStringToNNString(String? str) {

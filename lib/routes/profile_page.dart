@@ -140,18 +140,22 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: 22 * SizeConfig.widthMultiplier!,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
-                    child: Image.network(_miUser.image.url,
+                    child: Image.network(
+                      _miUser.image.url,
                       fit: BoxFit.cover,
-                      errorBuilder:(BuildContext context, Object object, StackTrace? stacktrace){
-                          return Image.asset("lib/assets/app_icon.png");
+                      errorBuilder: (BuildContext context, Object object,
+                          StackTrace? stacktrace) {
+                        return Image.asset("lib/assets/app_icon.png");
                       },
-                      loadingBuilder:(BuildContext context, Widget child,ImageChunkEvent? loadingProgress) {
+                      loadingBuilder: (BuildContext context, Widget child,
+                          ImageChunkEvent? loadingProgress) {
                         if (loadingProgress == null) return child;
                         return Center(
                           child: CircularProgressIndicator(
                             color: Colors.white,
-                            value: loadingProgress.expectedTotalBytes != null ?
-                            loadingProgress.cumulativeBytesLoaded / (loadingProgress.expectedTotalBytes as num)
+                            value: loadingProgress.expectedTotalBytes != null
+                                ? loadingProgress.cumulativeBytesLoaded /
+                                    (loadingProgress.expectedTotalBytes as num)
                                 : null,
                           ),
                         );
@@ -247,9 +251,10 @@ class _ProfilePageState extends State<ProfilePage> {
                         pushNewScreen(context,
                             screen: ProfileEditing(),
                             pageTransitionAnimation:
-                            PageTransitionAnimation.cupertino);
+                                PageTransitionAnimation.cupertino);
                       },
-                      child: Container(/*width: 15 * SizeConfig.heightMultiplier!,*/
+                      child: Container(
+                        /*width: 15 * SizeConfig.heightMultiplier!,*/
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.white60),
                           borderRadius: BorderRadius.circular(5.0),
@@ -270,10 +275,12 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     GestureDetector(
                       onTap: () async {
-                          await Authentication.signOut(context: context);
-                          setState(() {
-                          Navigator.of(context, rootNavigator: true).pushAndRemoveUntil(_routeToSignInScreen(), (_)=>false);
-                          });
+                        await Authentication.signOut(context: context);
+                        setState(() {
+                          Navigator.of(context, rootNavigator: true)
+                              .pushAndRemoveUntil(
+                                  _routeToSignInScreen(), (_) => false);
+                        });
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -281,7 +288,8 @@ class _ProfilePageState extends State<ProfilePage> {
                           borderRadius: BorderRadius.circular(5.0),
                         ),
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 5.0, bottom: 5.0),
+                          padding: const EdgeInsets.only(
+                              left: 16.0, right: 16.0, top: 5.0, bottom: 5.0),
                           child: Text(
                             "SIGN OUT",
                             style: TextStyle(
@@ -293,7 +301,6 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                   ],
                 )
-
               ],
             ),
           ],
@@ -538,69 +545,84 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   Widget displayRideHistory() {
-    return Container(
-      decoration: BoxDecoration(
-          color: Colors.blueGrey.shade50,
-          borderRadius: BorderRadius.all(Radius.circular(18.0))),
-      //TODO: Fix the height size to change if there is a small amount of ride history / Marcus
-      height: MediaQuery.of(context).size.height / 3,
-      child: ListView.separated(
-          separatorBuilder: (context, index) {
-            return Divider(
-              color: Colors.black,
-            );
-          },
-          itemCount: _miUser.rideHistory!.length,
-          itemBuilder: (BuildContext context, int index) {
-            return InkWell(
-              onTap: () {
-                pushNewScreen(context,
-                    screen: ShowSingleRideHistoryPage(
-                        path: _miUser.rideHistory![index].path!));
-              },
-              child: Container(
-                height: MediaQuery.of(context).size.height / 10,
-                padding: EdgeInsets.all(8.0),
-                child: Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15),
-                      child: Column(
+    return Padding(
+      padding: EdgeInsets.only(left: 15, right: 15),
+      child: Container(
+        decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black26.withOpacity(0.1),
+            ),
+            color: Colors.grey.shade200.withOpacity(0.7),
+            borderRadius: BorderRadius.all(Radius.circular(18.0))),
+        //TODO: Fix the height size to change if there is a small amount of ride history / Marcus
+        height: MediaQuery.of(context).size.height / 3,
+        child: ListView.separated(
+            separatorBuilder: (context, index) {
+              return Divider(
+                color: Colors.black,
+              );
+            },
+            itemCount: _miUser.rideHistory!.length,
+            itemBuilder: (BuildContext context, int index) {
+              return InkWell(
+                onTap: () {
+                  pushNewScreen(context,
+                      screen: ShowSingleRideHistoryPage(
+                          path: _miUser.rideHistory![index].path!));
+                },
+                child: Container(
+                  height: MediaQuery.of(context).size.height / 11,
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15),
+                        child: Column(
+                          children: [
+                            Text(
+                              DateFormat('EEEE').format(DateTime.parse(
+                                  _miUser.rideHistory![index].displayDate())),
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 18),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              DateFormat('dd MMMM HH:mm').format(DateTime.parse(
+                                  _miUser.rideHistory![index].displayDate())),
+                              style: TextStyle(),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                          child: Row(
                         children: [
-                          Text(
-                            DateFormat('EEEE').format(DateTime.parse(
-                                _miUser.rideHistory![index].displayDate())),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 18),
-                          ),
                           SizedBox(
-                            height: 10,
+                            width: (MediaQuery.of(context).size.width) / 5.3,
                           ),
-                          Text(
-                            DateFormat('dd MMMM HH:mm').format(DateTime.parse(
-                                _miUser.rideHistory![index].displayDate())),
-                            style: TextStyle(),
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              _miUser.rideHistory![index].points!
+                                      .toStringAsFixed(0) +
+                                  " Pts",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          Expanded(
+                            child: FaIcon(FontAwesomeIcons.greaterThan),
+                            flex: 1,
                           ),
                         ],
-                      ),
-                    ),
-                    SizedBox(
-                      width: (MediaQuery.of(context).size.width + 10) / 3.3,
-                    ),
-                    Text(
-                      _miUser.rideHistory![index].points!.toStringAsFixed(0) +
-                          " Pts",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 35,
-                    ),
-                    FaIcon(FontAwesomeIcons.greaterThan)
-                  ],
+                      )),
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            }),
+      ),
     );
   }
 

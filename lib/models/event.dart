@@ -106,8 +106,8 @@ class Event {
 
   @override
   String toString() {
-    return 'Event{ id: $id, name: $name, description: $description, start: '+displayStartDate()+
-        ', end: '+displayEndDate()+', $_visibility, $_type';
+    return 'Event { id: $id, name: $name, description: $description, start: '+displayStartDate()+
+        ', end: '+displayEndDate()+', $_visibility, $_type }';
   }
 
 }
