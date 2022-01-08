@@ -300,7 +300,7 @@ class _CreateTeamEventState extends State<CreateTeamEvent> {
                               });
                               if(publicOrPrivateEvent[0])
                               {
-                                Event? event=await MongoDB.instance.createPublicTeamEvent(actualTeam.adminId, actualTeam.id, eventNameController.text.trim(), descriptionNameController.text.trim(), utcStartDate, utcEndDate);
+                                Event? event=await MongoDB.instance.proposePublicTeamEvent(actualTeam.adminId, actualTeam.id, eventNameController.text.trim(), descriptionNameController.text.trim(), utcStartDate, utcEndDate);
                                 setState(() {
                                   uploadingToDB=false;
                                 });
