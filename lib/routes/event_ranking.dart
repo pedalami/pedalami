@@ -73,7 +73,9 @@ class _EventRankingPageState extends State<EventRankingPage> {
 
   Future<LoggedUser> topUser(String uid, LoggedUser user) async
   {
+
     await FirebaseFirestore.instance.collection("Users").where("userId",isEqualTo: uid).get().then((QuerySnapshot querySnapshot) async{
+      if(querySnapshot.docs.isNotEmpty)
       user=new  LoggedUser(uid,NetworkImage(querySnapshot.docs[0].get("Image")),"",querySnapshot.docs[0].get("Username"),null,null,null,null,null,null,null);
     });
     return user;
