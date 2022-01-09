@@ -252,7 +252,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                                     path.add(GeoPoint(latitude: myLocation.latitude, longitude: myLocation.longitude));
                                     elevations.add(0);
                                     _isRecording = true;
-                                    BackgroundLocation.startLocationService();
+                                    BackgroundLocation.startLocationService(distanceFilter: 2);
                                     BackgroundLocation.getLocationUpdates((location) async {
                                         controller.removeMarker(path.last);
                                         parseLocation(location);
