@@ -5,10 +5,14 @@ const profileController = require("./profileController.js");
 async function assignPoints(user, ride, events, weatherId) {
     //Calculate points based on ride totalKm and elevationGain
     var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10));
+
     //Add weather bonus if the ride is at least 1km
     weatherBonus = getWeatherBonusPoints(weatherId);
-    console.log("Weather Bonus:" + weatherBonus);
-    points = points + (ride.totalKm > 1 ? weatherBonus : 0); //add bonus if at least 1km rode
+    if (ride.totalKm > 1) {
+        console.log("Weather Bonus:" + weatherBonus);
+        points += weatherBonus;
+    }
+
     ride.points = points;
     console.log("Assigning " + points + " points to " + user.userId);
     var individual_counter = 0;
