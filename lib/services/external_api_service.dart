@@ -33,3 +33,30 @@ class AirQuality {
   }
 
 }
+
+static final Weather instance = new Weather();
+
+ static final AirQuality instance = new AirQuality();
+
+  http.Client _serverClient = http.Client();
+  String baseUri = "https://api.openweathermap.org/data/2.5/weather";
+
+  Map<String, String> _headers = {
+    'Content-type': 'application/json; charset=utf-8',
+    'Accept': 'application/json',
+  };
+
+  //Given the id of a Team, it returns the entire team
+  Future<int> getWeatherFromCoords(double latitude, double longitude) async {
+    var url = Uri.parse(baseUri)
+        .replace(queryParameters: {'lat': latitude.toString(), 'lon': longitude.toString(), 'appid': 'f01bcf9b8d8f2aedde4fa855cbcdd02b'});
+    var response = await _serverClient.get(url, headers: _headers);
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      var weatherId = decodedBody['weather']['id'];
+      return weatherId;
+    } else
+      return -1;
+  }
+
+}
