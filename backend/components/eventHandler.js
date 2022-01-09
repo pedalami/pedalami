@@ -376,6 +376,8 @@ app.post('/join', (req, res) => {
         ]);
         if (!user || !event)
             throw new Error('User or event not found!');
+        if (user.joinedEvents.includes(eventId))
+            throw new Error('User already joined the event!');
         if (event.type === 'team') {
             if (!teamId)
                 throw new Error('Missing teamId');
@@ -691,7 +693,44 @@ app.post("/getTeamActiveEvents", async (req, res) => {
     if (teamId) {
         var team = await Team.findOne({ _id: ObjectId(teamId) }).exec();
         if (team) {
-            var events = await Event.find({ _id: { $in: team.activeEvents } }).exec();
+            var events = await Event.aggregate([{
+                $match: {
+                    _id: { $in: team.activeEvents }
+                }
+            },
+            {
+                $lookup: {
+                  from: "teams", // collection name in db
+                  localField: "hostTeam", // field of Event to make the lookup on (the field with the "foreign key")
+                  foreignField: "_id", // the referred field in Team 
+                  as: "hostTeam" // name that the field of the join will have in the result/JSON
+                }
+              },
+              {
+                $lookup: {
+                  from: "teams", // collection name in db
+                  localField: "guestTeam", // field of Event to make the lookup on (the field with the "foreign key")
+                  foreignField: "_id", // the referred field in Team 
+                  as: "guestTeam" // name that the field of the join will have in the result/JSON
+                }
+              },
+              {
+                $lookup: {
+                  from: "teams", // collection name in db
+                  localField: "involvedTeams", // field of Event to make the lookup on (the field with the "foreign key")
+                  foreignField: "_id", // the referred field in Team 
+                  as: "involvedTeams" // name that the field of the join will have in the result/JSON
+                }
+              },
+              {
+                $unset: ["hostTeam.activeEvents", "hostTeam.eventRequests" , "guestTeam.activeEvents", "guestTeam.eventRequests" ,
+                 "involvedTeams.activeEvents", "involvedTeams.eventRequests" ,]
+              }
+        ]).exec().catch(err => {
+            console.log('Error while getting the events: ' + err);
+            res.status(500).send('Error while getting the events');
+            return;
+        });
             res.status(200).send(events);
         } else {
             console.log('Error in getting the team events: team not found')
