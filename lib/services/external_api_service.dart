@@ -34,9 +34,11 @@ class AirQuality {
 
 }
 
-static final Weather instance = new Weather();
+class Weather {
+  //Backend developers make the functions for the mongo api calls here,
+  //Frontend developers can then use these functions in the flutter project
 
- static final AirQuality instance = new AirQuality();
+  static final Weather instance = new Weather();
 
   http.Client _serverClient = http.Client();
   String baseUri = "https://api.openweathermap.org/data/2.5/weather";
@@ -53,7 +55,9 @@ static final Weather instance = new Weather();
     var response = await _serverClient.get(url, headers: _headers);
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);
-      var weatherId = decodedBody['weather']['id'];
+      //print(decodedBody);
+      var weatherId = decodedBody['weather'][0]['id'];
+      print(weatherId);
       return weatherId;
     } else
       return -1;
