@@ -24,24 +24,6 @@ extension LocationExt on Location {
   }
 }
 
-class RideData {
-  double? duration;
-  double? length;
-  String? userId;
-  double? elevation = 5.0;
-  String? rideName = "Bike Ride";
-  String? date = "2021/11/29:21.15";
-
-  RideData(double duration, double length, String userId, double elevation,
-      String rideName, String date) {
-    this.duration = duration;
-    this.length = length;
-    this.userId = userId;
-    this.elevation = elevation;
-    this.rideName = rideName;
-    this.date = date;
-  }
-}
 
 class MapPage extends StatefulWidget {
   MapPage({Key? key}) : super(key: key);
@@ -54,8 +36,8 @@ class MapPage extends StatefulWidget {
 class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBindingObserver {
   final MapController controller = MapController(initMapWithUserPosition: true);
   double totalElevation = 0;
+  bool _hasPermissions = false;
   bool _isRecording = false;
-  bool _hasPermission = false;
   bool _shouldInitialize = true;
   Color _currentButtonColor = Colors.green[400]!;
   Text _currentButtonText = Text("Start");
@@ -63,7 +45,6 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   List<GeoPoint> path = [];
   RoadInfo? _roadInfo;
   LoggedUser _miUser = LoggedUser.instance!;
-  AppLifecycleState _currentState = AppLifecycleState.resumed;
   List<double> elevations = [];
   OSMFlutter? map;
   Location? currentLocation;
@@ -115,22 +96,26 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   @override
   Future<void> mapRestored() async {
     super.mapRestored();
-    //print("Map restored");
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    setState(() {
-      _currentState = state;
-    });
+    if (state == AppLifecycleState.resumed) {
+      if (await Permission.locationAlways.isGranted)
+        setState(() {_hasPermissions = true;});
+      else
+        setState(() {_hasPermissions = false;});
+    }
     super.didChangeAppLifecycleState(state);
   }
 
   void getLocationPermission() async {
-    bool hasPermission = await Permission.locationAlways.request().isGranted;
-    setState(() {
-      _hasPermission = hasPermission;
-    });
+    var status = Permission.locationWhenInUse.request();
+    if (await status.isGranted) {
+      var status = Permission.locationAlways.request();
+      if(await status.isGranted)
+        setState(() {_hasPermissions = true;});
+    }
   }
 
   void parseLocation(Location location) {
@@ -168,7 +153,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
 
   @override
   Widget build(BuildContext context) {
-    if (map == null) {
+    if (map == null && _hasPermissions) {
       map = OSMFlutter(
         controller: controller,
         mapIsLoading: Center(
@@ -250,7 +235,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
       );
     }
     Size size = MediaQuery.of(context).size;
-    return _hasPermission ? Scaffold(
+    return _hasPermissions ? Scaffold(
       body: OrientationBuilder(
         builder: (ctx, orientation) {
           return Container(
