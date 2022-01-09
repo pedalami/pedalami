@@ -253,13 +253,25 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                                     elevations.add(0);
                                     _isRecording = true;
                                     BackgroundLocation.startLocationService();
-                                    BackgroundLocation.getLocationUpdates((location) {
+                                    BackgroundLocation.getLocationUpdates((location) async {
                                         controller.removeMarker(path.last);
                                         parseLocation(location);
                                         controller.addMarker(path.last,
                                             markerIcon: MarkerIcon(
                                                 image: AssetImage('lib/assets/map_marker.png')
                                             ));
+                                        if (path.length > 2) {
+                                          controller.removeLastRoad();
+                                          _roadInfo = await controller.drawRoad(
+                                              path.first, path.last,
+                                              intersectPoint:
+                                              path.sublist(1, path.length - 1),
+                                              roadType: RoadType.bike,
+                                              roadOption: RoadOption(
+                                                roadWidth: 10,
+                                                roadColor: Colors.green,
+                                              ));
+                                        }
                                       });
                                     internalState(() {
                                       _currentButtonColor = Colors.redAccent;
