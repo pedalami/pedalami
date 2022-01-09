@@ -1,26 +1,16 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/event.dart';
-import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/models/team.dart';
-import 'package:pedala_mi/routes/event_ranking.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:pedala_mi/utils/date_time_ext.dart';
-import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:search_choices/search_choices.dart';
 
 class TeamEventItem extends StatefulWidget {
   const TeamEventItem(
-      {Key? key,
-      required Event event,
-      required refresh,
-      required this.activeTeam})
-      : refresh = refresh,
-        event = event,
+      {Key? key, required Event event, required this.activeTeam})
+      : event = event,
         super(key: key);
-  final Function refresh;
   final Event event;
   final Team activeTeam;
 
@@ -31,304 +21,526 @@ class TeamEventItem extends StatefulWidget {
 class _TeamEventItemState extends State<TeamEventItem> {
   late Event event;
   late bool _rejected, _invited, _visible;
-  late Team active;
+  late Team actualTeam;
 
   Team? selectedTeam;
   late Team? opposingTeam;
   late Team? host;
   var selectedValueSingleDialogFuture;
   bool loadingTeam = true;
+  late bool pending;
+  bool sendingInvite = false;
 
   @override
   void initState() {
     event = widget.event;
-    _rejected =
-        false; //TODO: get this value (as true from Reject button onPressed()) if the private team event request is rejected...
+    _rejected = event.isInviteRejected();
     _visible = true;
-    active = widget.activeTeam;
+    actualTeam = widget.activeTeam;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       host = (await MongoDB.instance
           .getTeam(event.hostTeamId!))!; //gets event's hosting team's details
-      opposingTeam = (await MongoDB.instance
-          .getTeam(event.guestTeamId!))!; //gets event's opposing team's details
-      print("HOST: " + host!.name);
-      print("OPPONENT: " + opposingTeam!.name);
+      await checkEventState();
       loadingTeam = false;
       setState(() {});
     });
     super.initState();
   }
 
+  checkEventState() async {
+    if (event.isInviteAccepted()) {
+      opposingTeam = await MongoDB.instance.getTeam(event.guestTeam!.id);
+    } else if (event.isInvitePending()) {
+      opposingTeam = await MongoDB.instance.getTeam(event.involvedTeamsIds![0]);
+    } else {
+      opposingTeam = Team("", "", "", "", [], null);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 20, right: 20, left: 20),
-      child: GestureDetector(
-        onTap: () {
-          pushNewScreen(context,
-              screen: EventRankingPage(
-                event: event,
-              ));
-        },
-        child: Container(
-          padding: EdgeInsets.all(12),
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              border: Border.all(color: Colors.green, width: 2),
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 5),
-                child: Text(
-                  event.name,
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25),
-                ),
+      child: Container(
+        padding: EdgeInsets.all(12),
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            border: Border.all(color: Colors.green, width: 2),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 5),
+              child: Text(
+                event.name,
+                style: TextStyle(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25),
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: !loadingTeam
-                              ? Text(
-                                  "Hosting Team: " + host!.name,
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 2 * SizeConfig.textMultiplier!),
-                                )
-                              : SizedBox(),
-                        ),
-                        event.isPrivate() && !loadingTeam
-                            ? Padding(
-                                padding: EdgeInsets.only(
-                                    top: 1 * SizeConfig.heightMultiplier!),
-                                child: Text(
-                                  "Opposing Team: " + opposingTeam!.name,
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 2 * SizeConfig.textMultiplier!),
-                                ),
-                              )
-                            : SizedBox(),
-                        /* Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text("Opposing Team: ---",
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              "Hosting Team: "+ actualTeam.name,
+                              style: TextStyle(
+                                  color: Colors.black54,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 2 * SizeConfig.textMultiplier!),
                             ),
-                          ),
-                        ),*/
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text(
-                            "Event Type: " +
-                                (event.isPublic()
-                                    ? "Public"
-                                    : event.isPrivate()
-                                        ? "Private"
-                                        : ""),
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!),
-                          ),
+                          ],
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text(
-                            "Started: " + event.startDate.formatIT,
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!),
-                          ),
+                      ),
+                      event.isPrivate()
+                          ? Padding(
+                              padding: EdgeInsets.only(
+                                  top: 1 * SizeConfig.heightMultiplier!),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "Opposing Team: ",
+                                    style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize:
+                                            2 * SizeConfig.textMultiplier!),
+                                  ),
+                                  AnimatedSwitcher(
+                                    duration: Duration(milliseconds: 250),
+                                    child: !loadingTeam
+                                        ? Text(
+                                            opposingTeam!.name,
+                                            style: TextStyle(
+                                                color: Colors.black54,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 2 *
+                                                    SizeConfig.textMultiplier!),
+                                          )
+                                        : Container(
+                                            height:
+                                                2 * SizeConfig.textMultiplier!,
+                                            width:
+                                                2 * SizeConfig.textMultiplier!,
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Event Type: " +
+                              (event.isPublic()
+                                  ? "Public"
+                                  : event.isPrivate()
+                                      ? "Private"
+                                      : ""),
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text(
-                            "Ends: " + event.endDate.formatIT,
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!),
-                          ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Started: " + event.startDate.formatIT,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
-                        //****************************************************//
-                        //TODO: If private team event request is rejected...this code should execute
-                        _rejected
-                            ? Padding(
-                                padding: EdgeInsets.only(
-                                    bottom: 3 * SizeConfig.heightMultiplier!),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 3,
-                                      child: Text(
-                                        "Opposing team: ",
-                                        style: TextStyle(fontSize: 18),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "Ends: " + event.endDate.formatIT,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: !_rejected
+                            ? Text(
+                                "Status: " +
+                                    (event.isInviteAccepted()
+                                        ? "Accepted"
+                                        : "Pending"),
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 2 * SizeConfig.textMultiplier!),
+                              )
+                            : Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 6,
+                                        child: Text(
+                                          "Opposing team:",
+                                          style: TextStyle(
+                                              color: Colors.black54,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 2 *
+                                                  SizeConfig.textMultiplier!),
+                                        ),
                                       ),
-                                    ),
-                                    Expanded(
-                                        flex: 5,
-                                        child: SearchChoices.single(
-                                          value:
-                                              selectedValueSingleDialogFuture,
-                                          hint: "Choose an opposing team...",
-                                          searchHint:
-                                              "Write an opposing team...",
-                                          onChanged: (value) {
-                                            setState(() {
-                                              selectedValueSingleDialogFuture =
-                                                  value;
-                                            });
-                                          },
-                                          isExpanded: true,
-                                          selectedValueWidgetFn: (item) {
-                                            selectedTeam = (item as Team);
-                                            return (Center(
-                                                child: Padding(
-                                              padding: const EdgeInsets.all(6),
-                                              child: Text(selectedTeam!.name),
-                                            )));
-                                          },
-                                          futureSearchFn: (String? keyword,
-                                              String? orderBy,
-                                              bool? orderAsc,
-                                              List<Tuple2<String, String>>?
-                                                  filters,
-                                              int? pageNb) async {
-                                            int nbResults = 0;
-                                            List<DropdownMenuItem> results = [];
-                                            if (keyword != "") {
-                                              List<Team>? teamsFound =
-                                                  await MongoDB.instance
-                                                      .searchTeam(keyword!);
-                                              int sameTeamIndex = -1;
-                                              for (int i = 0;
-                                                  i < teamsFound!.length;
-                                                  i++) {
-                                                if (teamsFound[i].id ==
-                                                    active.id) {
-                                                  sameTeamIndex = i;
+                                      Expanded(
+                                          flex: 9,
+                                          child: SearchChoices.single(
+                                            isExpanded: true,
+                                            value:
+                                                selectedValueSingleDialogFuture,
+                                            hint: "Select opposing team",
+                                            searchHint:
+                                                "Write an opposing team...",
+                                            onChanged: (value) {
+                                              setState(() {
+                                                selectedValueSingleDialogFuture =
+                                                    value;
+                                              });
+                                            },
+                                            selectedValueWidgetFn: (item) {
+                                              selectedTeam = (item as Team);
+                                              return (Center(
+                                                  child: Padding(
+                                                padding:
+                                                    const EdgeInsets.all(6),
+                                                child: Text(selectedTeam!.name),
+                                              )));
+                                            },
+                                            futureSearchFn: (String? keyword,
+                                                String? orderBy,
+                                                bool? orderAsc,
+                                                List<Tuple2<String, String>>?
+                                                    filters,
+                                                int? pageNb) async {
+                                              int nbResults = 0;
+                                              List<DropdownMenuItem> results =
+                                                  [];
+                                              if (keyword != "") {
+                                                List<Team>? teamsFound =
+                                                    await MongoDB.instance
+                                                        .searchTeam(keyword!);
+                                                int sameTeamIndex = -1;
+                                                for (int i = 0;
+                                                    i < teamsFound!.length;
+                                                    i++) {
+                                                  if (teamsFound[i].id ==
+                                                      actualTeam.id) {
+                                                    sameTeamIndex = i;
+                                                  }
                                                 }
-                                              }
-                                              if (sameTeamIndex != -1) {
-                                                teamsFound
-                                                    .removeAt(sameTeamIndex);
-                                              }
-                                              nbResults = teamsFound.length;
-                                              results = teamsFound
-                                                  .map<DropdownMenuItem>(
-                                                      (item) =>
-                                                          DropdownMenuItem(
-                                                            value: item,
-                                                            child: Card(
-                                                              shape:
-                                                                  RoundedRectangleBorder(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            4),
-                                                                side:
-                                                                    BorderSide(
-                                                                  color: Colors
-                                                                      .green,
-                                                                  width: 1,
+                                                if (sameTeamIndex != -1) {
+                                                  teamsFound
+                                                      .removeAt(sameTeamIndex);
+                                                }
+                                                nbResults = teamsFound.length;
+                                                results = teamsFound
+                                                    .map<DropdownMenuItem>(
+                                                        (item) =>
+                                                            DropdownMenuItem(
+                                                              value: item,
+                                                              child: Card(
+                                                                shape:
+                                                                    RoundedRectangleBorder(
+                                                                  borderRadius:
+                                                                      BorderRadius
+                                                                          .circular(
+                                                                              4),
+                                                                  side:
+                                                                      BorderSide(
+                                                                    color: Colors
+                                                                        .green,
+                                                                    width: 1,
+                                                                  ),
+                                                                ),
+                                                                margin:
+                                                                    EdgeInsets
+                                                                        .all(1),
+                                                                child: Padding(
+                                                                  padding:
+                                                                      const EdgeInsets
+                                                                          .all(6),
+                                                                  child: Text(
+                                                                      item.name),
                                                                 ),
                                                               ),
-                                                              margin: EdgeInsets
-                                                                  .all(1),
-                                                              child: Padding(
-                                                                padding:
-                                                                    const EdgeInsets
-                                                                        .all(6),
-                                                                child: Text(
-                                                                    item.name),
+                                                            ))
+                                                    .toList();
+                                              }
+                                              return (Tuple2<
+                                                  List<DropdownMenuItem>,
+                                                  int>(results, nbResults));
+                                            },
+                                            emptyListWidget: () => Text(
+                                              "No result",
+                                              style: TextStyle(
+                                                fontStyle: FontStyle.italic,
+                                                color: Colors.grey,
+                                              ),
+                                            ),
+                                          )),
+                                    ],
+                                  ),
+                                  Align(
+                                    alignment: Alignment.center,
+                                    child: AnimatedSwitcher(
+                                      duration: Duration(milliseconds: 250),
+                                      child: sendingInvite
+                                          ? CircularProgressIndicator()
+                                          : ElevatedButton(
+                                              style: ButtonStyle(
+                                                  backgroundColor:
+                                                      MaterialStateProperty.all(
+                                                          Colors.lightGreen),
+                                                  shape: MaterialStateProperty
+                                                      .all(RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(
+                                                                      18.0),
+                                                          side: BorderSide(
+                                                              color: Colors
+                                                                  .lightGreen)))),
+                                              child: Text("Invite Team"),
+                                              onPressed: () async {
+                                                if (selectedTeam != null) {
+                                                  sendingInvite = true;
+                                                  setState(() {});
+                                                  try {
+                                                    _invited = await MongoDB
+                                                        .instance
+                                                        .sendInvite(
+                                                            event.id,
+                                                            actualTeam.adminId,
+                                                            actualTeam.id,
+                                                            selectedTeam!.id);
+                                                    if (_invited) {
+                                                      _rejected = false;
+                                                      opposingTeam =
+                                                          await MongoDB.instance
+                                                              .getTeam(
+                                                                  selectedTeam!
+                                                                      .id);
+                                                    }
+                                                  } finally {
+                                                    sendingInvite = false;
+                                                    setState(() {});
+                                                  }
+                                                } else {
+                                                  ScaffoldMessenger.of(context)
+                                                      .showSnackBar(SnackBar(
+                                                    content: Text(
+                                                      "Please select a team to invite!",
+                                                    ),
+                                                  ));
+                                                }
+                                              }),
+                                    ),
+                                  )
+                                ],
+                              ),
+                      ),
+                      //****************************************************//
+                      //TODO: If private team event request is rejected...this code should execute
+                      /*_rejected
+                          ? Padding(
+                              padding: EdgeInsets.only(
+                                  bottom: 3 * SizeConfig.heightMultiplier!),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 6,
+                                    child: Text(
+                                      "Opposing team:",
+                                      style: TextStyle(
+                                        color: Colors.black54,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 2 * SizeConfig.textMultiplier!),
+                                    ),
+                                  ),
+                                  Expanded(
+                                      flex: 9,
+                                      child: SearchChoices.single(
+                                        isExpanded: true,
+                                        value:
+                                            selectedValueSingleDialogFuture,
+                                        hint: "Select opposing team",
+                                        searchHint:
+                                            "Write an opposing team...",
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedValueSingleDialogFuture =
+                                                value;
+                                          });
+                                        },
+                                        selectedValueWidgetFn: (item) {
+                                          selectedTeam = (item as Team);
+                                          return (Center(
+                                              child: Padding(
+                                            padding: const EdgeInsets.all(6),
+                                            child: Text(selectedTeam!.name),
+                                          )));
+                                        },
+                                        futureSearchFn: (String? keyword,
+                                            String? orderBy,
+                                            bool? orderAsc,
+                                            List<Tuple2<String, String>>?
+                                                filters,
+                                            int? pageNb) async {
+                                          int nbResults = 0;
+                                          List<DropdownMenuItem> results = [];
+                                          if (keyword != "") {
+                                            List<Team>? teamsFound =
+                                                await MongoDB.instance
+                                                    .searchTeam(keyword!);
+                                            int sameTeamIndex = -1;
+                                            for (int i = 0;
+                                                i < teamsFound!.length;
+                                                i++) {
+                                              if (teamsFound[i].id ==
+                                                  actualTeam.id) {
+                                                sameTeamIndex = i;
+                                              }
+                                            }
+                                            if (sameTeamIndex != -1) {
+                                              teamsFound
+                                                  .removeAt(sameTeamIndex);
+                                            }
+                                            nbResults = teamsFound.length;
+                                            results = teamsFound
+                                                .map<DropdownMenuItem>(
+                                                    (item) =>
+                                                        DropdownMenuItem(
+                                                          value: item,
+                                                          child: Card(
+                                                            shape:
+                                                                RoundedRectangleBorder(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          4),
+                                                              side:
+                                                                  BorderSide(
+                                                                color: Colors
+                                                                    .green,
+                                                                width: 1,
                                                               ),
                                                             ),
-                                                          ))
-                                                  .toList();
-                                            }
-                                            return (Tuple2<
-                                                List<DropdownMenuItem>,
-                                                int>(results, nbResults));
-                                          },
-                                          emptyListWidget: () => Text(
-                                            "No result",
-                                            style: TextStyle(
-                                              fontStyle: FontStyle.italic,
-                                              color: Colors.grey,
-                                            ),
+                                                            margin: EdgeInsets
+                                                                .all(1),
+                                                            child: Padding(
+                                                              padding:
+                                                                  const EdgeInsets
+                                                                      .all(6),
+                                                              child: Text(
+                                                                  item.name),
+                                                            ),
+                                                          ),
+                                                        ))
+                                                .toList();
+                                          }
+                                          return (Tuple2<
+                                              List<DropdownMenuItem>,
+                                              int>(results, nbResults));
+                                        },
+                                        emptyListWidget: () => Text(
+                                          "No result",
+                                          style: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.grey,
                                           ),
-                                        )),
-                                  ],
-                                ),
-                              )
-                            : SizedBox(),
-                        _rejected
-                            ? Align(
-                                alignment: Alignment.center,
-                                child: AnimatedOpacity(
-                                  opacity: _visible ? 1.0 : 0.0,
-                                  duration: const Duration(milliseconds: 500),
-                                  child: ElevatedButton(
-                                      style: _rejected
-                                          ? ButtonStyle(
-                                              backgroundColor:
-                                                  MaterialStateProperty.all(
-                                                      Colors.lightGreen),
-                                              shape: MaterialStateProperty.all(
-                                                  RoundedRectangleBorder(
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              18.0),
-                                                      side: BorderSide(
-                                                          color: Colors
-                                                              .lightGreen))))
-                                          : ButtonStyle(),
-                                      child: Text("Invite Team"),
-                                      onPressed: () async {
-                                        _invited = await MongoDB.instance
-                                            .sendInvite(
+                                        ),
+                                      )),
+                                ],
+                              ),
+                            )
+                          : SizedBox(),
+                      _rejected
+                          ? Align(
+                              alignment: Alignment.center,
+                              child: AnimatedSwitcher(
+                                duration: Duration(milliseconds: 250),
+                                child: sendingInvite?CircularProgressIndicator():ElevatedButton(
+                                    style:
+                                        ButtonStyle(
+                                            backgroundColor:
+                                                MaterialStateProperty.all(
+                                                    Colors.lightGreen),
+                                            shape: MaterialStateProperty.all(
+                                                RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            18.0),
+                                                    side: BorderSide(
+                                                        color: Colors
+                                                            .lightGreen)))),
+                                    child: Text("Invite Team"),
+                                    onPressed: () async {
+                                      if(selectedTeam!=null)
+                                        {
+                                          sendingInvite=true;
+                                          setState(() {});
+                                          try
+                                          {
+                                            _invited = await MongoDB.instance
+                                                .sendInvite(
                                                 event.id,
-                                                active.adminId,
-                                                event.involvedTeamsIds![0],
+                                                actualTeam.adminId,
+                                                actualTeam.id,
                                                 selectedTeam!.id);
-                                        print(
-                                            "Invited: " + _invited.toString());
-                                        setState(() {
-                                          if (_invited) _rejected = false;
-                                        });
-                                        widget.refresh();
-                                      }),
-                                ),
-                              )
-                            : SizedBox(),
-                        //****************************************************//
-                      ],
-                    ),
+                                            if (_invited) {
+                                              _rejected = false;
+                                              opposingTeam=await MongoDB.instance.getTeam(selectedTeam!.id);
+                                            }
+                                          }
+                                          finally
+                                          {
+                                            sendingInvite=false;
+                                            setState(() {});
+                                          }
+                                        }
+                                      else
+                                        {
+                                          ScaffoldMessenger.of(context)
+                                              .showSnackBar(SnackBar(
+                                            content: Text("Please select a team to invite!",),
+                                          ));
+                                        }
+
+                                    }),
+                              ),
+                            )
+                          : SizedBox(),*/
+                    ],
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

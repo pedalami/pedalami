@@ -31,7 +31,8 @@ class _YourEventsPageState extends State<YourEventsPage> {
     actualTeam=widget.activeTeam;
     loading = true;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-          active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id);
+          //active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id);
+          active_events =LoggedUser.instance!.getEventsOfTeam(actualTeam!.id);
           requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id);
           loading = false;
           setState(() {});
@@ -90,49 +91,57 @@ class _YourEventsPageState extends State<YourEventsPage> {
                 ),
                   Padding(
                       padding: EdgeInsets.only(top: 2.0),
-                      child: Column(
+                      child: AnimatedSwitcher(
+                        duration: Duration(milliseconds: 250),
+                        child: loading?Column(
                           children: [
-                            loading?SizedBox():
-                            active_events!.length>0?ListView.builder(
-                                itemCount: active_events!.length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, i) {
-                                  return TeamEventItem(event: active_events![i], refresh: refresh, activeTeam: widget.activeTeam,);
-                                }):Column(
-                                    children: [
-                                      SizedBox(height: MediaQuery.of(context).size.height*.025,),
-                                      Text("You have no active events", style: TextStyle(fontSize: 15,),),
-                                    ],
-                                ),
-                            Divider(
-                                  color: Colors.grey[500],
-                                ),
-                            Padding(
-                              padding: EdgeInsets.only(top: 15.0),
-                              child: Text(
-                                "Private Event Requests",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                  fontSize: 3 * SizeConfig.textMultiplier!,
+                            SizedBox(height: MediaQuery.of(context).size.height*.3,),
+                            CircularProgressIndicator(),
+                          ],
+                        ):Column(
+                            children: [
+                              active_events!.length>0?ListView.builder(
+                                  itemCount: active_events!.length,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, i) {
+                                    return TeamEventItem(event: active_events![i], activeTeam: widget.activeTeam,);
+                                  }):Column(
+                                      children: [
+                                        SizedBox(height: MediaQuery.of(context).size.height*.025,),
+                                        Text("You have no active events", style: TextStyle(fontSize: 15,
+                                          color: Colors.black54,
+                                        ),),
+                                      ],
+                                  ),
+
+                              Padding(
+                                padding: EdgeInsets.only(top: 15.0),
+                                child: Text(
+                                  "Private Event Requests",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontSize: 3 * SizeConfig.textMultiplier!,
+                                  ),
                                 ),
                               ),
-                            ),
-                            loading?SizedBox():
-                            requested_events!.length>0?ListView.builder(
-                                itemCount: requested_events!.length,
-                                physics: const NeverScrollableScrollPhysics(),
-                                shrinkWrap: true,
-                                itemBuilder: (context, j) {
-                                  return RequestItem(event: requested_events![j], refresh: refresh, activeTeam: widget.activeTeam,);
-                                }):Column(
-                                    children: [
-                                      SizedBox(height: MediaQuery.of(context).size.height*.025,),
-                                      Text("You have no pending requests", style: TextStyle(fontSize: 15,),),
-                                    ],
-                                ),
-                          ],
+                              requested_events!.length>0?ListView.builder(
+                                  itemCount: requested_events!.length,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  shrinkWrap: true,
+                                  itemBuilder: (context, j) {
+                                    return RequestItem(event: requested_events![j], refresh: refresh, activeTeam: widget.activeTeam,);
+                                  }):Column(
+                                      children: [
+                                        SizedBox(height: MediaQuery.of(context).size.height*.025,),
+                                        Text("You have no pending requests", style: TextStyle(fontSize: 15,
+                                          color: Colors.black54,
+                                        ),),
+                                      ],
+                                  ),
+                            ],
+                        ),
                       ),
                   ),
               ],
