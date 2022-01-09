@@ -66,15 +66,15 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
 
   @override
   Future<void> mapIsReady(bool isReady) async {
-    print("2");
     if (isReady) {
       print("Ready");
-      controller.currentLocation();
       if (_shouldInitialize) {
         print("initialize");
-        //controller.currentLocation();
-        //controller.enableTracking();
-        _shouldInitialize = false;
+        await controller.currentLocation();
+        await controller.enableTracking();
+        setState(() {
+          _shouldInitialize = false;
+        });
       }
       controller.setZoom(stepZoom: 10.0);
       //controller.zoomIn();
@@ -111,18 +111,17 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   }
 
   void parseLocation(Location location) {
-    if (_currentState != AppLifecycleState.resumed) {
-      if (path.last.latitude == location.latitude && path.last.longitude == location.longitude) {
-        print("No need to save the current position");
-      } else {
-        if (_isRecording) {
-          path.add(GeoPoint(latitude: location.latitude!, longitude: location.longitude!));
-          double newAltitude = location.altitude!;
-          if (newAltitude < elevations.last) {
-            totalElevation = (totalElevation + (newAltitude - elevations.last));
-            elevations.add(newAltitude);
-          }
+    if (path.last.latitude == location.latitude && path.last.longitude == location.longitude) {
+      print("No need to save the current position");
+    } else {
+      if (_isRecording) {
+        path.add(GeoPoint(latitude: location.latitude!, longitude: location.longitude!));
+        double newAltitude = location.altitude!;
+        if (newAltitude < elevations.last) {
+          totalElevation = (totalElevation + (newAltitude - elevations.last));
+          elevations.add(newAltitude);
         }
+        setState(() {});
       }
     }
   }
@@ -167,7 +166,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
         stepZoom: 1.0,
         //key: widget.key,
         androidHotReloadSupport: true,
-        /*userLocationMarker: UserLocationMaker(
+        userLocationMarker: UserLocationMaker(
           personMarker: MarkerIcon(
             icon: Icon(
               Icons.location_history_rounded,
@@ -181,7 +180,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
               size: 48,
             ),
           ),
-        ),*/
+        ),
         showContributorBadgeForOSM: false,
         showDefaultInfoWindow: false,
         //onLocationChanged: (myLocation) { print(myLocation); },
@@ -200,7 +199,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
             ),
           );
         },
-        /*road: Road(
+        road: Road(
           startIcon: MarkerIcon(
             icon: Icon(
               Icons.person,
@@ -209,8 +208,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
             ),
           ),
           roadColor: Colors.red,
-        ),*/
-        /*
+        ),
         markerOption: MarkerOption(
           defaultMarker: MarkerIcon(
             icon: Icon(
@@ -226,7 +224,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
               size: 64,
             ),
           ),
-        ),*/
+        ),
       );
     }
     Size size = MediaQuery.of(context).size;
@@ -246,10 +244,13 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                           builder: (context, internalState) {
                             return ElevatedButton.icon(
                               onPressed: () async {
+                                await controller.currentLocation();
                                 await controller.enableTracking();
                                 var myLocation = await controller.myLocation();
                                 if (_isRecording == false) {
                                     showCurrentAirQuality(myLocation.latitude, myLocation.longitude);
+                                    path.add(GeoPoint(latitude: myLocation.latitude, longitude: myLocation.longitude));
+                                    elevations.add(0);
                                     _isRecording = true;
                                     BackgroundLocation.startLocationService();
                                     BackgroundLocation.getLocationUpdates((location) {
@@ -281,7 +282,6 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                                         totalElevation,
                                         null,
                                         path);
-
                                     Ride? response = await MongoDB.instance.recordRide(finishedRide);
                                     if (response != null) {
                                       showRideCompleteDialog(
@@ -291,12 +291,14 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                                   path.forEach((element) {
                                     controller.removeMarker(element);
                                   });
-                                  setState(() {
-                                    path.clear();
-                                    _isRecording = false;
+                                  internalState(() {
                                     _currentButtonText = Text("Start");
                                     _currentButtonColor = Colors.green[400]!;
                                     _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+                                  });
+                                  setState(() {
+                                    path.clear();
+                                    _isRecording = false;
                                   });
                                 }
                               },
@@ -462,7 +464,4 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
       }
   }
 
-  String nStringToNNString(String? str) {
-    return str ?? "";
-  }
 }
