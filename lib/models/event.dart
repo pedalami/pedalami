@@ -1,9 +1,7 @@
-import 'dart:convert';
-
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
+
 
 class ScoreboardEntry {
   String userId;
@@ -11,6 +9,13 @@ class ScoreboardEntry {
   double points;
 
   ScoreboardEntry(this.userId, this.teamId, this.points);
+}
+
+class TeamScoreboardEntry {
+  String teamId;
+  double points;
+
+  TeamScoreboardEntry(this.teamId, this.points);
 }
 
 class Event {
@@ -27,16 +32,22 @@ class Event {
   String? hostTeamId;
   String? guestTeamId;
   Team?
-      hostTeam; //Only for private team events when the getUsersEvents is called
+  hostTeam; //Only for private team events when the getUsersEvents is called
   Team?
-      guestTeam; //Only for private team events when the getUsersEvents is called
+  guestTeam; //Only for private team events when the getUsersEvents is called
   String? pendingRequest;
   // End of private event attributes
 
-  List<Team>?
-      enrolledTeams; //Only for public team events when the getUsersEvents is called
-  List<String>? involvedTeamsIds; //Only for public team events
+
   List<ScoreboardEntry>? scoreboard;
+
+
+  //Only for public team events
+  List<String>? involvedTeamsIds;
+  //Only for public team events when the getUsersEvents is called
+  List<Team>? enrolledTeams;
+  //Only for public team events when the getUsersEvents is called
+  List<TeamScoreboardEntry>? teamScoreboard;
 
   Event(
       this.id,
@@ -54,18 +65,23 @@ class Event {
       this.pendingRequest,
       this.involvedTeamsIds,
       this.enrolledTeams,
-      this.scoreboard);
+      this.scoreboard,
+      this.teamScoreboard);
 
   factory Event.fromJson(dynamic json) {
     List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
         .map<ScoreboardEntry>((e) => new ScoreboardEntry(e['userId'] as String,
-            e['teamId'] as String?, double.parse(e['points'].toString())))
+        e['teamId'] as String?, double.parse(e['points'].toString())))
         .toList();
+    scoreboard.sort((a,b)=>b.points.compareTo(a.points));
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
     List<String>? involvedTeamsIds;
     String? pendingRequest;
     if (type == 'team') {
+      /*teamScoreboard = (json['teamScoreboard'] as List<dynamic>?)?.map<TeamScoreboardEntry>(
+        (e) => new TeamScoreboardEntry(e['teamId'] as String, double.parse(e['points'].toString()))
+      ).toList();*/
       involvedTeamsIds = (json['involvedTeams'] as List<dynamic>?)?.map<String>((team) => team.toString()).toList();
       if (visibility == 'private') {
         pendingRequest = null;
@@ -91,14 +107,17 @@ class Event {
         pendingRequest,
         involvedTeamsIds,
         null,
-        scoreboard);
+        scoreboard,
+        null);
   }
 
   factory Event.fromJsonWithTeams(dynamic json) {
     List<ScoreboardEntry> scoreboard = (json['scoreboard'] as List<dynamic>)
         .map<ScoreboardEntry>((e) => new ScoreboardEntry(e['userId'] as String,
-            e['teamId'] as String?, double.parse(e['points'].toString())))
+        e['teamId'] as String?, double.parse(e['points'].toString())))
         .toList();
+    scoreboard.sort((a,b)=>b.points.compareTo(a.points));
+    List<TeamScoreboardEntry>? teamScoreboard;
     String type = json['type'] as String;
     String visibility = json['visibility'] as String;
     List<String>? involvedTeamsIds;
@@ -107,6 +126,10 @@ class Event {
     Team? guestTeam;
     String? pendingRequest;
     if (type == 'team') {
+      teamScoreboard = (json['teamScoreboard'] as List<dynamic>?)?.map<TeamScoreboardEntry>(
+              (e) => new TeamScoreboardEntry(e['teamId'] as String, double.parse(e['points'].toString()))
+      ).toList();
+      teamScoreboard?.sort((a,b)=>b.points.compareTo(a.points));
       enrolledTeams = (json['involvedTeams'] as List<dynamic>?)
           ?.map<Team>((team) => Team.fromJson(team))
           .toList();
@@ -139,7 +162,8 @@ class Event {
         pendingRequest,
         involvedTeamsIds,
         enrolledTeams,
-        scoreboard);
+        scoreboard,
+        teamScoreboard);
   }
 
   bool isPublic() {
@@ -160,27 +184,27 @@ class Event {
 
   bool isInviteAccepted() {
     return isPrivate() &&
-            isTeam() &&
-            guestTeam != null &&
-            pendingRequest == null
+        isTeam() &&
+        guestTeam != null &&
+        pendingRequest == null
         ? true
         : false;
   }
 
   bool isInvitePending() {
     return isPrivate() &&
-            isTeam() &&
-            guestTeam == null &&
-            pendingRequest != null
+        isTeam() &&
+        guestTeam == null &&
+        pendingRequest != null
         ? true
         : false;
   }
 
   bool isInviteRejected() {
     return isPrivate() &&
-            isTeam() &&
-            guestTeam == null &&
-            pendingRequest == null
+        isTeam() &&
+        guestTeam == null &&
+        pendingRequest == null
         ? true
         : false;
   }
@@ -191,6 +215,15 @@ class Event {
 
   String displayEndDate() {
     return DateFormat("yyyy-MM-dd HH:mm").format(endDate.toLocal());
+  }
+
+  Team? getTeamFromTSEntry(TeamScoreboardEntry tse) {
+    Team? toReturn;
+    enrolledTeams?.forEach((team) {
+      if (team.id == tse.teamId)
+        toReturn = team;
+    });
+    return toReturn;
   }
 
   @override
