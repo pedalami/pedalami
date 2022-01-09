@@ -426,6 +426,7 @@ class MongoDB {
         headers: _headers, body: json.encode({'userId': userId}));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body) as List?;
+      print(json);
       List<Event>? eventList = decodedBody
           ?.map<Event>((event) => Event.fromJsonWithTeams(event))
           .toList();
