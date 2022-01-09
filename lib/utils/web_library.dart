@@ -1,10 +1,9 @@
 export 'package:firebase_auth/firebase_auth.dart';
 export 'package:firebase_core/firebase_core.dart';
 export 'package:flutter/material.dart';
-export 'package:pedala_mi/routes/event_ranking.dart';
 export 'package:pedala_mi/routes/splashscreen_page.dart';
-export 'package:pedala_mi/routes/team_members.dart';
-export 'package:pedala_mi/routes/teams_page.dart';
+
+
 export 'package:pedala_mi/size_config.dart';
 export 'package:flutter/services.dart';
 export 'dart:async';
