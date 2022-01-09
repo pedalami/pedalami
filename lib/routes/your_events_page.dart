@@ -28,12 +28,12 @@ class _YourEventsPageState extends State<YourEventsPage> {
 
   @override
   void initState() {
+
     actualTeam=widget.activeTeam;
     loading = true;
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
-          active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id);
-          //active_events =LoggedUser.instance!.getEventsOfTeam(actualTeam!.id);
-          requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id);
+      active_events = await MongoDB.instance.getTeamActiveEvents(actualTeam!.id);
+      requested_events = await MongoDB.instance.getTeamEventRequests(actualTeam!.id);
           loading = false;
           setState(() {});
     });
