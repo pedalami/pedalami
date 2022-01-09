@@ -176,9 +176,7 @@ class _TeamProfileState extends State<TeamProfile> {
                                 content: Text(
                                   widget.team.name+" left successfully!",),
                               ));
-                              setState(() {
-
-                              });
+                              LoggedUser.instance!.notifyListeners();
                             }
                             else
                             {

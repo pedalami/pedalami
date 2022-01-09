@@ -54,6 +54,20 @@ class LoggedUser extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Event> getEventsOfTeam(String teamId) {
+    print("JOINEDD");
+    print(instance!.joinedEvents);
+    List<Event> toRet = [];
+    instance!.joinedEvents?.forEach((event) {
+      if (event.isTeam()){
+        if (event.involvedTeamsIds != null && event.involvedTeamsIds!.contains(teamId)) {
+          toRet.add(event);
+        }
+      }
+    });
+    return toRet;
+  }
+
   void changeProfileImage(String url) {
     instance!.image=NetworkImage(url);
     notifyListeners();

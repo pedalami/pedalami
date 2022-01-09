@@ -163,7 +163,9 @@ class _EventsPageState extends State<EventsPage> {
                   }):Column(
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height*.025,),
-                  Text("Never joined and event.", style: TextStyle(fontSize: 15,),),
+                  Text("Never joined and event.", style: TextStyle(fontSize: 15,
+                    color: Colors.black54,
+                  ),),
                 ],
               ),
             ],

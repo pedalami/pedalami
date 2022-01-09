@@ -9,6 +9,7 @@ class Team extends ChangeNotifier {
   String? description;
   List<String> membersId;
   Map<String, MongoUser>? members;
+  bool isLoading=false;
 
   Team(this.id, this.adminId, this.name, this.description, this.membersId, this.members);
 
