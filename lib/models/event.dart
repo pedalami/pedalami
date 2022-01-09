@@ -139,10 +139,11 @@ class Event {
           .toList();
       involvedTeamsIds = enrolledTeams?.map((e) => e.id).toList();
       if (visibility == 'private') {
-        hostTeam = Team.fromJson(json['hostTeam'][0]);
-        if (json['guestTeam'] != [] && json['guestTeam'] != null) {
+        hostTeam = Team.fromJson((json['hostTeam'] as List<dynamic>).first);
+        var guestTeamJson = (json['guestTeam'] as List<dynamic>?);
+        if (guestTeamJson != null && guestTeamJson.isNotEmpty) {
           // if the private team event has a guestTeam
-          guestTeam = Team.fromJson(json['guestTeam'][0]);
+          guestTeam = Team.fromJson(guestTeamJson.first);
         } else {
           // if there is no opponent team
           pendingRequest = involvedTeamsIds?.first;
