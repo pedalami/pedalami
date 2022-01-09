@@ -10,6 +10,7 @@ import 'package:pedala_mi/models/statistics.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/reward.dart';
+import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:tuple/tuple.dart';
 
 class MongoDB {
@@ -195,6 +196,32 @@ class MongoDB {
           "path": toRecord.path
               ?.map((e) => {"latitude": e.latitude, "longitude": e.longitude})
               .toList()
+        }));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      toRecord.pace = double.parse(decodedBody["pace"].toString());
+      toRecord.points = double.parse(decodedBody["points"].toString());
+      toRecord.rideId = decodedBody["id"];
+      return toRecord;
+    } else
+      return null;
+  }
+
+  Future<Ride?> recordRidePassingWeather(Ride toRecord, int weatherId) async {
+    var url = Uri.parse(baseUri + '/rides/record');
+    var response = await _serverClient.post(url,
+        headers: _headers,
+        body: json.encode({
+          "userId": toRecord.userId,
+          "name": toRecord.name,
+          "durationInSeconds": toRecord.durationInSeconds,
+          "totalKm": toRecord.totalKm,
+          "date": formatDate(toRecord.date),
+          "elevationGain": toRecord.elevationGain,
+          "path": toRecord.path
+              ?.map((e) => {"latitude": e.latitude, "longitude": e.longitude})
+              .toList(),
+          "weatherId": weatherId
         }));
     if (response.statusCode == 200) {
       var decodedBody = json.decode(response.body);

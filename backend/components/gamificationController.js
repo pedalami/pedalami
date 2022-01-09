@@ -2,9 +2,13 @@ const Badge = require('../schemas.js').Badge;
 const profileController = require("./profileController.js");
 
 
-async function assignPoints(user, ride, events) {
+async function assignPoints(user, ride, events, weatherId) {
     //Calculate points based on ride totalKm and elevationGain
-    var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10)); //add bonus if raining later on
+    var points = Math.round((ride.totalKm * 100) + (ride.elevationGain * 10));
+    //Add weather bonus if the ride is at least 1km
+    weatherBonus = getWeatherBonusPoints(weatherId);
+    console.log("Weather Bonus:" + weatherBonus);
+    points = points + ride.totalKm > 1; //add bonus if raining later on
     ride.points = points;
     console.log("Assigning " + points + " points to " + user.userId);
     var individual_counter = 0;
@@ -106,6 +110,37 @@ async function checkNewBadgesAfterRide(user, ride) {
                 user.badges.push(badge);
         }
     });
+}
+
+function getWeatherBonusPoints(weatherId) {
+    if(weatherId != null) {
+        //Thunderstorm
+        if (weatherId>=200 && weatherId<=232) {
+            return 10;
+        }
+        //Drizzle
+        if (weatherId>=300 && weatherId<=321) {
+            return 3;
+        }
+        //Rain
+        if (weatherId>=500 && weatherId<=531) {
+            return 5;
+        }
+        //Snow
+        if (weatherId>=600 && weatherId<=622) {
+            return 10;
+        }
+        //Atmosphere
+        if (weatherId>=701 && weatherId<=780) {
+            return 3;
+        }
+        //Tornado
+        if (weatherId==781) {
+            return 20;
+        }
+        else return 0;
+    }
+    else return 0;
 }
 
 function getBestPlayerIndividualEvent(event) {
