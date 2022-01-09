@@ -55,6 +55,7 @@ class LoggedUser extends ChangeNotifier {
   }
 
   List<Event> getEventsOfTeam(String teamId) {
+    print(instance!.joinedEvents);
     List<Event> toRet = [];
     instance!.joinedEvents?.forEach((event) {
       if (event.isTeam()){
