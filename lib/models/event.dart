@@ -42,12 +42,14 @@ class Event {
   List<ScoreboardEntry>? scoreboard;
 
 
-  //Only for public team events
+  //Start of public team events attributes
   List<String>? involvedTeamsIds;
   //Only for public team events when the getUsersEvents is called
   List<Team>? enrolledTeams;
   //Only for public team events when the getUsersEvents is called
   List<TeamScoreboardEntry>? teamScoreboard;
+  String? status;
+  // End of public team events attributes
 
   Event(
       this.id,
@@ -58,6 +60,7 @@ class Event {
       this._type,
       this._visibility,
       this.prize,
+      this.status,
       this.hostTeamId,
       this.guestTeamId,
       this.hostTeam,
@@ -100,6 +103,7 @@ class Event {
         type,
         visibility,
         double.tryParse(json['prize'].toString()),
+        json['status'] as String?,
         json['hostTeam'] as String?,
         json['guestTeam'] as String?,
         null,
@@ -155,6 +159,7 @@ class Event {
         type,
         visibility,
         double.tryParse(json['prize'].toString()),
+        json['status'] as String?,
         hostTeam?.id,
         guestTeam?.id,
         hostTeam,
@@ -180,6 +185,30 @@ class Event {
 
   bool isIndividual() {
     return _type == "individual";
+  }
+
+  bool isApproved() {
+    return isPublic() &&
+        isTeam() &&
+        status == "approved"
+        ? true
+        : false;
+  }
+
+  bool isPending() {
+    return isPublic() &&
+        isTeam() &&
+        status == "pending"
+        ? true
+        : false;
+  }
+
+  bool isRejected() {
+    return isPublic() &&
+        isTeam() &&
+        status == "rejected"
+        ? true
+        : false;
   }
 
   bool isInviteAccepted() {
