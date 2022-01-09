@@ -16,6 +16,9 @@ extension LocationDataExt on loc.LocationData {
   GeoPoint toGeoPoint() {
     return GeoPoint(latitude: this.latitude!, longitude: this.longitude!);
   }
+  Location toBGLocation() {
+    return Location(longitude: longitude, latitude: latitude, altitude: altitude, accuracy: accuracy, bearing: null, speed: speed, time: time, isMock: isMock);
+  }
 }
 
 extension LocationExt on Location {
@@ -55,10 +58,11 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
     if (isReady) {
       print("Map ready");
       if (_shouldInitialize) {
-        BackgroundLocation.startLocationService(distanceFilter: 5.0);
+        BackgroundLocation.startLocationService(distanceFilter: 0.5);
+        currentLocation = (await loc.Location.instance.getLocation()).toBGLocation();
+        controller.changeLocation(currentLocation!.toGeoPoint());
         BackgroundLocation.getLocationUpdates((location) async {
-          if (currentLocation != null)
-            controller.removeMarker(currentLocation!.toGeoPoint());
+          controller.removeMarker(currentLocation!.toGeoPoint());
           currentLocation = location;
           controller.changeLocation(location.toGeoPoint());
           if (_isRecording) {
@@ -257,18 +261,20 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                                               currentLocation!.longitude);
                                           path.add(currentLocation!.toGeoPoint());
                                           elevations.add(currentLocation!.altitude!);
+                                          _isRecording = true;
+                                          internalState(() {
+                                            _currentButtonColor = Colors.redAccent;
+                                            _currentButtonText = Text("Stop");
+                                            _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
+                                          });
+                                          setState(() {});
+                                        } else {
+                                          showAlertDialog(context, "Current location not available yet");
                                         }
-                                        _isRecording = true;
-                                        internalState(() {
-                                          _currentButtonColor = Colors.redAccent;
-                                          _currentButtonText = Text("Stop");
-                                          _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
-                                        });
-                                        setState(() {});
                                     } else {
                                       //BackgroundLocation.stopLocationService();
                                       if (path.length < 3) {
-                                        showAlertDialog(context);
+                                        showAlertDialog(context, "No movement detect since ride started\nNo ride will be saved");
                                       } else {
                                         Ride finishedRide = Ride(
                                             _miUser.userId,
@@ -387,36 +393,26 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   }
 
   showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide) {
-    //TODO: FIX THIS
-    //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
-
     pushNewScreen(context,
         screen: RideCompletePage(
           finishedRide: finishedRide,
         ));
   }
 
-  showAlertDialog(BuildContext context) {
+  showAlertDialog(BuildContext context, String text) {
     final snackBar = SnackBar(
-        elevation: 20.0,
+        elevation: 25.0,
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "No movement detect since ride started",
+              text,
+              textAlign: TextAlign.center,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-              ),
+              )
+              ,
             ),
-            SizedBox(
-              height: 10,
-            ),
-            Text(
-              "Unable to save the ride",
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-              ),
-            )
           ],
         ));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
@@ -425,7 +421,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   showCurrentAirQuality(double? latitude, double? longitude) async {
 
     if(latitude != null && longitude != null) {
-      print("AIR QUALITY: LAT & LONG" + latitude.toString() + "   " +
+      print("AIR QUALITY: LAT & LONG " + latitude.toString() + "   " +
           longitude.toString());
       AirQuality instance = AirQuality.instance;
       int airQualityResultInt = await instance.getAirQualityIndexFromCoords(
