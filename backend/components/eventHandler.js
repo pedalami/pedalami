@@ -376,6 +376,8 @@ app.post('/join', (req, res) => {
         ]);
         if (!user || !event)
             throw new Error('User or event not found!');
+        if (user.joinedEvents.includes(eventId))
+            throw new Error('User already joined the event!');
         if (event.type === 'team') {
             if (!teamId)
                 throw new Error('Missing teamId');

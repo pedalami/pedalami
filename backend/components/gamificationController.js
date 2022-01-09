@@ -11,12 +11,19 @@ async function assignPoints(user, ride, events) {
 
     var team_counter = 0;
     events.forEach(event => {
+        //console.log("Event: " + event.name);
+        //console.log("Event type: " + event.type);
+        //console.log("Event visibility: " + event.visibility);
+        //console.log(new Date());
         if (ride.date <= event.endDate && ride.date >= event.startDate) {
             if (event.type === "individual" && event.visibility === "public") {
                 individual_counter++;
             } else if (event.type === "team") {
-                if ((event.visibility === "private" && event.guestTeam != null) || (event.visibility === "public" && event.involvedTeams.size >= 2))
+                //console.log("Team event" + (event.visibility === "public") + " involved team size: " + event.involvedTeams.length);
+                if ((event.visibility === "private" && event.guestTeam != null) || (event.visibility === "public" && event.involvedTeams.length >= 2)){
+                    console.log("Team event QUI");
                     team_counter++;
+                }
             }
         }
     });
@@ -37,19 +44,49 @@ async function assignPoints(user, ride, events) {
     }
 
     if (team_counter > 0) {
+        //console.log("Team counter:" + team_counter);
         points = points / (team_counter + 1);
         events.forEach(event => {
+            //console.log("For each" + event.name);
             if (event.type === "team" && ride.date <= event.endDate && ride.date >= event.startDate) {
-                if ((event.visibility === "private" && event.guestTeam != null) || (event.visibility === "public" && event.involvedTeams.size >= 2)) {
-                    var found = false;
+                if ((event.visibility === "private" && event.guestTeam != null) || (event.visibility === "public" && event.involvedTeams.length >= 2)) {
+                    var foundUser = false;
+                    var foundTeam = false;
+                    var userTeamId;
+                    console.log("Ho trovato l'evento " + event.name + "che è di tipo " + event.type + " e di visibilità " + event.visibility);
                     event.scoreboard.some(function (score) {
                         if (score.userId === user.userId) {
-                            console.log(score);
+                            console.log("Ho trovato l'utente con score " + score.userId);
+                            //console.log(score);
+                            userTeamId = score.teamId;
                             score.points += points;
-                            found = true;
+                            foundUser = true;
                         }
-                        return found;
+                        return foundUser;
                     });
+                    if (event.teamScoreboard != null && event.teamScoreboard.length > 0) {
+                        event.teamScoreboard.some(function (teamScore) {
+                            //console.log("Ho trovato la squadra con id " + teamScore.teamId);
+                            //console.log("userTeamId: " + userTeamId);
+                            //console.log(teamScore.teamId === userTeamId);
+                            //console.log(teamScore.teamId.equals(userTeamId));
+                            if (teamScore.teamId.equals(userTeamId)) {
+                                console.log("Assining " + points + "points to team " + userTeamId + " for event " + event.name + " ride " + ride.rideId + " user " + user.userId);
+                                teamScore.points += points;
+                                foundTeam = true;
+                            }
+                            return foundTeam;
+                        });
+                        if (!foundTeam) {
+                            event.teamScoreboard.push({ "teamId": userTeamId, "points": points });
+                            console.log("Adding new score: assigning "  + points + " points to team " + userTeamId + " for event " + event.name + " ride " + ride.rideId + " user " + user.userId);
+                        }
+                        
+                    } else {
+                        event.teamScoreboard = [];
+                        event.teamScoreboard.push({ "teamId": userTeamId, "points": points });
+                        console.log("Creating new score: assigning " + points + " points to team " + userTeamId + " for event " + event.name + " ride " + ride.rideId + " user " + user.userId);
+                    }
                 }
 
             }
@@ -122,7 +159,7 @@ function assignPrizeTeamEvent(user, event) {
         });
         if (winningTeam.points > 0) {
             var userScoreboard = event.scoreboard.filter(score => {
-                return score.userId === user.userId && score.teamId === winningTeam.teamId;
+                return score.userId === user.userId && score.teamId.equals(winningTeam.teamId);
             })
             if (userScoreboard.length != null) {
                 if (userScoreboard.length >= 1)
