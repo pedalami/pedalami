@@ -376,86 +376,89 @@ class _ProfilePageState extends State<ProfilePage> {
                 color: Colors.black26.withOpacity(0.1),
               ),
             ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Total Rides",
-                          LoggedUser.instance!.statistics!.numberOfRides
-                              .toString(),
-                          ''),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                          "Total Distance",
-                          LoggedUser.instance!.statistics!.totalKm
-                              .toStringAsFixed(2),
-                          ' km'),
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Total Ride Duration",
-                          timeDuration(
-                              LoggedUser.instance!.statistics!.totalDuration),
-                          ''),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                        "Total Elevation Gain",
-                        meterDistance(LoggedUser
-                            .instance!.statistics!.totalElevationGain),
-                        '',
+            child: Transform.translate(
+              offset: const Offset(-8,0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Total Rides",
+                            LoggedUser.instance!.statistics!.numberOfRides
+                                .toString(),
+                            ''),
                       ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Average Speed",
-                          LoggedUser.instance!.statistics!.averageSpeed
-                              .toStringAsFixed(2),
-                          " km/h"),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                          "Average Distance",
-                          LoggedUser.instance!.statistics!.averageKm
-                              .toStringAsFixed(2),
-                          " km"),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Average Duration",
-                          timeDuration(
-                              LoggedUser.instance!.statistics!.averageDuration),
-                          ''),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                          "Average Elevation Gain",
+                      Expanded(
+                        child: singleStat(
+                            "Total Distance",
+                            LoggedUser.instance!.statistics!.totalKm
+                                .toStringAsFixed(2),
+                            ' km'),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Total Ride Duration",
+                            timeDuration(
+                                LoggedUser.instance!.statistics!.totalDuration),
+                            ''),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                          "Total Elevation Gain",
                           meterDistance(LoggedUser
-                              .instance!.statistics!.averageElevationGain),
-                          ''),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: 1//MediaQuery.of(context).size.height / 18,
-                )
-              ],
+                              .instance!.statistics!.totalElevationGain),
+                          '',
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Average Speed",
+                            LoggedUser.instance!.statistics!.averageSpeed
+                                .toStringAsFixed(2),
+                            " km/h"),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                            "Average Distance",
+                            LoggedUser.instance!.statistics!.averageKm
+                                .toStringAsFixed(2),
+                            " km"),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Average Duration",
+                            timeDuration(
+                                LoggedUser.instance!.statistics!.averageDuration),
+                            ''),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                            "Average Elevation Gain",
+                            meterDistance(LoggedUser
+                                .instance!.statistics!.averageElevationGain),
+                            ''),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: 5//MediaQuery.of(context).size.height / 18,
+                  )
+                ],
+              ),
             ),
           ),
         ),
