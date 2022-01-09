@@ -1,12 +1,4 @@
-import 'dart:async';
-import 'dart:io';
-import 'dart:math';
-
 import 'package:background_location/background_location.dart';
-import 'package:cloud_firestore/cloud_firestore.dart' as firestore;
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:pedala_mi/models/ride.dart';
@@ -19,6 +11,18 @@ import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:location/location.dart' as loc;
 import 'package:pedala_mi/widget/custom_alert_dialog.dart';
 import 'package:pedala_mi/services/external_api_service.dart';
+
+extension LocationDataExt on loc.LocationData {
+  GeoPoint toGeoPoint() {
+    return GeoPoint(latitude: this.latitude!, longitude: this.longitude!);
+  }
+}
+
+extension LocationExt on Location {
+  GeoPoint toGeoPoint() {
+    return GeoPoint(latitude: this.latitude!, longitude: this.longitude!);
+  }
+}
 
 class RideData {
   double? duration;
@@ -38,7 +42,6 @@ class RideData {
     this.date = date;
   }
 }
-
 
 class MapPage extends StatefulWidget {
   MapPage({Key? key}) : super(key: key);
@@ -63,6 +66,8 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   AppLifecycleState _currentState = AppLifecycleState.resumed;
   List<double> elevations = [];
   OSMFlutter? map;
+  Location? currentLocation;
+
 
   @override
   Future<void> mapIsReady(bool isReady) async {
@@ -70,8 +75,34 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
       print("Ready");
       if (_shouldInitialize) {
         print("initialize");
-        await controller.currentLocation();
-        await controller.enableTracking();
+        BackgroundLocation.startLocationService(distanceFilter: 0.0);
+        BackgroundLocation.getLocationUpdates((location) async {
+          if (currentLocation != null)
+            controller.removeMarker(currentLocation!.toGeoPoint());
+          currentLocation = location;
+          controller.changeLocation(location.toGeoPoint());
+          if (_isRecording) {
+            controller.removeMarker(path.last);
+            parseLocation(location);
+            controller.addMarker(path.last,
+                markerIcon: MarkerIcon(
+                    image: AssetImage('lib/assets/map_marker.png')
+                ));
+            if (path.length > 2) {
+              controller.removeLastRoad();
+              _roadInfo = await controller.drawRoad(
+                  path.first, path.last,
+                  intersectPoint:
+                  path.sublist(1, path.length - 1),
+                  roadType: RoadType.bike,
+                  roadOption: RoadOption(
+                    roadWidth: 10,
+                    roadColor: Colors.green,
+                  ));
+            }
+          }
+          setState(() {});
+        });
         setState(() {
           _shouldInitialize = false;
         });
@@ -89,14 +120,6 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
-    print(state);
-    //controller.currentLocation();
-    /*if (state == AppLifecycleState.inactive && !_isRecording) {
-      await controller.disabledTracking();
-    }
-    if (state == AppLifecycleState.resumed) {
-      await controller.enableTracking();
-    }*/
     setState(() {
       _currentState = state;
     });
@@ -117,7 +140,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
       if (_isRecording) {
         path.add(GeoPoint(latitude: location.latitude!, longitude: location.longitude!));
         double newAltitude = location.altitude!;
-        if (newAltitude < elevations.last) {
+        if (newAltitude > elevations.last) {
           totalElevation = (totalElevation + (newAltitude - elevations.last));
           elevations.add(newAltitude);
         }
@@ -132,11 +155,11 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
     controller.addObserver(this);
     WidgetsBinding.instance?.addObserver(this);
     getLocationPermission();
-    print("1");
   }
 
   @override
   void dispose() {
+    BackgroundLocation.stopLocationService();
     controller.dispose();
     WidgetsBinding.instance?.removeObserver(this);
     super.dispose();
@@ -148,7 +171,6 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
     if (map == null) {
       map = OSMFlutter(
         controller: controller,
-        //onMapIsReady: mapIsReady,
         mapIsLoading: Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -212,9 +234,9 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
         markerOption: MarkerOption(
           defaultMarker: MarkerIcon(
             icon: Icon(
-              Icons.home,
-              color: Colors.orange,
-              size: 64,
+              Icons.location_history_rounded,
+              color: Colors.red,
+              size: 80,
             ),
           ),
           advancedPickerMarker: MarkerIcon(
@@ -244,40 +266,22 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                           builder: (context, internalState) {
                             return ElevatedButton.icon(
                               onPressed: () async {
-                                await controller.currentLocation();
-                                await controller.enableTracking();
-                                var myLocation = await controller.myLocation();
                                 if (_isRecording == false) {
-                                    showCurrentAirQuality(myLocation.latitude, myLocation.longitude);
-                                    path.add(GeoPoint(latitude: myLocation.latitude, longitude: myLocation.longitude));
-                                    elevations.add(0);
+                                    if (currentLocation != null) {
+                                      print("not null");
+                                      showCurrentAirQuality(
+                                          currentLocation!.latitude,
+                                          currentLocation!.longitude);
+                                      path.add(currentLocation!.toGeoPoint());
+                                      elevations.add(currentLocation!.altitude!);
+                                    }
                                     _isRecording = true;
-                                    BackgroundLocation.startLocationService(distanceFilter: 2);
-                                    BackgroundLocation.getLocationUpdates((location) async {
-                                        controller.removeMarker(path.last);
-                                        parseLocation(location);
-                                        controller.addMarker(path.last,
-                                            markerIcon: MarkerIcon(
-                                                image: AssetImage('lib/assets/map_marker.png')
-                                            ));
-                                        if (path.length > 2) {
-                                          controller.removeLastRoad();
-                                          _roadInfo = await controller.drawRoad(
-                                              path.first, path.last,
-                                              intersectPoint:
-                                              path.sublist(1, path.length - 1),
-                                              roadType: RoadType.bike,
-                                              roadOption: RoadOption(
-                                                roadWidth: 10,
-                                                roadColor: Colors.green,
-                                              ));
-                                        }
-                                      });
                                     internalState(() {
                                       _currentButtonColor = Colors.redAccent;
                                       _currentButtonText = Text("Stop");
                                       _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
                                     });
+                                    setState(() { });
                                 } else {
                                   BackgroundLocation.stopLocationService();
                                   if (path.length < 3) {
@@ -309,6 +313,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                                     _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
                                   });
                                   setState(() {
+                                    controller.removeLastRoad();
                                     path.clear();
                                     _isRecording = false;
                                   });
