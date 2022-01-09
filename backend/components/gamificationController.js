@@ -8,7 +8,7 @@ async function assignPoints(user, ride, events, weatherId) {
     //Add weather bonus if the ride is at least 1km
     weatherBonus = getWeatherBonusPoints(weatherId);
     console.log("Weather Bonus:" + weatherBonus);
-    points = points + ride.totalKm > 1; //add bonus if raining later on
+    points = points + (ride.totalKm > 1 ? weatherBonus : 0); //add bonus if at least 1km rode
     ride.points = points;
     console.log("Assigning " + points + " points to " + user.userId);
     var individual_counter = 0;
