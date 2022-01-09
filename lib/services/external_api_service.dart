@@ -21,6 +21,8 @@ class AirQuality {
   };
 
   //Given a set of coordinates, it returns and AirQuality index for the area
+  // 1 for good, 2 for poor, 3 for moderate, 4 for poor, 5 for very poor
+  // -1 in case of error
   Future<int> getAirQualityIndexFromCoords(double latitude, double longitude) async {
     var url = Uri.parse(baseUri + '/forecast')
         .replace(queryParameters: {'lat': latitude.toString(), 'lon': longitude.toString(), 'appid': 'f01bcf9b8d8f2aedde4fa855cbcdd02b'});
