@@ -146,7 +146,8 @@ class Event {
           guestTeam = Team.fromJson(guestTeamJson.first);
         } else {
           // if there is no opponent team
-          pendingRequest = involvedTeamsIds?.first;
+          if (involvedTeamsIds != null && involvedTeamsIds.isNotEmpty)
+            pendingRequest = involvedTeamsIds.first;
         }
       }
     }
