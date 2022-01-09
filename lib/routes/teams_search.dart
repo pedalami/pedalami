@@ -23,6 +23,7 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
   List<Team>? foundTeams;
   late bool hasSearched, loading;
   final teamSearchController = TextEditingController();
+  bool loadingTeamDetails=false;
 
   @override
   void initState() {
@@ -248,57 +249,62 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemBuilder: (BuildContext context, int index) {
+          Team selectedTeam = LoggedUser.instance!.teams![index];
           return GestureDetector(
-            child: Stack(
+            child: Column(
               children: [
-                GestureDetector(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                     children: [
-                       ClipRRect(
-                       borderRadius: BorderRadius.circular(70),
-                       child: Image(
-                        image: AssetImage('lib/assets/app_icon.png'),
-                        height: 16 * SizeConfig.heightMultiplier!,
-                        width: 32 * SizeConfig.widthMultiplier!,
-                      ),
-                    ),],
-                  ),
-                  onTap: () async {
-                    Team selectedTeam = LoggedUser.instance!.teams![index];
-                    if (selectedTeam.members == null) {
-                      print("Getting team data");
-                      selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
-                      LoggedUser.instance!.teams![index] = selectedTeam;
-                    }
-                    print("Showing team details");
-                    pushNewScreen(
-                      context,
-                      screen: TeamProfile(team: selectedTeam),
-                      pageTransitionAnimation:
-                          PageTransitionAnimation.cupertino,
-                    );
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                     Container(
+                       height: 16 * SizeConfig.heightMultiplier!,
+                       width: 32 * SizeConfig.widthMultiplier!,
+                       child: AnimatedSwitcher(duration: Duration(milliseconds: 250),
+                        child: selectedTeam.isLoading?CircularProgressIndicator():ClipRRect(
+                         borderRadius: BorderRadius.circular(70),
+                         child: Image(
+                           image: AssetImage('lib/assets/app_icon.png'),
+                         ),
+                       )
+                           ,),
+                     )
+                     ,],
                 ),
-                Positioned.fill(
-                    child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(
-                          LoggedUser.instance!.teams![index].name,
-                          style: TextStyle(
-                              fontSize: 2 * SizeConfig.textMultiplier!,
-                              fontWeight: FontWeight.bold),
-                        )))
+                Text(
+                  LoggedUser.instance!.teams![index].name,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                      fontSize: 2 * SizeConfig.textMultiplier!,
+                      fontWeight: FontWeight.bold),
+                )
               ],
             ),
-            onTap: () {
-              pushNewScreen(
-                context,
-                screen: TeamProfile(
-                  team: LoggedUser.instance!.teams![index],
-                ),
-                pageTransitionAnimation: PageTransitionAnimation.cupertino,
-              );
+            onTap: () async {
+              if(!loadingTeamDetails)
+              {
+                if (selectedTeam.members == null) {
+                  selectedTeam.isLoading=true;
+                  loadingTeamDetails=true;
+                  setState(() {
+
+                  });
+                  print("Getting team data");
+                  selectedTeam = (await MongoDB.instance.getTeam(selectedTeam.id))!;
+                  LoggedUser.instance!.teams![index] = selectedTeam;
+                  selectedTeam.isLoading=false;
+                  loadingTeamDetails=false;
+                  setState(() {
+
+                  });
+                }
+                print("Showing team details");
+                pushNewScreen(
+                  context,
+                  screen: TeamProfile(team: selectedTeam),
+                  pageTransitionAnimation:
+                  PageTransitionAnimation.cupertino,
+                );
+              }
             },
           );
         });
