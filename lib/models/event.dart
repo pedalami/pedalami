@@ -42,12 +42,14 @@ class Event {
   List<ScoreboardEntry>? scoreboard;
 
 
-  //Only for public team events
+  //Start of public team events attributes
   List<String>? involvedTeamsIds;
   //Only for public team events when the getUsersEvents is called
   List<Team>? enrolledTeams;
   //Only for public team events when the getUsersEvents is called
   List<TeamScoreboardEntry>? teamScoreboard;
+  String? status;
+  // End of public team events attributes
 
   Event(
       this.id,
@@ -58,6 +60,7 @@ class Event {
       this._type,
       this._visibility,
       this.prize,
+      this.status,
       this.hostTeamId,
       this.guestTeamId,
       this.hostTeam,
@@ -100,6 +103,7 @@ class Event {
         type,
         visibility,
         double.tryParse(json['prize'].toString()),
+        json['status'] as String?,
         json['hostTeam'] as String?,
         json['guestTeam'] as String?,
         null,
@@ -135,13 +139,15 @@ class Event {
           .toList();
       involvedTeamsIds = enrolledTeams?.map((e) => e.id).toList();
       if (visibility == 'private') {
-        hostTeam = Team.fromJson(json['hostTeam'][0]);
-        if (json['guestTeam'] != [] && json['guestTeam'] != null) {
+        hostTeam = Team.fromJson((json['hostTeam'] as List<dynamic>).first);
+        var guestTeamJson = (json['guestTeam'] as List<dynamic>?);
+        if (guestTeamJson != null && guestTeamJson.isNotEmpty) {
           // if the private team event has a guestTeam
-          guestTeam = Team.fromJson(json['guestTeam'][0]);
+          guestTeam = Team.fromJson(guestTeamJson.first);
         } else {
           // if there is no opponent team
-          pendingRequest = involvedTeamsIds?.first;
+          if (involvedTeamsIds != null && involvedTeamsIds.isNotEmpty)
+            pendingRequest = involvedTeamsIds.first;
         }
       }
     }
@@ -155,6 +161,7 @@ class Event {
         type,
         visibility,
         double.tryParse(json['prize'].toString()),
+        json['status'] as String?,
         hostTeam?.id,
         guestTeam?.id,
         hostTeam,
@@ -180,6 +187,30 @@ class Event {
 
   bool isIndividual() {
     return _type == "individual";
+  }
+
+  bool isApproved() {
+    return isPublic() &&
+        isTeam() &&
+        status == "approved"
+        ? true
+        : false;
+  }
+
+  bool isPending() {
+    return isPublic() &&
+        isTeam() &&
+        status == "pending"
+        ? true
+        : false;
+  }
+
+  bool isRejected() {
+    return isPublic() &&
+        isTeam() &&
+        status == "rejected"
+        ? true
+        : false;
   }
 
   bool isInviteAccepted() {
