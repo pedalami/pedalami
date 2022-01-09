@@ -53,10 +53,9 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
   @override
   Future<void> mapIsReady(bool isReady) async {
     if (isReady) {
-      print("Ready");
+      print("Map ready");
       if (_shouldInitialize) {
-        print("initialize");
-        BackgroundLocation.startLocationService(distanceFilter: 0.0);
+        BackgroundLocation.startLocationService(distanceFilter: 5.0);
         BackgroundLocation.getLocationUpdates((location) async {
           if (currentLocation != null)
             controller.removeMarker(currentLocation!.toGeoPoint());
@@ -82,7 +81,7 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
                   ));
             }
           }
-          setState(() {});
+          // setState(() {});
         });
         setState(() {
           _shouldInitialize = false;
@@ -93,10 +92,6 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
     }
   }
 
-  @override
-  Future<void> mapRestored() async {
-    super.mapRestored();
-  }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -243,145 +238,146 @@ class _MapPageState extends State<MapPage> with OSMMixinObserver, WidgetsBinding
               children: [
                 map!,
                 Positioned(
-                    bottom: size.height / 8,
+                    bottom: size.height / 13,
                     width: size.width / 1,
                     child: Align(
                         alignment: Alignment.bottomCenter,
                         child: StatefulBuilder(
                           builder: (context, internalState) {
-                            return ElevatedButton.icon(
-                              onPressed: () async {
-                                if (_isRecording == false) {
-                                    if (currentLocation != null) {
-                                      print("not null");
-                                      showCurrentAirQuality(
-                                          currentLocation!.latitude,
-                                          currentLocation!.longitude);
-                                      path.add(currentLocation!.toGeoPoint());
-                                      elevations.add(currentLocation!.altitude!);
+                            return Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Spacer(),
+                                ElevatedButton.icon(
+                                  onPressed: () async {
+                                    if (_isRecording == false) {
+                                        if (currentLocation != null) {
+                                          showCurrentAirQuality(
+                                              currentLocation!.latitude,
+                                              currentLocation!.longitude);
+                                          path.add(currentLocation!.toGeoPoint());
+                                          elevations.add(currentLocation!.altitude!);
+                                        }
+                                        _isRecording = true;
+                                        internalState(() {
+                                          _currentButtonColor = Colors.redAccent;
+                                          _currentButtonText = Text("Stop");
+                                          _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
+                                        });
+                                        setState(() {});
+                                    } else {
+                                      //BackgroundLocation.stopLocationService();
+                                      if (path.length < 3) {
+                                        showAlertDialog(context);
+                                      } else {
+                                        Ride finishedRide = Ride(
+                                            _miUser.userId,
+                                            _miUser.username,
+                                            null,
+                                            _roadInfo!.duration,
+                                            _roadInfo!.distance,
+                                            null,
+                                            DateTime.now(),
+                                            totalElevation,
+                                            null,
+                                            path);
+                                        Ride? response = await MongoDB.instance.recordRide(finishedRide);
+                                        if (response != null) {
+                                          showRideCompleteDialog(
+                                              context, size, response);
+                                        }
+                                      }
+                                      path.forEach((element) {
+                                        controller.removeMarker(element);
+                                      });
+                                      internalState(() {
+                                        _currentButtonText = Text("Start");
+                                        _currentButtonColor = Colors.green[400]!;
+                                        _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
+                                      });
+                                      setState(() {
+                                        controller.removeLastRoad();
+                                        controller.removeAllShapes();
+                                        path.clear();
+                                        _isRecording = false;
+                                      });
                                     }
-                                    _isRecording = true;
-                                    internalState(() {
-                                      _currentButtonColor = Colors.redAccent;
-                                      _currentButtonText = Text("Stop");
-                                      _currentButtonIcon = FaIcon(FontAwesomeIcons.pause);
-                                    });
-                                    setState(() { });
-                                } else {
-                                  BackgroundLocation.stopLocationService();
-                                  if (path.length < 3) {
-                                    showAlertDialog(context);
-                                  } else {
-                                    Ride finishedRide = Ride(
-                                        _miUser.userId,
-                                        _miUser.username,
-                                        null,
-                                        _roadInfo!.duration,
-                                        _roadInfo!.distance,
-                                        null,
-                                        DateTime.now(),
-                                        totalElevation,
-                                        null,
-                                        path);
-                                    Ride? response = await MongoDB.instance.recordRide(finishedRide);
-                                    if (response != null) {
-                                      showRideCompleteDialog(
-                                          context, size, response);
-                                    }
-                                  }
-                                  path.forEach((element) {
-                                    controller.removeMarker(element);
-                                  });
-                                  internalState(() {
-                                    _currentButtonText = Text("Start");
-                                    _currentButtonColor = Colors.green[400]!;
-                                    _currentButtonIcon = FaIcon(FontAwesomeIcons.play);
-                                  });
-                                  setState(() {
-                                    controller.removeLastRoad();
-                                    path.clear();
-                                    _isRecording = false;
-                                  });
-                                }
-                              },
-                              label: _currentButtonText,
-                              icon: _currentButtonIcon,
-                              style: ButtonStyle(
-                                  fixedSize: MaterialStateProperty.all(
-                                      Size(size.width / 2, size.height / 15)),
-                                  backgroundColor: MaterialStateProperty.all(
-                                      _currentButtonColor),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
-                                  ))),
+                                  },
+                                  label: _currentButtonText,
+                                  icon: _currentButtonIcon,
+                                  style: ButtonStyle(
+                                      fixedSize: MaterialStateProperty.all(
+                                          Size(size.width / 2.5, size.height / 15)),
+                                      backgroundColor: MaterialStateProperty.all(
+                                          _currentButtonColor),
+                                      shape: MaterialStateProperty.all(
+                                          RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(25.0),
+                                      ))
+                                  ),
+                              ),
+                                Spacer(),
+                                //SizedBox(width: size.width/5),
+                                ElevatedButton.icon(
+                                    style: ButtonStyle(
+                                        fixedSize: MaterialStateProperty.all(
+                                            Size(size.width / 2.5, size.height / 15)),
+                                        backgroundColor:
+                                        MaterialStateProperty.all(Colors.amber),
+                                        shape: MaterialStateProperty.all(
+                                            RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(25.0),
+                                            ))),
+                                    onPressed: () async {
+                                      var fakePath = [
+                                        GeoPoint(
+                                            latitude: 45.47706577107621,
+                                            longitude: 9.225647327123237),
+                                        GeoPoint(
+                                            latitude: 45.47911197529172,
+                                            longitude: 9.22567362278855)
+                                      ];
+                                      var road = await controller.drawRoad(
+                                          fakePath[0], fakePath[1],
+                                          roadType: RoadType.bike,
+                                          roadOption: RoadOption(
+                                            roadWidth: 10,
+                                            roadColor: Colors.green,
+                                          ));
+
+                                      Ride finishedRide = Ride(
+                                          _miUser.userId,
+                                          _miUser.username,
+                                          null,
+                                          road.duration,
+                                          road.distance,
+                                          null,
+                                          DateTime.now(),
+                                          totalElevation,
+                                          null,
+                                          fakePath
+                                      );
+
+                                      Ride? response = await MongoDB.instance
+                                          .recordRide(finishedRide);
+
+                                      if (response != null) {
+                                        if (_miUser.rideHistory == null) {
+                                          _miUser.rideHistory =
+                                              List.empty(growable: true);
+                                        }
+                                        _miUser.rideHistory!.add(response);
+                                        //MongoDB.instance.initUser(_miUser.userId);
+                                        showRideCompleteDialog(context, size, response);
+                                      }
+                                    },
+                                    icon: FaIcon(FontAwesomeIcons.bicycle),
+                                    label: Text("Demo")),
+                                Spacer()
+                              ]
                             );
                           },
                         ))),
-                //DEMO BUTTON
-                Positioned(
-                    bottom: size.height / 4,
-                    width: size.width / 0.6,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: StatefulBuilder(builder: (context, internalState) {
-                        return ElevatedButton.icon(
-                            style: ButtonStyle(
-                                fixedSize: MaterialStateProperty.all(
-                                    Size(size.width / 3, size.height / 15)),
-                                backgroundColor:
-                                    MaterialStateProperty.all(Colors.amber),
-                                shape: MaterialStateProperty.all(
-                                    RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                            ))),
-                            onPressed: () async {
-                              var fakePath = [
-                                GeoPoint(
-                                  latitude: 45.47706577107621,
-                                  longitude: 9.225647327123237),
-                                GeoPoint(
-                                    latitude: 45.47911197529172,
-                                    longitude: 9.22567362278855)
-                              ];
-                              var road = await controller.drawRoad(
-                                  fakePath[0], fakePath[1],
-                                  roadType: RoadType.bike,
-                                  roadOption: RoadOption(
-                                    roadWidth: 10,
-                                    roadColor: Colors.green,
-                              ));
-
-                              Ride finishedRide = Ride(
-                                  _miUser.userId,
-                                  _miUser.username,
-                                  null,
-                                  road.duration,
-                                  road.distance,
-                                  null,
-                                  DateTime.now(),
-                                  totalElevation,
-                                  null,
-                                  fakePath
-                              );
-
-                              Ride? response = await MongoDB.instance
-                                  .recordRide(finishedRide);
-
-                              if (response != null) {
-                                if (_miUser.rideHistory == null) {
-                                  _miUser.rideHistory =
-                                      List.empty(growable: true);
-                                }
-                                _miUser.rideHistory!.add(response);
-                                //MongoDB.instance.initUser(_miUser.userId);
-                                showRideCompleteDialog(context, size, response);
-                              }
-                            },
-                            icon: FaIcon(FontAwesomeIcons.bicycle),
-                            label: Text("Demo"));
-                      }),
-                    ))
               ],
             ),
           );
