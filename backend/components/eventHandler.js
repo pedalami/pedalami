@@ -793,7 +793,7 @@ app.post("/getEvent", async (req, res) => {
     }
 });
 
-app.post("/getEventTeams", async (req, res) => {
+app.post("/getEventWithTeams", async (req, res) => {
         console.log('Received getUsersEvents POST request');
         console.log(req.body);
         var eventId = req.body.eventId;
