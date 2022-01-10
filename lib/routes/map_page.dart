@@ -216,7 +216,7 @@ class _MapPageState extends State<MapPage>
           startIcon: MarkerIcon(
             icon: Icon(
               Icons.person,
-              size: 64,
+              size: 80,
               color: Colors.brown,
             ),
           ),
@@ -303,12 +303,11 @@ class _MapPageState extends State<MapPage>
                                                     totalElevation,
                                                     null,
                                                     path);
-                                                Ride? response = await MongoDB
-                                                    .instance
-                                                    .recordRide(finishedRide);
-                                                if (response != null) {
+                                                var response = await MongoDB.instance
+                                                    .recordRidePassingWeather(finishedRide, await getWeatherId(currentLocation?.latitude!, currentLocation?.longitude));
+                                                if (response != null && response.item1 != null) {
                                                   showRideCompleteDialog(
-                                                      context, size, response);
+                                                      context, size, response.item1!, response.item2);
                                                 }
                                               }
                                               path.forEach((element) {
@@ -396,22 +395,18 @@ class _MapPageState extends State<MapPage>
                                                   null,
                                                   fakePath);
 
-                                              Ride? response = await MongoDB
-                                                  .instance
-                                                  .recordRide(finishedRide);
+                                              var response = await MongoDB.instance
+                                                  .recordRidePassingWeather(finishedRide, await getWeatherId(45.47706577107621, 9.225647327123237));
 
-                                              if (response != null) {
-                                                if (_miUser.rideHistory ==
-                                                    null) {
+                                              if (response != null && response.item1 != null) {
+                                                if (_miUser.rideHistory == null) {
                                                   _miUser.rideHistory =
-                                                      List.empty(
-                                                          growable: true);
+                                                      List.empty(growable: true);
                                                 }
-                                                _miUser.rideHistory!
-                                                    .add(response);
-                                                //MongoDB.instance.initUser(_miUser.userId);
-                                                showRideCompleteDialog(
-                                                    context, size, response);
+                                                _miUser.rideHistory!.add(response.item1!);
+                                                MongoDB.instance.initUser(_miUser.userId);
+                                                //_miUser.notifyListeners();
+                                                showRideCompleteDialog(context, size, response.item1!, response.item2);
                                               }
                                             },
                                             icon: FaIcon(
