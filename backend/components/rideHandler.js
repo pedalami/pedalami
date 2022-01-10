@@ -21,7 +21,7 @@ app.post("/record", async (req, res) => {
       ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) * 100) / 100;
       const user = await User.findOne({ userId: req.body.userId }).session(session).exec();
       console.log("TEST1!");
-      console.log(user, ride, events, req.body.weatherId);
+      console.log(user, ride, req.body.weatherId);
       if (user) {
         var events = await profileController.getActiveEvents(user);
         await gamificationController.assignPoints(user, ride, events, req.body.weatherId);

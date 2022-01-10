@@ -454,7 +454,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                               ]);
 
                               Ride? response = await MongoDB.instance
-                                  .recordRide(finishedRide);
+                                  .recordRidePassingWeather(finishedRide, await getWeatherId(_locationData.latitude, _locationData.longitude));
 
                               if (response != null) {
                                 if (_miUser.rideHistory == null) {
