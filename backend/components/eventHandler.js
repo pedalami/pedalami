@@ -391,7 +391,15 @@ app.post('/join', (req, res) => {
         } else {
             throw new Error('Unknown event type');
         }
-        event.scoreboard.push(scoreboardEntry);
+
+        var found = false;
+        event.scoreboard.some(function (score) {
+            found = score.userId === userId;
+            return found;
+        });
+
+        if (!found)
+            event.scoreboard.push(scoreboardEntry);
         if (!user.joinedEvents)
             user.joinedEvents = [];
         user.joinedEvents.push(event._id);
