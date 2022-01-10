@@ -374,6 +374,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                           context, size, response.item1!, response.item2);
                                     }
                                   }
+                                  controller.removeLastRoad();
                                   path.forEach((element) {
                                     controller.removeMarker(element);
                                   });

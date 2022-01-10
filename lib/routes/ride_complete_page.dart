@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
 

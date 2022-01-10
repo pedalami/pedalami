@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
+import 'package:pedala_mi/models/ride.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
+import 'ride_complete_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ShowSingleRideHistoryPage extends StatefulWidget {
-  final List<GeoPoint> path;
+  final Ride ride;
 
-  const ShowSingleRideHistoryPage({Key? key, required this.path})
+  const ShowSingleRideHistoryPage({Key? key, required this.ride})
       : super(key: key);
 
   @override
@@ -40,7 +44,8 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
   void initState() {
     controller = CustomController(
         initMapWithUserPosition: false,
-        initPosition: widget.path[(widget.path.length / 2).floor()]);
+        initPosition:
+            widget.ride.path![(widget.ride.path!.length / 2).floor()]);
     // TODO: implement initState
     super.initState();
   }
@@ -56,9 +61,10 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
                 OSMFlutter(
                   controller: controller,
                   onMapIsReady: (isReady) {
-                    controller.drawRoad(widget.path.first, widget.path.last,
-                        intersectPoint:
-                            widget.path.sublist(1, widget.path.length - 1),
+                    controller.drawRoad(
+                        widget.ride.path!.first, widget.ride.path!.last,
+                        intersectPoint: widget.ride.path!
+                            .sublist(1, widget.ride.path!.length - 1),
                         roadType: RoadType.bike,
                         roadOption: RoadOption(
                           roadWidth: 10,
@@ -98,6 +104,29 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
                     );
                   },
                 ),
+                Positioned(
+                    bottom: MediaQuery.of(context).size.height / 8,
+                    width: MediaQuery.of(context).size.width / 1,
+                    child: Align(
+                        alignment: Alignment.center,
+                        child: ElevatedButton.icon(
+                            style: ButtonStyle(
+                                fixedSize: MaterialStateProperty.all(Size(
+                                    MediaQuery.of(context).size.width / 3,
+                                    MediaQuery.of(context).size.height / 15)),
+                                backgroundColor:
+                                    MaterialStateProperty.all(Colors.green),
+                                shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(18.0),
+                                ))),
+                            onPressed: () {
+                              pushNewScreen(context,
+                                  screen: RideCompletePage(
+                                      finishedRide: widget.ride));
+                            },
+                            icon: FaIcon(FontAwesomeIcons.book),
+                            label: Text('Stats')))),
               ],
             ),
           );
