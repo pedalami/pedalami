@@ -479,13 +479,14 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     );
   }
 
-  showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide) {
+  showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide, String bonusPoints) {
     //TODO: FIX THIS
     //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
 
     pushNewScreen(context,
         screen: RideCompletePage(
           finishedRide: finishedRide,
+          bonusPoints: bonusPoints
         ));
   }
 

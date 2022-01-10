@@ -229,7 +229,7 @@ class MongoDB {
       toRecord.points = double.parse(decodedBody["points"].toString());
       toRecord.rideId = decodedBody["id"];
       var returnTuple = Tuple2<Ride?, String>(
-          toRecord, decodedBody["bonusPoints"]);
+          toRecord, decodedBody["bonusPoints"].toString());
       return returnTuple;
     } else
       return null;
