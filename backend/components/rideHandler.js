@@ -21,7 +21,7 @@ app.post("/record", async (req, res) => {
       const user = await User.findOne({ userId: req.body.userId }).session(session).exec();
       if (user) {
         var events = await profileController.getActiveEvents(user);
-        await gamificationController.assignPoints(user, ride, events);
+        await gamificationController.assignPoints(user, ride, events, req.body.weatherId);
         profileController.updateUserStatistics(user, ride);
         await gamificationController.checkNewBadgesAfterRide(user, ride);
         var promiseArray = [
@@ -42,6 +42,7 @@ app.post("/record", async (req, res) => {
           points: ride.points,
           pace: ride.pace,
           id: ride._id,
+          bonusPoints: gamificationController.getBonusPoints(req.body.weatherId),
         });
       })
       .catch((err) => {

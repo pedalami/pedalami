@@ -368,7 +368,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                         path);
 
                                     Ride? response = await MongoDB.instance
-                                        .recordRide(finishedRide);
+                                        .recordRidePassingWeather(finishedRide, await getWeatherId(_locationData.latitude, _locationData.longitude));
                                     if (response != null) {
                                       showRideCompleteDialog(
                                           context, size, response);
@@ -557,5 +557,22 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   String nStringToNNString(String? str) {
     return str ?? "";
+  }
+
+  Future<int> getWeatherId(double? latitude, double? longitude) async {
+
+    if(latitude != null && longitude != null) {
+
+      Weather instance = Weather.instance;
+      int weatherId = await instance.getWeatherFromCoords(
+          latitude, longitude);
+
+      print("The WEATHER IS " + weatherId.toString());
+      return weatherId;
+    }
+    else{
+      print("Weather: LAT & LONG ARE NULL");
+      return -1;
+    }
   }
 }
