@@ -775,6 +775,24 @@ app.get("/closeEvents", async (req, res) => {
     res.status(200).send('Events closed');
 });
 
+app.post("/getEvent", async (req, res) => {
+    console.log('Received getEvent POST request');
+    console.log(req.body);
+    var eventId = req.body.eventId;
+    if (eventId) {
+        var event = await Event.findOne({ _id: ObjectId(eventId) }).exec();
+        if (event) {
+            res.status(200).send(event);
+        } else {
+            console.log('Error in getting the event: event not found');
+            res.status(500).send('Error in getting the event: event not found');
+        }
+    } else {
+        console.log('Missing params');
+        res.status(400).send('Error in getting the event: missing parameter');
+    }
+});
+
 module.exports = { app: app, terminateEvents: terminateEvents };
 
 

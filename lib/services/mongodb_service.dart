@@ -501,4 +501,15 @@ class MongoDB {
         body: json.encode({'eventId': eventId, 'userId': userId}));
     return response.statusCode == 200 ? true : false;
   }
+
+  Future<Event?> getEvent(String eventId) async {
+    var url = Uri.parse(baseUri + '/events/getEvent');
+    var response = await _serverClient.post(url,
+        headers: _headers, body: json.encode({'eventId': eventId}));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      return Event.fromJson(decodedBody);
+    } else
+      return null;
+  }
 }
