@@ -24,6 +24,8 @@ app.post("/record", async (req, res) => {
         await gamificationController.assignPoints(user, ride, events, req.body.weatherId);
         profileController.updateUserStatistics(user, ride);
         await gamificationController.checkNewBadgesAfterRide(user, ride);
+        console.log("TEST!")
+        console.log(user, ride, events, req.body.weatherId);
         var promiseArray = [
           user.save({ session }),
           ride.save({ session }),
