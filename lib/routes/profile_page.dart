@@ -573,7 +573,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             color: Colors.grey.shade200.withOpacity(0.7),
             borderRadius: BorderRadius.all(Radius.circular(18.0))),
-        //TODO: Fix the height size to change if there is a small amount of ride history / Marcus
         height: MediaQuery.of(context).size.height / 3,
         child: ListView.separated(
             separatorBuilder: (context, index) {
@@ -587,7 +586,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 onTap: () {
                   pushNewScreen(context,
                       screen: ShowSingleRideHistoryPage(
-                          path: _miUser.rideHistory![index].path!));
+                          ride: _miUser.rideHistory![index]));
                 },
                 child: Container(
                   height: MediaQuery.of(context).size.height / 11,

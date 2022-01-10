@@ -1,11 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'dart:convert' show json;
-import "package:http/http.dart" as http;
-import 'package:font_awesome_flutter/font_awesome_flutter.dart' as aIcon;
 
-import 'package:google_sign_in/google_sign_in.dart';
 import 'package:pedala_mi/utils/get_device_type.dart';
 
 class StartPage extends StatelessWidget {

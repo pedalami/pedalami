@@ -143,10 +143,10 @@ function getWeatherBonusPoints(weatherId) {
             return 20;
         }
         if (weatherId>=800) {
-            return 333;
+            return 0;
         }
     }
-    else return 111;
+    else return 0;
 }
 
 function getBestPlayerIndividualEvent(event) {

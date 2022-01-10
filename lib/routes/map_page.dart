@@ -273,10 +273,12 @@ class _MapPageState extends State<MapPage>
                                                     .toGeoPoint());
                                                 elevations.add(
                                                     currentLocation!.altitude!);
-                                                controller.addMarker(currentLocation!
-                                                    .toGeoPoint(),
-                                                    markerIcon:
-                                                    MarkerIcon(image: AssetImage('lib/assets/map_marker.png')));
+                                                controller.addMarker(
+                                                    currentLocation!
+                                                        .toGeoPoint(),
+                                                    markerIcon: MarkerIcon(
+                                                        image: AssetImage(
+                                                            'lib/assets/map_marker.png')));
                                                 _isRecording = true;
                                                 _stopwatch.start();
                                                 internalState(() {
@@ -294,7 +296,9 @@ class _MapPageState extends State<MapPage>
                                               }
                                             } else {
                                               //BackgroundLocation.stopLocationService();
-                                              var durationInSeconds = _stopwatch.elapsed.inSeconds.ceilToDouble();
+                                              var durationInSeconds = _stopwatch
+                                                  .elapsed.inSeconds
+                                                  .ceilToDouble();
                                               _stopwatch.stop();
                                               _stopwatch.reset();
                                               if (path.length < 3) {
@@ -312,11 +316,22 @@ class _MapPageState extends State<MapPage>
                                                     totalElevation,
                                                     null,
                                                     path);
-                                                var response = await MongoDB.instance
-                                                    .recordRidePassingWeather(finishedRide, await getWeatherId(currentLocation?.latitude!, currentLocation?.longitude));
-                                                if (response != null && response.item1 != null) {
+                                                var response = await MongoDB
+                                                    .instance
+                                                    .recordRidePassingWeather(
+                                                        finishedRide,
+                                                        await getWeatherId(
+                                                            currentLocation
+                                                                ?.latitude!,
+                                                            currentLocation
+                                                                ?.longitude));
+                                                if (response != null &&
+                                                    response.item1 != null) {
                                                   showRideCompleteDialog(
-                                                      context, size, response.item1!, response.item2);
+                                                      context,
+                                                      size,
+                                                      response.item1!,
+                                                      response.item2);
                                                 }
                                               }
                                               path.forEach((element) {
@@ -404,18 +419,32 @@ class _MapPageState extends State<MapPage>
                                                   null,
                                                   fakePath);
 
-                                              var response = await MongoDB.instance
-                                                  .recordRidePassingWeather(finishedRide, await getWeatherId(45.47706577107621, 9.225647327123237));
+                                              var response = await MongoDB
+                                                  .instance
+                                                  .recordRidePassingWeather(
+                                                      finishedRide,
+                                                      await getWeatherId(
+                                                          45.47706577107621,
+                                                          9.225647327123237));
 
-                                              if (response != null && response.item1 != null) {
-                                                if (_miUser.rideHistory == null) {
+                                              if (response != null &&
+                                                  response.item1 != null) {
+                                                if (_miUser.rideHistory ==
+                                                    null) {
                                                   _miUser.rideHistory =
-                                                      List.empty(growable: true);
+                                                      List.empty(
+                                                          growable: true);
                                                 }
-                                                _miUser.rideHistory!.add(response.item1!);
-                                                MongoDB.instance.initUser(_miUser.userId);
+                                                _miUser.rideHistory!
+                                                    .add(response.item1!);
+                                                MongoDB.instance
+                                                    .initUser(_miUser.userId);
                                                 //_miUser.notifyListeners();
-                                                showRideCompleteDialog(context, size, response.item1!, response.item2);
+                                                showRideCompleteDialog(
+                                                    context,
+                                                    size,
+                                                    response.item1!,
+                                                    response.item2);
                                               }
                                             },
                                             icon: FaIcon(
