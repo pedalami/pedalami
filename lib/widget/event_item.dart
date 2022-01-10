@@ -35,6 +35,7 @@ class _EventItemState extends State<EventItem> {
   List<DropdownMenuItem>? item;
   Team? selectedTeam;
   late DateTime localStartDate, localEndDate;
+  bool loadingUpdatedEvent=false;
 
   @override
   void initState() {
@@ -110,11 +111,35 @@ class _EventItemState extends State<EventItem> {
     return Padding(
       padding: EdgeInsets.only(bottom: 20, right: 20, left: 20),
       child: GestureDetector(
-        onTap: () {
-          pushNewScreen(context,
-              screen: EventRankingPage(
-                event: event,
-              ));
+        onTap: () async{
+          if(loadingUpdatedEvent==false)
+            {
+              try
+              {
+                loadingUpdatedEvent=true;
+                setState(() {
+
+                });
+                Event updatedEvent=(await MongoDB.instance.getEventWithTeams(event.id))!;
+                loadingUpdatedEvent=false;
+                setState(() {
+
+                });
+                pushNewScreen(context,
+                    screen: EventRankingPage(
+                      event: updatedEvent,
+                    ));
+              }
+              finally
+              {
+                loadingUpdatedEvent=false;
+                setState(() {
+
+                });
+              }
+
+            }
+
         },
         child: Container(
           padding: EdgeInsets.all(12),
@@ -332,7 +357,7 @@ class _EventItemState extends State<EventItem> {
                                   setState(() {
                                     _joined = !_joined;
                                   });
-                                  widget.refresh();
+                                  widget.refresh(event);
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
