@@ -367,11 +367,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                         500.0,
                                         path);
 
-                                    Ride? response = await MongoDB.instance
-                                        .recordRide(finishedRide);
-                                    if (response != null) {
+                                    var response = await MongoDB.instance
+                                        .recordRidePassingWeather(finishedRide, await getWeatherId(_locationData.latitude, _locationData.longitude));
+                                    if (response != null && response.item1 != null) {
                                       showRideCompleteDialog(
-                                          context, size, response);
+                                          context, size, response.item1!, response.item2);
                                     }
                                   }
                                   path.forEach((element) {
@@ -453,18 +453,18 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                     longitude: 9.22567362278855)
                               ]);
 
-                              Ride? response = await MongoDB.instance
-                                  .recordRide(finishedRide);
+                              var response = await MongoDB.instance
+                                  .recordRidePassingWeather(finishedRide, await getWeatherId(45.47706577107621, 9.225647327123237));
 
-                              if (response != null) {
+                              if (response != null && response.item1 != null) {
                                 if (_miUser.rideHistory == null) {
                                   _miUser.rideHistory =
                                       List.empty(growable: true);
                                 }
-                                _miUser.rideHistory!.add(response);
+                                _miUser.rideHistory!.add(response.item1!);
                                 MongoDB.instance.initUser(_miUser.userId);
                                 //_miUser.notifyListeners();
-                                showRideCompleteDialog(context, size, response);
+                                showRideCompleteDialog(context, size, response.item1!, response.item2);
                               }
                             },
                             icon: FaIcon(FontAwesomeIcons.bicycle),
@@ -479,13 +479,14 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
     );
   }
 
-  showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide) {
+  showRideCompleteDialog(BuildContext context, Size size, Ride finishedRide, String bonusPoints) {
     //TODO: FIX THIS
     //Last minute fix, didn't have the time to go out and test this yet. Will make it look nicer with all the stats /Marcus
 
     pushNewScreen(context,
         screen: RideCompletePage(
           finishedRide: finishedRide,
+          bonusPoints: bonusPoints
         ));
   }
 
@@ -557,5 +558,22 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
 
   String nStringToNNString(String? str) {
     return str ?? "";
+  }
+
+  Future<int> getWeatherId(double? latitude, double? longitude) async {
+
+    if(latitude != null && longitude != null) {
+
+      Weather instance = Weather.instance;
+      int weatherId = await instance.getWeatherFromCoords(
+          latitude, longitude);
+
+      print("The WEATHER IS " + weatherId.toString());
+      return weatherId;
+    }
+    else{
+      print("Weather: LAT & LONG ARE NULL");
+      return -1;
+    }
   }
 }

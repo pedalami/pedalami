@@ -323,3 +323,4 @@ android/debug.keystore
 android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java
 ios/Runner/GeneratedPluginRegistrant.m
 lib/generated_plugin_registrant.dart
+.firebase/*

@@ -38,162 +38,165 @@ class _ProfileEditingState extends State<ProfileEditing> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Container(
-              color: Colors.green[600],
-              height: 30 * SizeConfig.heightMultiplier!,
-              child: Transform.translate(
-                offset: const Offset(0,-10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 15),
-                      child: Row(
-                        children: <Widget>[
-                          Container(
-                            height: 11 * SizeConfig.heightMultiplier!,
-                            width: 22 * SizeConfig.widthMultiplier!,
-                            decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                image: DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(imageUrl),
-                                )),
-                          ),
-                          SizedBox(
-                            width: 5 * SizeConfig.widthMultiplier!,
-                          ),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(
-                                username,
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 3 * SizeConfig.textMultiplier!,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              SizedBox(
-                                height: 1 * SizeConfig.heightMultiplier!,
-                              ),
-                              Row(
-                                children: <Widget>[
-                                  Row(
-                                    children: <Widget>[
-                                      Text(
-                                        LoggedUser.instance!.mail,
-                                        style: TextStyle(
-                                          color: Colors.white60,
-                                          fontSize:
-                                              1.5 * SizeConfig.textMultiplier!,
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SingleChildScrollView(
+          child: Column(
+            children: <Widget>[
+              Container(
+                color: Colors.green[600],
+                height: 30 * SizeConfig.heightMultiplier!,
+                child: Transform.translate(
+                  offset: const Offset(0,-10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 15),
+                        child: Row(
+                          children: <Widget>[
+                            Container(
+                              height: 11 * SizeConfig.heightMultiplier!,
+                              width: 22 * SizeConfig.widthMultiplier!,
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: NetworkImage(imageUrl),
+                                  )),
+                            ),
+                            SizedBox(
+                              width: 5 * SizeConfig.widthMultiplier!,
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Text(
+                                  username,
+                                  style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 3 * SizeConfig.textMultiplier!,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(
+                                  height: 1 * SizeConfig.heightMultiplier!,
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    Row(
+                                      children: <Widget>[
+                                        Text(
+                                          LoggedUser.instance!.mail,
+                                          style: TextStyle(
+                                            color: Colors.white60,
+                                            fontSize:
+                                                1.5 * SizeConfig.textMultiplier!,
+                                          ),
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
-                        ],
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              ],
+                            )
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Transform.translate(
-              offset: const Offset(0,-30),
-              child: Container(
-                width: MediaQuery.of(context).size.width,
-                decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topRight: Radius.circular(30.0),
-                      topLeft: Radius.circular(30.0),
-                    )),
+              Transform.translate(
+                offset: const Offset(0,-30),
                 child: Container(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 3 * SizeConfig.heightMultiplier!,),
-                          child: !imgInserted?ElevatedButton(
-                              onPressed: () async {
-                                Map<Permission, PermissionStatus> statuses = await [
-                                  Permission.camera,
-                                  Permission.storage,
-                                ].request();
-                                _showPicker(context);
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(30.0),
+                        topLeft: Radius.circular(30.0),
+                      )),
+                  child: Container(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top: 3 * SizeConfig.heightMultiplier!,),
+                            child: !imgInserted?ElevatedButton(
+                                onPressed: () async {
+                                  Map<Permission, PermissionStatus> statuses = await [
+                                    Permission.camera,
+                                    Permission.storage,
+                                  ].request();
+                                  _showPicker(context);
+                                },
+                                child: Text("Change profile picture"),
+                                style: ButtonStyle(
+                                    fixedSize: MaterialStateProperty.all(
+                                        Size(200, 35)),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        Colors.lightGreen),
+                                    shape: MaterialStateProperty.all(
+                                        RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(18.0))))):CircularProgressIndicator(
+                              color: Colors.lightGreen,
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                left: 15,
+                                top: 3 * SizeConfig.heightMultiplier!,
+                                right: 15.0),
+                            child: TextField(
+                              cursorColor: Colors.lightGreen,
+                              decoration: InputDecoration(
+                                  counterStyle: TextStyle(
+                                    color: CustomColors.silver,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: CustomColors.silver),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide:
+                                        BorderSide(color: Colors.lightGreen),
+                                  ),
+                                  hintText: "Insert new username",
+                                  hintStyle:
+                                      TextStyle(color: CustomColors.silver)),
+                              controller: usernameController,
+                              maxLength: 20,
+                              style: TextStyle(color: Colors.black),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(
+                                top: 1 * SizeConfig.heightMultiplier!,),
+                            child: ElevatedButton(
+                              onPressed: () {
+                                checkValue();
                               },
-                              child: Text("Change profile picture"),
+                              child: Text("Change username"),
                               style: ButtonStyle(
                                   fixedSize: MaterialStateProperty.all(
                                       Size(200, 35)),
                                   backgroundColor: MaterialStateProperty.all(
                                       Colors.lightGreen),
-                                  shape: MaterialStateProperty.all(
-                                      RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(18.0))))):CircularProgressIndicator(
-                            color: Colors.lightGreen,
+                                shape: MaterialStateProperty.all(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0))))),
                           ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              left: 15,
-                              top: 3 * SizeConfig.heightMultiplier!,
-                              right: 15.0),
-                          child: TextField(
-                            cursorColor: Colors.lightGreen,
-                            decoration: InputDecoration(
-                                counterStyle: TextStyle(
-                                  color: CustomColors.silver,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: CustomColors.silver),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: Colors.lightGreen),
-                                ),
-                                hintText: "Insert new username",
-                                hintStyle:
-                                    TextStyle(color: CustomColors.silver)),
-                            controller: usernameController,
-                            maxLength: 20,
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!,),
-                          child: ElevatedButton(
-                            onPressed: () {
-                              checkValue();
-                            },
-                            child: Text("Change username"),
-                            style: ButtonStyle(
-                                fixedSize: MaterialStateProperty.all(
-                                    Size(200, 35)),
-                                backgroundColor: MaterialStateProperty.all(
-                                    Colors.lightGreen),
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(18.0))))),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );

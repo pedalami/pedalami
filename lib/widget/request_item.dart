@@ -60,148 +60,140 @@ class _RequestItemState extends State<RequestItem> {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.only(bottom: 20, right: 20, left: 20),
-      child: GestureDetector(
-        onTap: () {
-          pushNewScreen(context,
-              screen: EventRankingPage(
-                event: event,
-              ));
-        },
-        child: Container(
-          padding: EdgeInsets.all(12),
-          width: MediaQuery.of(context).size.width,
-          decoration: BoxDecoration(
-              shape: BoxShape.rectangle,
-              border: Border.all(color: Colors.green, width: 2),
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-          child: Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.only(top: 5),
-                child: Text(
-                  event.name,
-                  style: TextStyle(
-                      color: Colors.black54,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 25),
-                ),
+      child: Container(
+        padding: EdgeInsets.all(12),
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+            shape: BoxShape.rectangle,
+            border: Border.all(color: Colors.green, width: 2),
+            borderRadius: BorderRadius.all(Radius.circular(20))),
+        child: Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.only(top: 5),
+              child: Text(
+                event.name,
+                style: TextStyle(
+                    color: Colors.black54,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25),
               ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        !loadingOpponentTeam
-                            ? Padding(
-                                padding: EdgeInsets.only(
-                                    top: 1 * SizeConfig.heightMultiplier!),
-                                child: Text(
-                                  "OPPOSING TEAM: " + opposingTeam!.name,
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 2 * SizeConfig.textMultiplier!),
-                                ),
-                              )
-                            : Padding(
-                                padding: EdgeInsets.only(
-                                    top: 1 * SizeConfig.heightMultiplier!),
-                                child: Text(
-                                  "OPPOSING TEAM: ",
-                                  style: TextStyle(
-                                      color: Colors.black54,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 2 * SizeConfig.textMultiplier!),
-                                ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      !loadingOpponentTeam
+                          ? Padding(
+                              padding: EdgeInsets.only(
+                                  top: 1 * SizeConfig.heightMultiplier!),
+                              child: Text(
+                                "OPPOSING TEAM: " + opposingTeam!.name,
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 2 * SizeConfig.textMultiplier!),
                               ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text(
-                            "START: " + event.startDate.formatIT,
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!),
-                          ),
+                            )
+                          : Padding(
+                              padding: EdgeInsets.only(
+                                  top: 1 * SizeConfig.heightMultiplier!),
+                              child: Text(
+                                "OPPOSING TEAM: ",
+                                style: TextStyle(
+                                    color: Colors.black54,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 2 * SizeConfig.textMultiplier!),
+                              ),
+                            ),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "START: " + event.startDate.formatIT,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(
-                              top: 1 * SizeConfig.heightMultiplier!),
-                          child: Text(
-                            "ENDS:    " + event.endDate.formatIT,
-                            style: TextStyle(
-                                color: Colors.black54,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 2 * SizeConfig.textMultiplier!),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Column(
-                    children: [
-                      AnimatedOpacity(
-                        opacity: _visible ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 500),
-                        child: !_accepted
-                            ? ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.lightGreen),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(18.0),
-                                            side: BorderSide(
-                                                color: Colors.lightGreen)))),
-                                child: Text("Accept"),
-                                onPressed: () async {
-                                  _accepted = await MongoDB.instance
-                                      .acceptInvite(
-                                          event.id, team.adminId, team.id);
-                                  print("accepted: " + _accepted.toString());
-                                  setState(() {
-                                    if (_accepted) _visible = !_visible;
-                                  });
-                                  widget.refresh(event, true);
-                                })
-                            : SizedBox(),
                       ),
-                      AnimatedOpacity(
-                        opacity: _visible ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 500),
-                        child: !_rejected
-                            ? ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        Colors.redAccent),
-                                    shape: MaterialStateProperty.all(
-                                        RoundedRectangleBorder(
-                                            borderRadius:
-                                                BorderRadius.circular(18.0),
-                                            side: BorderSide(
-                                                color: Colors.redAccent)))),
-                                child: Text(" Reject "),
-                                onPressed: () async {
-                                  _rejected = await MongoDB.instance
-                                      .rejectInvite(
-                                          event.id, team.adminId, team.id);
-                                  print("rejected: " + _rejected.toString());
-                                  setState(() {
-                                    if (_rejected) _visible = !_visible;
-                                  });
-                                  widget.refresh(event, false);
-                                })
-                            : SizedBox(),
+                      Padding(
+                        padding: EdgeInsets.only(
+                            top: 1 * SizeConfig.heightMultiplier!),
+                        child: Text(
+                          "ENDS:    " + event.endDate.formatIT,
+                          style: TextStyle(
+                              color: Colors.black54,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 2 * SizeConfig.textMultiplier!),
+                        ),
                       ),
                     ],
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+                Column(
+                  children: [
+                    AnimatedOpacity(
+                      opacity: _visible ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 500),
+                      child: !_accepted
+                          ? ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.lightGreen),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Colors.lightGreen)))),
+                              child: Text("Accept"),
+                              onPressed: () async {
+                                _accepted = await MongoDB.instance
+                                    .acceptInvite(
+                                        event.id, team.adminId, team.id);
+                                print("accepted: " + _accepted.toString());
+                                setState(() {
+                                  if (_accepted) _visible = !_visible;
+                                });
+                                widget.refresh(event, true);
+                              })
+                          : SizedBox(),
+                    ),
+                    AnimatedOpacity(
+                      opacity: _visible ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 500),
+                      child: !_rejected
+                          ? ElevatedButton(
+                              style: ButtonStyle(
+                                  backgroundColor: MaterialStateProperty.all(
+                                      Colors.redAccent),
+                                  shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(18.0),
+                                          side: BorderSide(
+                                              color: Colors.redAccent)))),
+                              child: Text(" Reject "),
+                              onPressed: () async {
+                                _rejected = await MongoDB.instance
+                                    .rejectInvite(
+                                        event.id, team.adminId, team.id);
+                                print("rejected: " + _rejected.toString());
+                                setState(() {
+                                  if (_rejected) _visible = !_visible;
+                                });
+                                widget.refresh(event, false);
+                              })
+                          : SizedBox(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

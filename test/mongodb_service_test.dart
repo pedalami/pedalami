@@ -242,14 +242,15 @@ void main() {
     print("Involved teams are:");
     events?.forEach((event) {
       if (event.isTeam() && event.isPrivate()) {
-        print("\n");
+        print("\nPrivate team:");
         print(event.id);
         print(event.hostTeam);
         print(event.guestTeam);
       } else if (event.isTeam()) {
-        print("\n");
+        print("\nPublic team:");
         print(event.id);
         print(event.enrolledTeams);
+        print(event.teamScoreboard);
       }
     });
     assert(events != null);
