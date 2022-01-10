@@ -17,13 +17,17 @@ app.post("/record", async (req, res) => {
   if (req.body.userId) {
     if (ride.durationInSeconds>0){
     connection.transaction(async (session) => {
+
       ride.pace = Math.round(ride.totalKm / (ride.durationInSeconds / 3600) * 100) / 100;
       const user = await User.findOne({ userId: req.body.userId }).session(session).exec();
+
+      console.log(user, ride, req.body.weatherId);
       if (user) {
         var events = await profileController.getActiveEvents(user);
-        await gamificationController.assignPoints(user, ride, events);
+        await gamificationController.assignPoints(user, ride, events, req.body.weatherId);
         profileController.updateUserStatistics(user, ride);
         await gamificationController.checkNewBadgesAfterRide(user, ride);
+        console.log(user, ride, events, req.body.weatherId);
         var promiseArray = [
           user.save({ session }),
           ride.save({ session }),
@@ -42,6 +46,7 @@ app.post("/record", async (req, res) => {
           points: ride.points,
           pace: ride.pace,
           id: ride._id,
+          bonusPoints: gamificationController.getWeatherBonusPoints(req.body.weatherId),
         });
       })
       .catch((err) => {

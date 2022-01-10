@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -352,7 +354,7 @@ class _EventItemState extends State<EventItem> {
                                     setState(() {
                                       _joined = !_joined;
                                     });
-                                    widget.refresh();
+                                    widget.refresh(event);
                                   } else {}
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(

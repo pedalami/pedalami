@@ -58,6 +58,7 @@ app.post('/approvePublicTeam', async (req, res) => {
         return;
     }
     event.status = 'approved';
+    event.involvedTeams.push(event.hostTeam);
     event.save().then(() => {
         res.status(200).send(event);
     }).catch(err => {

@@ -145,21 +145,6 @@ module.exports = {
   getActiveEvents: getActiveEvents
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*
 ARCHIVE
 

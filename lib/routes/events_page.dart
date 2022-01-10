@@ -18,6 +18,8 @@ class EventsPage extends StatefulWidget {
 class _EventsPageState extends State<EventsPage> {
   User? user = FirebaseAuth.instance.currentUser;
   List<Event> events = [];
+  List<Event> activeUserEvents=[];
+  bool loadingActiveEvents=true;
   late bool hasSearched, loading;
   final eventSearchController = TextEditingController();
 
@@ -26,9 +28,17 @@ class _EventsPageState extends State<EventsPage> {
     hasSearched = false;
     loading = false;
     super.initState();
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) async{
+      activeUserEvents=(await MongoDB.instance.getUserEvents(user!.uid))!;
+      loadingActiveEvents=false;
+      setState(() {
+
+      });
+    });
   }
 
-  refresh(){
+  refresh(Event e){
+    activeUserEvents.add(e);
     setState((){});
   }
 
@@ -154,12 +164,13 @@ class _EventsPageState extends State<EventsPage> {
                   ),
                 ),
               ),
-              LoggedUser.instance!.joinedEvents!.length>0?ListView.builder(
-                  itemCount: LoggedUser.instance!.joinedEvents!.length,
+              AnimatedSwitcher(duration: Duration(milliseconds: 250),
+              child: loadingActiveEvents?CircularProgressIndicator():activeUserEvents.length>0?ListView.builder(
+                  itemCount: activeUserEvents.length,
                   physics: const NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   itemBuilder: (context, j) {
-                    return EventItem(event: LoggedUser.instance!.joinedEvents![j], refresh: refresh,);
+                    return EventItem(event: activeUserEvents[j], refresh: refresh,);
                   }):Column(
                 children: [
                   SizedBox(height: MediaQuery.of(context).size.height*.025,),
@@ -167,7 +178,9 @@ class _EventsPageState extends State<EventsPage> {
                     color: Colors.black54,
                   ),),
                 ],
-              ),
+              ),),
+
+
             ],
           ),
         ),
