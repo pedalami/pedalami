@@ -6,6 +6,7 @@ import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';
+import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:pedala_mi/widget/event_item.dart';
 
 class EventsPage extends StatefulWidget {
@@ -152,7 +153,10 @@ class _EventsPageState extends State<EventsPage> {
                                   }),
                             ],
                           )
-                          : Text("No events found")),
+                          : Padding(
+                            padding: EdgeInsets.only(top: 30),
+                            child: Text("No events found", style: TextStyle(color: Colors.black54, fontSize: 15),),
+                          )),
               Padding(
                 padding: EdgeInsets.only(top: 15),
                 child: Text(
