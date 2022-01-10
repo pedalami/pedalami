@@ -136,11 +136,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget header() {
     return Container(
-      color: Colors.green[600],
-      height: 40 * SizeConfig.heightMultiplier!,
       child: Padding(
         padding: EdgeInsets.only(
-            left: 30.0, right: 30.0, top: 10 * SizeConfig.heightMultiplier!),
+            left: 30.0, right: 30.0, top: 10 * SizeConfig.heightMultiplier!, bottom: 2.5*SizeConfig.heightMultiplier!),
         child: Column(
           children: <Widget>[
             Row(
@@ -495,51 +493,52 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        header(),
-        Expanded(
-          child: Transform.translate(
-            offset: const Offset(0, -30),
-            child: Container(
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                  color: Colors.white,
+    return Scaffold(
+      backgroundColor: Colors.green[600],
+      body: Column(
+        children: <Widget>[
+          header(),
+          Container(
+            child: Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topRight: Radius.circular(30.0),
+                      topLeft: Radius.circular(30.0),
+                    )),
+                child: ClipRRect(
                   borderRadius: BorderRadius.only(
                     topRight: Radius.circular(30.0),
                     topLeft: Radius.circular(30.0),
-                  )),
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(30.0),
-                  topLeft: Radius.circular(30.0),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      stats(),
-                      Divider(
-                        color: Colors.black,
-                      ),
-                      showBadges(),
-                      Divider(
-                        color: Colors.grey,
-                      ),
-                      SizedBox(
-                        height: 3 * SizeConfig.heightMultiplier!,
-                      ),
-                      showHistory(),
-                      SizedBox(
-                        height: 20 * SizeConfig.heightMultiplier!,
-                      ),
-                    ],
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        stats(),
+                        Divider(
+                          color: Colors.black,
+                        ),
+                        showBadges(),
+                        Divider(
+                          color: Colors.grey,
+                        ),
+                        SizedBox(
+                          height: 3 * SizeConfig.heightMultiplier!,
+                        ),
+                        showHistory(),
+                        SizedBox(
+                          height: 20 * SizeConfig.heightMultiplier!,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        )
-      ],
+          )
+        ],
+      ),
     );
   }
 
