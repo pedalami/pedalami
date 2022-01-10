@@ -8,7 +8,7 @@ async function assignPoints(user, ride, events, weatherId) {
     console.log("Calcolo il weather Bonus dal weatherId: " + weatherId);
     //Add weather bonus if the ride is at least 1km
     weatherBonus = getWeatherBonusPoints(weatherId);
-    if (ride.totalKm >= O) {
+    if (ride.totalKm >= 1) {
         console.log("Initial Points: " + points + " Weather Bonus: " + weatherBonus);
         points += weatherBonus;
     }
@@ -139,14 +139,14 @@ function getWeatherBonusPoints(weatherId) {
             return 3;
         }
         //Tornado
-        if (weatherId==781) {
+        if (weatherId>=781) {
             return 20;
         }
-        else {
+        if (weatherId>=800) {
             return 333;
         }
     }
-    else return 0;
+    else return 100;
 }
 
 function getBestPlayerIndividualEvent(event) {
