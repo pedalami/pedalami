@@ -59,13 +59,14 @@ class _MapPageState extends State<MapPage>
   List<double> elevations = [];
   OSMFlutter? map;
   Location? currentLocation;
+  Stopwatch _stopwatch = Stopwatch();
 
   @override
   Future<void> mapIsReady(bool isReady) async {
     if (isReady) {
       print("Map ready");
       if (_shouldInitialize) {
-        BackgroundLocation.startLocationService(distanceFilter: 0.5);
+        BackgroundLocation.startLocationService(distanceFilter: 4.0);
         currentLocation =
             (await loc.Location.instance.getLocation()).toBGLocation();
         controller.changeLocation(currentLocation!.toGeoPoint());
@@ -263,7 +264,7 @@ class _MapPageState extends State<MapPage>
                                         Spacer(),
                                         ElevatedButton.icon(
                                           onPressed: () async {
-                                            if (_isRecording == false) {
+                                            if (!_isRecording) {
                                               if (currentLocation != null) {
                                                 showCurrentAirQuality(
                                                     currentLocation!.latitude,
@@ -272,7 +273,12 @@ class _MapPageState extends State<MapPage>
                                                     .toGeoPoint());
                                                 elevations.add(
                                                     currentLocation!.altitude!);
+                                                controller.addMarker(currentLocation!
+                                                    .toGeoPoint(),
+                                                    markerIcon:
+                                                    MarkerIcon(image: AssetImage('lib/assets/map_marker.png')));
                                                 _isRecording = true;
+                                                _stopwatch.start();
                                                 internalState(() {
                                                   _currentButtonColor =
                                                       Colors.redAccent;
@@ -288,6 +294,9 @@ class _MapPageState extends State<MapPage>
                                               }
                                             } else {
                                               //BackgroundLocation.stopLocationService();
+                                              var durationInSeconds = _stopwatch.elapsed.inSeconds.ceilToDouble();
+                                              _stopwatch.stop();
+                                              _stopwatch.reset();
                                               if (path.length < 3) {
                                                 showAlertDialog(context,
                                                     "No movement detect since ride started\nNo ride will be saved");
@@ -296,7 +305,7 @@ class _MapPageState extends State<MapPage>
                                                     _miUser.userId,
                                                     _miUser.username,
                                                     null,
-                                                    _roadInfo!.duration,
+                                                    durationInSeconds,
                                                     _roadInfo!.distance,
                                                     null,
                                                     DateTime.now(),
