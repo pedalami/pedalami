@@ -793,6 +793,55 @@ app.post("/getEvent", async (req, res) => {
     }
 });
 
+app.post("/getEventTeams", async (req, res) => {
+        console.log('Received getUsersEvents POST request');
+        console.log(req.body);
+        var eventId = req.body.eventId;
+        if (eventId) {
+                var event = await Event.aggregate([{
+                    $match: {
+                        _id: ObjectId(eventId)
+                    }
+                },
+                {
+                    $lookup: {
+                      from: "teams", // collection name in db
+                      localField: "hostTeam", // field of Event to make the lookup on (the field with the "foreign key")
+                      foreignField: "_id", // the referred field in Team 
+                      as: "hostTeam" // name that the field of the join will have in the result/JSON
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: "teams", // collection name in db
+                      localField: "guestTeam", // field of Event to make the lookup on (the field with the "foreign key")
+                      foreignField: "_id", // the referred field in Team 
+                      as: "guestTeam" // name that the field of the join will have in the result/JSON
+                    }
+                  },
+                  {
+                    $lookup: {
+                      from: "teams", // collection name in db
+                      localField: "involvedTeams", // field of Event to make the lookup on (the field with the "foreign key")
+                      foreignField: "_id", // the referred field in Team 
+                      as: "involvedTeams" // name that the field of the join will have in the result/JSON
+                    }
+                  },
+                  {
+                    $unset: ["hostTeam.activeEvents", "hostTeam.eventRequests" , "guestTeam.activeEvents", "guestTeam.eventRequests" ,
+                     "involvedTeams.activeEvents", "involvedTeams.eventRequests" ,]
+                  }
+            ]).exec().catch(err => {
+                console.log('Error while getting the events: ' + err);
+                res.status(500).send('Error while getting the events');
+                return;
+            });
+                res.status(200).send(event[0]);
+            } else {
+                res.status(500).send('Missing parameters');
+            }
+    });
+    
 module.exports = { app: app, terminateEvents: terminateEvents };
 
 

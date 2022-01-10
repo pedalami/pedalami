@@ -512,4 +512,15 @@ class MongoDB {
     } else
       return null;
   }
+
+    Future<Event?> getEventWithTeams(String eventId) async {
+    var url = Uri.parse(baseUri + '/events/getEventWithTeams');
+    var response = await _serverClient.post(url,
+        headers: _headers, body: json.encode({'eventId': eventId}));
+    if (response.statusCode == 200) {
+      var decodedBody = json.decode(response.body);
+      return Event.fromJsonWithTeams(decodedBody);
+    } else
+      return null;
+  }
 }
