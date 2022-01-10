@@ -221,6 +221,6 @@ module.exports = {
     getBestPlayerIndividualEvent: getBestPlayerIndividualEvent,
     assignPrizeIndividualEvent: assignPrizeIndividualEvent,
     computeTeamScoreboard: computeTeamScoreboard,
-    assignPrizeTeamEvent: assignPrizeTeamEvent
-
+    assignPrizeTeamEvent: assignPrizeTeamEvent,
+    getWeatherBonusPoints: getWeatherBonusPoints
 };
