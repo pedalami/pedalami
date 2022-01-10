@@ -42,7 +42,7 @@ app.post("/record", async (req, res) => {
           points: ride.points,
           pace: ride.pace,
           id: ride._id,
-          //bonusPoints: gamificationController.getBonusPoints(req.body.weatherId),
+          bonusPoints: gamificationController.getBonusPoints(req.body.weatherId),
         });
       })
       .catch((err) => {
