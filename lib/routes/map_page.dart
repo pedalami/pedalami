@@ -453,7 +453,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                     longitude: 9.22567362278855)
                               ]);
 
-                              Ride? response = await MongoDB.instance
+                              var response = await MongoDB.instance
                                   .recordRidePassingWeather(finishedRide, await getWeatherId(45.47706577107621, 9.225647327123237));
 
                               if (response != null) {
@@ -461,10 +461,10 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                   _miUser.rideHistory =
                                       List.empty(growable: true);
                                 }
-                                _miUser.rideHistory!.add(response);
+                                _miUser.rideHistory!.add(response.item1!);
                                 MongoDB.instance.initUser(_miUser.userId);
                                 //_miUser.notifyListeners();
-                                showRideCompleteDialog(context, size, response);
+                                showRideCompleteDialog(context, size, response.item1!, response.item2);
                               }
                             },
                             icon: FaIcon(FontAwesomeIcons.bicycle),

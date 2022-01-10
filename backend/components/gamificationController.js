@@ -139,7 +139,7 @@ function getWeatherBonusPoints(weatherId) {
             return 3;
         }
         //Tornado
-        if (weatherId>=781) {
+        if (weatherId==781) {
             return 20;
         }
         if (weatherId>=800) {

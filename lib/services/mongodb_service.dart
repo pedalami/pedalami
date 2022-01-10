@@ -207,7 +207,7 @@ class MongoDB {
       return null;
   }
 
-  Future<Ride?> recordRidePassingWeather(Ride toRecord, int weatherId) async {
+  Future<Tuple2<Ride?, String>?> recordRidePassingWeather(Ride toRecord, int weatherId) async {
     var url = Uri.parse(baseUri + '/rides/record');
     var response = await _serverClient.post(url,
         headers: _headers,
@@ -228,7 +228,9 @@ class MongoDB {
       toRecord.pace = double.parse(decodedBody["pace"].toString());
       toRecord.points = double.parse(decodedBody["points"].toString());
       toRecord.rideId = decodedBody["id"];
-      return toRecord;
+      var returnTuple = Tuple2<Ride?, String>(
+          toRecord, decodedBody["bonusPoints"]);
+      return returnTuple;
     } else
       return null;
   }
