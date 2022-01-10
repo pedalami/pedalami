@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
 
@@ -7,7 +6,8 @@ class RideCompletePage extends StatelessWidget {
   final Ride finishedRide;
   final String bonusPoints;
 
-  const RideCompletePage({Key? key, required this.finishedRide, required this.bonusPoints})
+  const RideCompletePage(
+      {Key? key, required this.finishedRide, required this.bonusPoints})
       : super(key: key);
 
   Widget singleStat(String name, String unit, BuildContext context) {
@@ -15,7 +15,9 @@ class RideCompletePage extends StatelessWidget {
     TextStyle sub = TextStyle(fontSize: 20);
 
     return Padding(
-      padding: EdgeInsets.only(left: MediaQuery.of(context).size.width / 12, bottom: MediaQuery.of(context).size.height / 35),
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width / 12,
+          bottom: MediaQuery.of(context).size.height / 35),
       child: Row(
         children: [
           Expanded(
@@ -65,7 +67,6 @@ class RideCompletePage extends StatelessWidget {
               context),
           singleStat('Elevation gain: ',
               finishedRide.elevationGain!.toStringAsFixed(2) + " m", context),
-
           SizedBox(
             height: MediaQuery.of(context).size.height / 15,
           ),
@@ -112,8 +113,17 @@ class RideCompletePage extends StatelessWidget {
             height: MediaQuery.of(context).size.height / 30,
           ),
           Padding(
-            padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width*.2),
-            child: bonusPoints!="0"?Text("You obtained "+bonusPoints+" bonus points for riding in adverse weather!", textAlign: TextAlign.center,style: TextStyle(color: Colors.black54),):SizedBox(),
+            padding: EdgeInsets.symmetric(
+                horizontal: MediaQuery.of(context).size.width * .2),
+            child: bonusPoints != "0"
+                ? Text(
+                    "You obtained " +
+                        bonusPoints +
+                        " bonus points for riding in adverse weather!",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.black54),
+                  )
+                : SizedBox(),
           )
         ],
       )),

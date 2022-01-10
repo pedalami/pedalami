@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:pedala_mi/utils/mobile_library.dart';
 
 
+
 class AirQuality {
   //Backend developers make the functions for the mongo api calls here,
   //Frontend developers can then use these functions in the flutter project
@@ -19,7 +20,9 @@ class AirQuality {
     'Accept': 'application/json',
   };
 
-  //Given the id of a Team, it returns the entire team
+  //Given a set of coordinates, it returns and AirQuality index for the area
+  // 1 for good, 2 for poor, 3 for moderate, 4 for poor, 5 for very poor
+  // -1 in case of error
   Future<int> getAirQualityIndexFromCoords(double latitude, double longitude) async {
     var url = Uri.parse(baseUri + '/forecast')
         .replace(queryParameters: {'lat': latitude.toString(), 'lon': longitude.toString(), 'appid': 'f01bcf9b8d8f2aedde4fa855cbcdd02b'});

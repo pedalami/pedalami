@@ -1,6 +1,5 @@
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/team_members.dart';
-import 'package:pedala_mi/routes/teams_search.dart';
 import 'package:pedala_mi/routes/your_events_page.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:flutter/material.dart';

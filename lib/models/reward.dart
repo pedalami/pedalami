@@ -1,4 +1,3 @@
-import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 
 class Reward {
