@@ -122,7 +122,7 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
                                 ))),
                             onPressed: () {
                               pushNewScreen(context,
-                                  screen: RideCompletePage(
+                                  screen: RideCompletePage(bonusPoints: '0',
                                       finishedRide: widget.ride));
                             },
                             icon: FaIcon(FontAwesomeIcons.book),
