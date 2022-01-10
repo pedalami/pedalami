@@ -18,6 +18,7 @@ class RewardPage extends StatefulWidget {
 class _RewardPageState extends State<RewardPage> {
   List<Reward> rewards = [];
   late bool loading;
+  String points="";
 
   refresh() {
     setState(() {});
@@ -26,6 +27,8 @@ class _RewardPageState extends State<RewardPage> {
   @override
   void initState() {
     loading = true;
+    LoggedUser.instance!.addListener(() => setState(() {}));
+    points = LoggedUser.instance!.points!.toStringAsFixed(0);
     WidgetsBinding.instance!.addPostFrameCallback((timeStamp) async {
       rewards = (await MongoDB.instance.getRewards())!;
       loading = false;
@@ -36,7 +39,6 @@ class _RewardPageState extends State<RewardPage> {
 
   @override
   Widget build(BuildContext context) {
-    String points = LoggedUser.instance!.points!.toStringAsFixed(0);
     return Scaffold(
         floatingActionButton: Container(
           height: 50,
@@ -70,8 +72,8 @@ class _RewardPageState extends State<RewardPage> {
                       ),
                       Text(
                         "You currently have " +
-                            points +
-                            (points == "1" ? " point" : " points"),
+                            LoggedUser.instance!.points!.toStringAsFixed(0) +
+                            (LoggedUser.instance!.points!.toStringAsFixed(0) == "1" ? " point" : " points"),
                         style: TextStyle(color: Colors.white, fontSize: 15),
                       ),
                     ],

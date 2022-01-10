@@ -53,10 +53,10 @@ class _GetRewardButtonState extends State<GetRewardButton> {
     } else {
       return ElevatedButton(
           style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.lightGreen),
+              backgroundColor: MaterialStateProperty.all(Colors.green),
               shape: MaterialStateProperty.all(RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(18.0),
-                  side: BorderSide(color: Colors.lightGreen)))),
+                  side: BorderSide(color: Colors.green)))),
           child: !_alreadyClicked
               ? AnimatedCrossFade(
                   duration: Duration(milliseconds: 100),
