@@ -185,57 +185,8 @@ class _TeamsSearchPageState extends State<TeamsSearchPage> {
                   ],
                 ),
               ),
-              /*SizedBox(
-                height: 3 * SizeConfig.heightMultiplier!,
-              ),*/
               displayTeam(),
               SizedBox(height: MediaQuery.of(context).size.height*.02,)
-              /*Padding(
-                padding: EdgeInsets.only(
-                    left: 10,
-                    top: 3 * SizeConfig.heightMultiplier!,
-                    right: 10.0),
-              ),*/
-              /*SizedBox(
-                height: 30 * SizeConfig.heightMultiplier!,
-              ),*/
-              /*Container(
-                height: 20 * SizeConfig.heightMultiplier!,
-              ),
-              Divider(
-                color: Colors.grey,
-              )*/
-              /*Stack(
-                children: [
-                  GestureDetector(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(70),
-                        child: Image.network(
-                          "https://novaanime.org/wp-content/uploads/2021/08/one-punch-man-filler-list.jpeg",
-                          height: 20.0 * SizeConfig.heightMultiplier!,
-                          width: 50.0 * SizeConfig.widthMultiplier!,
-                        ),
-                      ),
-                    ),
-                    onTap: () {
-                      pushNewScreen(
-                        context,
-                        screen: TeamProfile(),
-                        pageTransitionAnimation: PageTransitionAnimation.cupertino,);
-                    },
-                  ),
-                  Positioned.fill(
-                      child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: Text(
-                            LoggedUser.instance!.teams![0].name.toString(),
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold),
-                          )))
-                ],
-              ),*/
             ],
           ),
         ),

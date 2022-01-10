@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:location/location.dart';
 import 'package:pedala_mi/routes/events_page.dart';
 import 'package:pedala_mi/routes/rewards_page.dart';
 import 'package:pedala_mi/routes/teams_search.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 
 import 'map_page.dart';
@@ -18,19 +20,9 @@ class SwitchPage extends StatefulWidget {
 }
 
 class _SwitchPageState extends State<SwitchPage> {
-  final _navigatorKey = GlobalKey<NavigatorState>();
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  refresh(){
-    setState(() {
-
-    });
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -45,7 +37,11 @@ class _SwitchPageState extends State<SwitchPage> {
         colorBehindNavBar: Colors.white
       ),
       screens: [
-        MapPage(),
+            MapPage()
+            /*GestureDetector(
+              onTap: () => this.setState((){}),
+                child: Center(child: Text("Permissions not granted!", textScaleFactor: 1.5,))
+            )*/,
         ProfilePage(),
         TeamsSearchPage(),
         EventsPage(),

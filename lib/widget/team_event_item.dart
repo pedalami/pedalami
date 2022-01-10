@@ -64,7 +64,6 @@ class _TeamEventItemState extends State<TeamEventItem> {
             return "Accepted";
           }
         return "";
-
       }
     else
       {
