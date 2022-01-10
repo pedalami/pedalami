@@ -367,11 +367,11 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                                         500.0,
                                         path);
 
-                                    Ride? response = await MongoDB.instance
+                                    var response = await MongoDB.instance
                                         .recordRidePassingWeather(finishedRide, await getWeatherId(_locationData.latitude, _locationData.longitude));
-                                    if (response != null) {
+                                    if (response != null && response.item1 != null) {
                                       showRideCompleteDialog(
-                                          context, size, response);
+                                          context, size, response.item1!, response.item2);
                                     }
                                   }
                                   path.forEach((element) {
@@ -456,7 +456,7 @@ class _MapPageState extends State<MapPage> with WidgetsBindingObserver {
                               var response = await MongoDB.instance
                                   .recordRidePassingWeather(finishedRide, await getWeatherId(45.47706577107621, 9.225647327123237));
 
-                              if (response != null) {
+                              if (response != null && response.item1 != null) {
                                 if (_miUser.rideHistory == null) {
                                   _miUser.rideHistory =
                                       List.empty(growable: true);
