@@ -87,7 +87,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                         ),
                         showHistory(),
                         SizedBox(
-                          height: 40 * SizeConfig.heightMultiplier!,
+                          height: 4 * SizeConfig.heightMultiplier!,
                         ),
                       ],
                     ),
@@ -310,7 +310,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                   children: [
                     Padding(
                       padding: const EdgeInsets.only(left: 50),
-                      child: Column(
+                      child: Column(mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             DateFormat('EEEE').format(DateTime.parse(
