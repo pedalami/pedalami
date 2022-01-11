@@ -67,7 +67,7 @@ class _EnrollEventState extends State<EnrollEvent> {
                             "Enroll to Events",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.black54,
+                              color: Colors.white,
                               fontSize: 4 * SizeConfig.textMultiplier!,
                             ),
                           ),

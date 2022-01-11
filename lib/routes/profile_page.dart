@@ -145,7 +145,7 @@ class _ProfilePageState extends State<ProfilePage> {
               children: <Widget>[
                 Container(
                   height: 11 * SizeConfig.heightMultiplier!,
-                  width: 22 * SizeConfig.widthMultiplier!,
+                  width: 11 * SizeConfig.heightMultiplier!,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(100),
                     child: Image.network(

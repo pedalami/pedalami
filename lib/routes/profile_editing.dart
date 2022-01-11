@@ -59,7 +59,7 @@ class _ProfileEditingState extends State<ProfileEditing> {
                           children: <Widget>[
                             Container(
                               height: 11 * SizeConfig.heightMultiplier!,
-                              width: 22 * SizeConfig.widthMultiplier!,
+                              width: 11 * SizeConfig.heightMultiplier!,
                               decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   image: DecorationImage(
