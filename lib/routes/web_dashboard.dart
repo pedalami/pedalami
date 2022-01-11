@@ -5,14 +5,12 @@ import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
-import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/services/web_authentication.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:pie_chart/pie_chart.dart';
-import 'package:pedala_mi/models/ride.dart';
 
 class WebDashBoard extends StatefulWidget {
   final context;
@@ -26,19 +24,6 @@ class WebDashBoard extends StatefulWidget {
 class _WebDashBoardState extends State<WebDashBoard> {
   LoggedUser? _miUser = LoggedUser.instance;
 
-  /*Future<void> getRideHistory() async {
-    _miUser.setRideHistory(
-        await MongoDB.instance.getAllRidesFromUser(_miUser.userId));
-  }*/
-
-  @override
-  void initState() {
-    //_miUser.addListener(() => setState(() {}));
-
-    //MongoDB.instance.initUser(_miUser.userId).then((value) => getRideHistory());
-    //getRideHistory();
-    super.initState();
-  }
 
   Widget decideHistoryToShow() {
     //TODO: prob needs some refactoring
@@ -117,17 +102,14 @@ class _WebDashBoardState extends State<WebDashBoard> {
     Map<String, double> data = {};
     _miUser!.rideHistory?.forEach((element) {
       double value = 0;
-      if (data[DateFormat('MMMM')
-              .format(DateTime.parse(element.displayDate()))] ==
-          null) {
+      String monthOfTheYear = DateFormat('MMMM').format(DateTime.parse(element.displayDate()));
+      double? oldValue = data[monthOfTheYear];
+      if (oldValue == null) {
         value = 1;
       } else {
-        value = (data[DateFormat('MMMM')
-                .format(DateTime.parse(element.displayDate()))]! +
-            1);
+        value = oldValue + 1;
       }
-      data[DateFormat('MMMM').format(DateTime.parse(element.displayDate()))] =
-          value;
+      data[monthOfTheYear] = value;
     });
 
     final colorList = <Color>[
@@ -154,7 +136,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
       initialAngleInDegree: 0,
       chartType: ChartType.ring,
       ringStrokeWidth: 50,
-      centerText: "Rides this year",
+      centerText: "Rides per month",
       legendOptions: LegendOptions(
         showLegendsInRow: false,
         legendPosition: LegendPosition.right,
