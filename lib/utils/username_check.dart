@@ -26,7 +26,7 @@ Future<void> checkUsername(String newUsername, BuildContext context,
   } else {
     CollectionReference usersCollection =
         FirebaseFirestore.instance.collection("Users");
-    usersCollection
+    await usersCollection
         .where("Username", isEqualTo: newUsername.trim())
         .get()
         .then((QuerySnapshot querySnapshot) async {
@@ -48,9 +48,9 @@ Future<void> checkUsername(String newUsername, BuildContext context,
         File image = File(imageData);
         Reference imageRef = FirebaseStorage.instance.ref().child(uuid.toString() + ".jpg");
         await imageRef.putFile(image);
-        await imageRef.getDownloadURL().then((url) {
+        await imageRef.getDownloadURL().then((url) async{
           user["Image"] = url;
-          FirebaseFirestore.instance
+          await FirebaseFirestore.instance
               .collection("Users")
               .add(user)
               .then((value) async {
@@ -78,7 +78,7 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
   } else {
     String trimmedUsername=newUsername.trim();
     CollectionReference usersCollection = FirebaseFirestore.instance.collection("Users");
-    usersCollection
+    await usersCollection
         .where("Username", isEqualTo: trimmedUsername)
         .get()
         .then((QuerySnapshot querySnapshot) async {
@@ -99,7 +99,7 @@ Future<void>updateUsername(String newUsername, BuildContext context) async {
             .then((QuerySnapshot querySnapshot) async {
           docID=querySnapshot.docs[0].id;
         });
-        FirebaseFirestore.instance
+        await FirebaseFirestore.instance
             .collection("Users")
             .doc(docID)
             .update({'Username': trimmedUsername}).then((value) async {

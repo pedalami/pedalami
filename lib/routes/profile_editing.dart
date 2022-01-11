@@ -175,19 +175,29 @@ class _ProfileEditingState extends State<ProfileEditing> {
                           Padding(
                             padding: EdgeInsets.only(
                                 top: 1 * SizeConfig.heightMultiplier!,),
-                            child: ElevatedButton(
-                              onPressed: () {
-                                checkValue();
-                              },
-                              child: Text("Change username"),
-                              style: ButtonStyle(
-                                  fixedSize: MaterialStateProperty.all(
-                                      Size(200, 35)),
-                                  backgroundColor: MaterialStateProperty.all(
-                                      Colors.lightGreen),
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0))))),
+                            child: AnimatedSwitcher(
+                              duration: Duration(milliseconds: 250),
+                              child: AnimatedSwitcher(
+                                duration: Duration(milliseconds: 250),
+                                child: check?CircularProgressIndicator():ElevatedButton(
+                                  onPressed: () async{
+                                    if(!check)
+                                      {
+                                        await checkValue();
+                                      }
+
+                                  },
+                                  child: Text("Change username"),
+                                  style: ButtonStyle(
+                                      fixedSize: MaterialStateProperty.all(
+                                          Size(200, 35)),
+                                      backgroundColor: MaterialStateProperty.all(
+                                          Colors.lightGreen),
+                                    shape: MaterialStateProperty.all(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18.0))))),
+                              ),
+                            ),
                           ),
                         ],
                       ),
@@ -206,14 +216,21 @@ class _ProfileEditingState extends State<ProfileEditing> {
     return str ?? "";
   }
 
-  void checkValue() async {
+  Future<void> checkValue() async {
     setState(() {
       check = true;
     });
-    await updateUsername(usernameController.text, context);
-    setState(() {
-      check = false;
-    });
+    try
+    {
+      await updateUsername(usernameController.text, context);
+    }
+    finally
+    {
+      setState(() {
+        check = false;
+      });
+    }
+
   }
 
   void _showPicker(context) {

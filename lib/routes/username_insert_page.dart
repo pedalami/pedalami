@@ -119,8 +119,12 @@ class _InsertUsernameScreenState extends State<InsertUsernameScreen> {
                                   controller: usernameController,
                                   maxLength: 20,
                                   style: TextStyle(color: Colors.black),
-                                  onSubmitted: (value) {
-                                    checkValue();
+                                  onSubmitted: (value) async{
+                                    if(!check)
+                                      {
+                                        await checkValue();
+                                      }
+
                                   },
                                 ),
                               ),
@@ -148,7 +152,10 @@ class _InsertUsernameScreenState extends State<InsertUsernameScreen> {
                                             ),
                                           ),
                                           onPressed: () async {
-                                            checkValue();
+                                            if(!check)
+                                            {
+                                              await checkValue();
+                                            }
                                           },
                                           child: Text(
                                             'Sign up',
@@ -188,7 +195,7 @@ class _InsertUsernameScreenState extends State<InsertUsernameScreen> {
     }
   }
 
-  void checkValue() async {
+  Future<void> checkValue() async {
     setState(() {
       check = true;
     });
