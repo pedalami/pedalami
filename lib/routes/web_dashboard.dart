@@ -24,19 +24,19 @@ class WebDashBoard extends StatefulWidget {
 }
 
 class _WebDashBoardState extends State<WebDashBoard> {
-  LoggedUser _miUser = LoggedUser.instance!;
+  LoggedUser? _miUser = LoggedUser.instance;
 
-  Future<void> getRideHistory() async {
+  /*Future<void> getRideHistory() async {
     _miUser.setRideHistory(
         await MongoDB.instance.getAllRidesFromUser(_miUser.userId));
-  }
+  }*/
 
   @override
   void initState() {
-    _miUser.addListener(() => setState(() {}));
-    print("userId of the logged user is: " + _miUser.userId);
+    //_miUser.addListener(() => setState(() {}));
+
     //MongoDB.instance.initUser(_miUser.userId).then((value) => getRideHistory());
-    getRideHistory();
+    //getRideHistory();
     super.initState();
   }
 
@@ -44,7 +44,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
     //TODO: prob needs some refactoring
     Widget returnWidget;
     returnWidget = displayEmptyRideHistory();
-    if (_miUser.rideHistory != null && _miUser.rideHistory!.isNotEmpty)
+    if (_miUser!.rideHistory != null && _miUser!.rideHistory!.isNotEmpty)
       returnWidget = displayRideHistory();
     return returnWidget;
   }
@@ -81,7 +81,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                             SizedBox(
                               width: MediaQuery.of(context).size.width / 15,
                             ),
-                            _miUser.rideHistory == null
+                            _miUser!.rideHistory == null
                                 ? Container()
                                 : Padding(
                                     padding: EdgeInsets.all(25),
@@ -102,7 +102,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                         ),
                         showHistory(),
                         SizedBox(
-                          height: 20 * SizeConfig.heightMultiplier!,
+                          height: 40 * SizeConfig.heightMultiplier!,
                         ),
                       ],
                     ),
@@ -115,7 +115,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
 
   Widget pieChart() {
     Map<String, double> data = {};
-    _miUser.rideHistory?.forEach((element) {
+    _miUser!.rideHistory?.forEach((element) {
       double value = 0;
       if (data[DateFormat('MMMM')
               .format(DateTime.parse(element.displayDate()))] ==
@@ -149,7 +149,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
       dataMap: data,
       animationDuration: Duration(milliseconds: 800),
       chartLegendSpacing: 32,
-      chartRadius: MediaQuery.of(context).size.width / 3.2,
+      chartRadius: MediaQuery.of(context).size.width / 4,
       colorList: colorList,
       initialAngleInDegree: 0,
       chartType: ChartType.ring,
@@ -183,14 +183,14 @@ class _WebDashBoardState extends State<WebDashBoard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return LoggedUser.instance != null ? Scaffold(
       appBar: AppBar(
         toolbarHeight: MediaQuery.of(context).size.height / 8,
         leadingWidth: MediaQuery.of(context).size.width / 8,
         leading: Transform.scale(
           scale: 3,
           child: Padding(
-            padding: EdgeInsets.only(top: 5.0, left: 5),
+            padding: EdgeInsets.only(top: 5.0, left: 15),
             child: Image.asset(
               'lib/assets/pedala_logo.png',
               height: MediaQuery.of(context).size.height / 10,
@@ -283,7 +283,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
         backgroundColor: Colors.green.shade200,
       ),
       body: Center(child: showStats()),
-    );
+    ) : Container();
   }
 
   Widget displayEmptyRideHistory() {
@@ -311,13 +311,13 @@ class _WebDashBoardState extends State<WebDashBoard> {
               color: Colors.black,
             );
           },
-          itemCount: _miUser.rideHistory!.length,
+          itemCount: _miUser!.rideHistory!.length,
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onTap: () {
                 pushNewScreen(context,
                     screen: RideCompletePage(
-                      finishedRide: _miUser.rideHistory![index],
+                      finishedRide: _miUser!.rideHistory![index],
                       bonusPoints: '0',
                     ));
               },
@@ -332,7 +332,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                         children: [
                           Text(
                             DateFormat('EEEE').format(DateTime.parse(
-                                _miUser.rideHistory![index].displayDate())),
+                                _miUser!.rideHistory![index].displayDate())),
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 18),
                           ),
@@ -341,7 +341,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                           ),
                           Text(
                             DateFormat('dd MMMM HH:mm').format(DateTime.parse(
-                                _miUser.rideHistory![index].displayDate())),
+                                _miUser!.rideHistory![index].displayDate())),
                             style: TextStyle(),
                           ),
                         ],
@@ -351,7 +351,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                       width: (MediaQuery.of(context).size.width + 10) / 3.3,
                     ),
                     Text(
-                      _miUser.rideHistory![index].points!.toStringAsFixed(0) +
+                      _miUser!.rideHistory![index].points!.toStringAsFixed(0) +
                           " Pts",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -422,86 +422,89 @@ class _WebDashBoardState extends State<WebDashBoard> {
                   color: Colors.black26.withOpacity(0.1),
                 ),
               ),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: singleStat(
-                            "Total Rides: ",
-                            LoggedUser.instance!.statistics!.numberOfRides
-                                .toString(),
-                            ''),
-                      ),
-                      Expanded(
-                        child: singleStat(
-                            "Total Distance: ",
-                            LoggedUser.instance!.statistics!.totalKm
-                                .toStringAsFixed(2),
-                            ' km'),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: singleStat(
-                            "Total Ride Duration: ",
-                            timeDuration(
-                                LoggedUser.instance!.statistics!.totalDuration),
-                            ''),
-                      ),
-                      Expanded(
-                        child: singleStat(
-                          "Total Elevation Gain: ",
-                          meterDistance(LoggedUser
-                              .instance!.statistics!.totalElevationGain),
-                          '',
+              child: Transform.translate(
+                offset: const Offset(-10, 0),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: singleStat(
+                              "Total Rides",
+                              LoggedUser.instance!.statistics!.numberOfRides
+                                  .toString(),
+                              ''),
                         ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: singleStat(
-                            "Average Speed: ",
-                            LoggedUser.instance!.statistics!.averageSpeed
-                                .toStringAsFixed(2),
-                            " km/h"),
-                      ),
-                      Expanded(
-                        child: singleStat(
-                            "Average Distance: ",
-                            LoggedUser.instance!.statistics!.averageKm
-                                .toStringAsFixed(2),
-                            " km"),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: singleStat(
-                            "Average Duration: ",
-                            timeDuration(LoggedUser
-                                .instance!.statistics!.averageDuration),
-                            ''),
-                      ),
-                      Expanded(
-                        child: singleStat(
-                            "Average Elevation Gain: ",
+                        Expanded(
+                          child: singleStat(
+                              "Total Distance",
+                              LoggedUser.instance!.statistics!.totalKm
+                                  .toStringAsFixed(2),
+                              ' km'),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          child: singleStat(
+                              "Total Ride Duration",
+                              timeDuration(
+                                  LoggedUser.instance!.statistics!.totalDuration),
+                              ''),
+                        ),
+                        Expanded(
+                          child: singleStat(
+                            "Total Elevation Gain",
                             meterDistance(LoggedUser
-                                .instance!.statistics!.averageElevationGain),
-                            ''),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height / 18,
-                  )
-                ],
+                                .instance!.statistics!.totalElevationGain),
+                            '',
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: singleStat(
+                              "Average Speed",
+                              LoggedUser.instance!.statistics!.averageSpeed
+                                  .toStringAsFixed(2),
+                              " km/h"),
+                        ),
+                        Expanded(
+                          child: singleStat(
+                              "Average Distance",
+                              LoggedUser.instance!.statistics!.averageKm
+                                  .toStringAsFixed(2),
+                              " km"),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: singleStat(
+                              "Average Duration",
+                              timeDuration(LoggedUser
+                                  .instance!.statistics!.averageDuration),
+                              ''),
+                        ),
+                        Expanded(
+                          child: singleStat(
+                              "Average Elevation Gain",
+                              meterDistance(LoggedUser
+                                  .instance!.statistics!.averageElevationGain),
+                              ''),
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 15,
+                    )
+                  ],
+                ),
               ),
             ),
           ),

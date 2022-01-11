@@ -9,6 +9,7 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   @override
   Widget build(BuildContext context) {
+    print("sign_in_page");
     return Scaffold(
         backgroundColor: Colors.white,
         body: SafeArea(

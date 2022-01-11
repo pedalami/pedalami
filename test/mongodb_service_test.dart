@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pedala_mi/models/event.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
@@ -9,7 +8,6 @@ import 'package:pedala_mi/models/reward.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
-import 'package:flutter_osm_interface/flutter_osm_interface.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
 
 MongoDB instance = MongoDB.instance;
