@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_osm_interface/flutter_osm_interface.dart';
-import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
-import 'package:pedala_mi/models/ride.dart';
+import 'package:flutter_osm_interface/flutter_osm_interface.dart' as osm;
+import 'package:flutter_osm_plugin/flutter_osm_plugin.dart' as p_osm;
+
+import 'package:pedala_mi/models/ride.dart' as m_ride;
+import 'package:pedala_mi/utils/mobile_library.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'ride_complete_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class ShowSingleRideHistoryPage extends StatefulWidget {
-  final Ride ride;
+  final m_ride.Ride ride;
 
   const ShowSingleRideHistoryPage({Key? key, required this.ride})
       : super(key: key);
@@ -17,11 +19,11 @@ class ShowSingleRideHistoryPage extends StatefulWidget {
       _ShowSingleRideHistoryPageState();
 }
 
-class CustomController extends MapController {
+class CustomController extends p_osm.MapController {
   CustomController({
     bool initMapWithUserPosition = true,
-    GeoPoint? initPosition,
-    BoundingBox? areaLimit = const BoundingBox.world(),
+    osm.GeoPoint? initPosition,
+    osm.BoundingBox? areaLimit = const osm.BoundingBox.world(),
   })  : assert(
           initMapWithUserPosition || initPosition != null,
         ),
@@ -44,10 +46,24 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
   void initState() {
     controller = CustomController(
         initMapWithUserPosition: false,
-        initPosition:
-            widget.ride.path![(widget.ride.path!.length / 2).floor()]);
+        initPosition: osm.GeoPoint(
+            longitude: widget
+                .ride.path![(widget.ride.path!.length / 2).floor()].longitude,
+            latitude: widget
+                .ride.path![(widget.ride.path!.length / 2).floor()].latitude));
     // TODO: implement initState
     super.initState();
+  }
+
+  List<osm.GeoPoint> convertGeoList() {
+    List<osm.GeoPoint> listToReturn = [];
+
+    for (var point
+        in widget.ride.path!.sublist(1, widget.ride.path!.length - 1)) {
+      listToReturn.add(
+          osm.GeoPoint(longitude: point.longitude, latitude: point.latitude));
+    }
+    return listToReturn;
   }
 
   @override
@@ -58,15 +74,19 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
           return Container(
             child: Stack(
               children: [
-                OSMFlutter(
+                p_osm.OSMFlutter(
                   controller: controller,
                   onMapIsReady: (isReady) {
                     controller.drawRoad(
-                        widget.ride.path!.first, widget.ride.path!.last,
-                        intersectPoint: widget.ride.path!
-                            .sublist(1, widget.ride.path!.length - 1),
-                        roadType: RoadType.bike,
-                        roadOption: RoadOption(
+                        osm.GeoPoint(
+                            latitude: widget.ride.path!.first.latitude,
+                            longitude: widget.ride.path!.first.longitude),
+                        osm.GeoPoint(
+                            latitude: widget.ride.path!.last.latitude,
+                            longitude: widget.ride.path!.last.longitude),
+                        intersectPoint: convertGeoList(),
+                        roadType: p_osm.RoadType.bike,
+                        roadOption: p_osm.RoadOption(
                           roadWidth: 10,
                           roadColor: Colors.green,
                         ));
@@ -122,7 +142,8 @@ class _ShowSingleRideHistoryPageState extends State<ShowSingleRideHistoryPage> {
                                 ))),
                             onPressed: () {
                               pushNewScreen(context,
-                                  screen: RideCompletePage(bonusPoints: '0',
+                                  screen: RideCompletePage(
+                                      bonusPoints: '0',
                                       finishedRide: widget.ride));
                             },
                             icon: FaIcon(FontAwesomeIcons.book),

@@ -1,7 +1,7 @@
 import 'package:background_location/background_location.dart';
 import 'package:flutter_osm_plugin/flutter_osm_plugin.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:pedala_mi/models/ride.dart';
+import 'package:pedala_mi/models/ride.dart' as m_ride;
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
 import 'package:pedala_mi/utils/mobile_library.dart';
@@ -162,6 +162,17 @@ class _MapPageState extends State<MapPage>
     super.dispose();
   }
 
+  List<m_ride.GeoPoint> convertPathList(List<GeoPoint> path) {
+    List<m_ride.GeoPoint> listToReturn = [];
+
+    for (var point in path) {
+      listToReturn.add(m_ride.GeoPoint(
+          latitude: point.latitude, longitude: point.longitude));
+    }
+
+    return listToReturn;
+  }
+
   @override
   Widget build(BuildContext context) {
     if (map == null && _hasPermissions) {
@@ -305,17 +316,18 @@ class _MapPageState extends State<MapPage>
                                                 showAlertDialog(context,
                                                     "No movement detect since ride started\nNo ride will be saved");
                                               } else {
-                                                Ride finishedRide = Ride(
-                                                    _miUser.userId,
-                                                    _miUser.username,
-                                                    null,
-                                                    durationInSeconds,
-                                                    _roadInfo!.distance,
-                                                    null,
-                                                    DateTime.now(),
-                                                    totalElevation,
-                                                    null,
-                                                    path);
+                                                m_ride.Ride finishedRide =
+                                                    m_ride.Ride(
+                                                        _miUser.userId,
+                                                        _miUser.username,
+                                                        null,
+                                                        durationInSeconds,
+                                                        _roadInfo!.distance,
+                                                        null,
+                                                        DateTime.now(),
+                                                        totalElevation,
+                                                        null,
+                                                        convertPathList(path));
                                                 var response = await MongoDB
                                                     .instance
                                                     .recordRidePassingWeather(
@@ -407,17 +419,19 @@ class _MapPageState extends State<MapPage>
                                                         roadColor: Colors.green,
                                                       ));
 
-                                              Ride finishedRide = Ride(
-                                                  _miUser.userId,
-                                                  _miUser.username,
-                                                  null,
-                                                  road.duration,
-                                                  road.distance,
-                                                  null,
-                                                  DateTime.now(),
-                                                  totalElevation,
-                                                  null,
-                                                  fakePath);
+                                              m_ride.Ride finishedRide =
+                                                  m_ride.Ride(
+                                                      _miUser.userId,
+                                                      _miUser.username,
+                                                      null,
+                                                      road.duration,
+                                                      road.distance,
+                                                      null,
+                                                      DateTime.now(),
+                                                      totalElevation,
+                                                      null,
+                                                      convertPathList(
+                                                          fakePath));
 
                                               var response = await MongoDB
                                                   .instance
@@ -463,8 +477,8 @@ class _MapPageState extends State<MapPage>
         : Container();
   }
 
-  showRideCompleteDialog(
-      BuildContext context, Size size, Ride finishedRide, String bonusPoints) {
+  showRideCompleteDialog(BuildContext context, Size size,
+      m_ride.Ride finishedRide, String bonusPoints) {
     pushNewScreen(context,
         screen: RideCompletePage(
             finishedRide: finishedRide, bonusPoints: bonusPoints));

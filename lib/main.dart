@@ -21,12 +21,14 @@ class MyApp extends StatelessWidget {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             theme: ThemeData().copyWith(
-                colorScheme: ColorScheme.light(
-                  primary: Colors.green.shade600,
-                ),
-              textSelectionTheme: TextSelectionThemeData(selectionColor: Colors.lightGreen,cursorColor: Colors.white, selectionHandleColor: Colors.lightGreen),
-
-          ),
+              colorScheme: ColorScheme.light(
+                primary: Colors.green.shade600,
+              ),
+              textSelectionTheme: TextSelectionThemeData(
+                  selectionColor: Colors.lightGreen,
+                  cursorColor: Colors.white,
+                  selectionHandleColor: Colors.lightGreen),
+            ),
             routes: Conditional().routes,
             home: Conditional().startPage,
           );
