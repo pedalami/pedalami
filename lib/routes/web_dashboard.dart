@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
 import 'package:pedala_mi/routes/ride_complete_page.dart';
+import 'package:pedala_mi/routes/sign_in_page.dart';
 import 'package:pedala_mi/services/web_authentication.dart';
 import 'package:pedala_mi/size_config.dart';
 import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
@@ -228,9 +229,10 @@ class _WebDashBoardState extends State<WebDashBoard> {
                           )
                   ],
                 ),
-                GestureDetector(
+                /*GestureDetector(
                   onTap: () async {
                     await webSignOut(context);
+                    pushNewScreen(context, screen: SignInScreen());
                   },
                   child: Padding(
                     padding: EdgeInsets.only(
@@ -254,7 +256,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                       ],
                     ),
                   ),
-                )
+                )*/
               ],
             ),
           )
