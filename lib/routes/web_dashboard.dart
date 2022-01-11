@@ -230,9 +230,6 @@ class _WebDashBoardState extends State<WebDashBoard> {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    SharedPreferences prefs =
-                        await SharedPreferences.getInstance();
-                    prefs.remove("loggedIn");
                     await webSignOut(context);
                   },
                   child: Padding(
