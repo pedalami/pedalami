@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:pedala_mi/models/ride.dart';
-import 'package:pedala_mi/utils/mobile_library.dart';
 
 class RideCompletePage extends StatelessWidget {
   final Ride finishedRide;

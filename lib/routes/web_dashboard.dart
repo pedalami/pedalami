@@ -4,11 +4,15 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:pedala_mi/models/badge.dart';
 import 'package:pedala_mi/models/loggedUser.dart';
+import 'package:pedala_mi/routes/ride_complete_page.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
 import 'package:pedala_mi/services/web_authentication.dart';
 import 'package:pedala_mi/size_config.dart';
+import 'package:persistent_bottom_nav_bar/persistent-tab-view.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pie_chart/pie_chart.dart';
+import 'package:pedala_mi/models/ride.dart';
 
 class WebDashBoard extends StatefulWidget {
   final context;
@@ -20,11 +24,29 @@ class WebDashBoard extends StatefulWidget {
 }
 
 class _WebDashBoardState extends State<WebDashBoard> {
-  LoggedUser? _miUser = LoggedUser.instance;
+  LoggedUser _miUser = LoggedUser.instance!;
+
+  Future<void> getRideHistory() async {
+    _miUser.setRideHistory(
+        await MongoDB.instance.getAllRidesFromUser(_miUser.userId));
+  }
 
   @override
   void initState() {
+    _miUser.addListener(() => setState(() {}));
+    print("userId of the logged user is: " + _miUser.userId);
+    //MongoDB.instance.initUser(_miUser.userId).then((value) => getRideHistory());
+    getRideHistory();
     super.initState();
+  }
+
+  Widget decideHistoryToShow() {
+    //TODO: prob needs some refactoring
+    Widget returnWidget;
+    returnWidget = displayEmptyRideHistory();
+    if (_miUser.rideHistory != null && _miUser.rideHistory!.isNotEmpty)
+      returnWidget = displayRideHistory();
+    return returnWidget;
   }
 
   Widget showStats() {
@@ -53,7 +75,21 @@ class _WebDashBoardState extends State<WebDashBoard> {
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
-                        stats(),
+                        Row(
+                          children: [
+                            stats(),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 15,
+                            ),
+                            _miUser.rideHistory == null
+                                ? Container()
+                                : Padding(
+                                    padding: EdgeInsets.all(25),
+                                    child: pieChart(),
+                                  ),
+                            //TODO HEJ
+                          ],
+                        ),
                         Divider(
                           color: Colors.black,
                         ),
@@ -75,6 +111,74 @@ class _WebDashBoardState extends State<WebDashBoard> {
               )
             ],
           );
+  }
+
+  Widget pieChart() {
+    Map<String, double> data = {};
+    _miUser.rideHistory?.forEach((element) {
+      double value = 0;
+      if (data[DateFormat('MMMM')
+              .format(DateTime.parse(element.displayDate()))] ==
+          null) {
+        value = 1;
+      } else {
+        value = (data[DateFormat('MMMM')
+                .format(DateTime.parse(element.displayDate()))]! +
+            1);
+      }
+      data[DateFormat('MMMM').format(DateTime.parse(element.displayDate()))] =
+          value;
+    });
+
+    final colorList = <Color>[
+      Colors.green,
+      Colors.blue,
+      Colors.red,
+      Colors.yellow,
+      Colors.orange,
+      Colors.orangeAccent,
+      Colors.teal,
+      Colors.amber,
+      Colors.indigo,
+      Colors.pinkAccent,
+      Colors.cyan,
+      Colors.deepPurpleAccent,
+    ];
+
+    PieChart pie = PieChart(
+      dataMap: data,
+      animationDuration: Duration(milliseconds: 800),
+      chartLegendSpacing: 32,
+      chartRadius: MediaQuery.of(context).size.width / 3.2,
+      colorList: colorList,
+      initialAngleInDegree: 0,
+      chartType: ChartType.ring,
+      ringStrokeWidth: 50,
+      centerText: "Rides this year",
+      legendOptions: LegendOptions(
+        showLegendsInRow: false,
+        legendPosition: LegendPosition.right,
+        showLegends: true,
+        legendShape: BoxShape.circle,
+        legendTextStyle: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 20,
+        ),
+      ),
+      chartValuesOptions: ChartValuesOptions(
+        chartValueStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+        ),
+        showChartValueBackground: false,
+        showChartValues: true,
+        showChartValuesInPercentage: false,
+        showChartValuesOutside: false,
+        decimalPlaces: 0,
+      ),
+    );
+
+    return pie;
   }
 
   @override
@@ -182,15 +286,6 @@ class _WebDashBoardState extends State<WebDashBoard> {
     );
   }
 
-  Widget decideHistoryToShow() {
-    //TODO: prob needs some refactoring
-    Widget returnWidget;
-    _miUser!.rideHistory == null
-        ? returnWidget = displayEmptyRideHistory()
-        : returnWidget = displayRideHistory();
-    return returnWidget;
-  }
-
   Widget displayEmptyRideHistory() {
     return Container(
       child: Center(
@@ -204,6 +299,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
 
   Widget displayRideHistory() {
     return Container(
+      width: MediaQuery.of(context).size.width / 1.8,
       decoration: BoxDecoration(
           color: Colors.blueGrey.shade50,
           borderRadius: BorderRadius.all(Radius.circular(18.0))),
@@ -215,11 +311,15 @@ class _WebDashBoardState extends State<WebDashBoard> {
               color: Colors.black,
             );
           },
-          itemCount: _miUser!.rideHistory!.length,
+          itemCount: _miUser.rideHistory!.length,
           itemBuilder: (BuildContext context, int index) {
             return InkWell(
               onTap: () {
-                //TODO: show bike ride
+                pushNewScreen(context,
+                    screen: RideCompletePage(
+                      finishedRide: _miUser.rideHistory![index],
+                      bonusPoints: '0',
+                    ));
               },
               child: Container(
                 height: MediaQuery.of(context).size.height / 11,
@@ -227,12 +327,12 @@ class _WebDashBoardState extends State<WebDashBoard> {
                 child: Row(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(left: 15),
+                      padding: const EdgeInsets.only(left: 50),
                       child: Column(
                         children: [
                           Text(
                             DateFormat('EEEE').format(DateTime.parse(
-                                _miUser!.rideHistory![index].displayDate())),
+                                _miUser.rideHistory![index].displayDate())),
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 18),
                           ),
@@ -241,7 +341,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                           ),
                           Text(
                             DateFormat('dd MMMM HH:mm').format(DateTime.parse(
-                                _miUser!.rideHistory![index].displayDate())),
+                                _miUser.rideHistory![index].displayDate())),
                             style: TextStyle(),
                           ),
                         ],
@@ -251,7 +351,7 @@ class _WebDashBoardState extends State<WebDashBoard> {
                       width: (MediaQuery.of(context).size.width + 10) / 3.3,
                     ),
                     Text(
-                      _miUser!.rideHistory![index].points!.toStringAsFixed(0) +
+                      _miUser.rideHistory![index].points!.toStringAsFixed(0) +
                           " Pts",
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
@@ -298,112 +398,115 @@ class _WebDashBoardState extends State<WebDashBoard> {
   }
 
   Widget stats() {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.only(top: 3 * SizeConfig.heightMultiplier!),
-          child: Text(
-            "Statistics",
-            style: TextStyle(
-                color: Colors.black54,
-                fontWeight: FontWeight.bold,
-                fontSize: 2.5 * SizeConfig.textMultiplier!),
+    return Container(
+      width: MediaQuery.of(context).size.width / 2,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.only(top: 3 * SizeConfig.heightMultiplier!),
+            child: Text(
+              "Statistics",
+              style: TextStyle(
+                  color: Colors.black54,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 2.5 * SizeConfig.textMultiplier!),
+            ),
           ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(20.0),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(20.0)),
-              color: Colors.grey.shade200.withOpacity(0.7),
-              border: Border.all(
-                color: Colors.black26.withOpacity(0.1),
+          Padding(
+            padding: EdgeInsets.all(20.0),
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                color: Colors.grey.shade200.withOpacity(0.7),
+                border: Border.all(
+                  color: Colors.black26.withOpacity(0.1),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Total Rides: ",
+                            LoggedUser.instance!.statistics!.numberOfRides
+                                .toString(),
+                            ''),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                            "Total Distance: ",
+                            LoggedUser.instance!.statistics!.totalKm
+                                .toStringAsFixed(2),
+                            ' km'),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Total Ride Duration: ",
+                            timeDuration(
+                                LoggedUser.instance!.statistics!.totalDuration),
+                            ''),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                          "Total Elevation Gain: ",
+                          meterDistance(LoggedUser
+                              .instance!.statistics!.totalElevationGain),
+                          '',
+                        ),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Average Speed: ",
+                            LoggedUser.instance!.statistics!.averageSpeed
+                                .toStringAsFixed(2),
+                            " km/h"),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                            "Average Distance: ",
+                            LoggedUser.instance!.statistics!.averageKm
+                                .toStringAsFixed(2),
+                            " km"),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: singleStat(
+                            "Average Duration: ",
+                            timeDuration(LoggedUser
+                                .instance!.statistics!.averageDuration),
+                            ''),
+                      ),
+                      Expanded(
+                        child: singleStat(
+                            "Average Elevation Gain: ",
+                            meterDistance(LoggedUser
+                                .instance!.statistics!.averageElevationGain),
+                            ''),
+                      ),
+                    ],
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height / 18,
+                  )
+                ],
               ),
             ),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Total Rides: ",
-                          LoggedUser.instance!.statistics!.numberOfRides
-                              .toString(),
-                          ''),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                          "Total Distance: ",
-                          LoggedUser.instance!.statistics!.totalKm
-                              .toStringAsFixed(2),
-                          ' km'),
-                    ),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Total Ride Duration: ",
-                          timeDuration(
-                              LoggedUser.instance!.statistics!.totalDuration),
-                          ''),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                        "Total Elevation Gain: ",
-                        meterDistance(LoggedUser
-                            .instance!.statistics!.totalElevationGain),
-                        '',
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Average Speed: ",
-                          LoggedUser.instance!.statistics!.averageSpeed
-                              .toStringAsFixed(2),
-                          " km/h"),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                          "Average Distance: ",
-                          LoggedUser.instance!.statistics!.averageKm
-                              .toStringAsFixed(2),
-                          " km"),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Expanded(
-                      child: singleStat(
-                          "Average Duration: ",
-                          timeDuration(
-                              LoggedUser.instance!.statistics!.averageDuration),
-                          ''),
-                    ),
-                    Expanded(
-                      child: singleStat(
-                          "Average Elevation Gain: ",
-                          meterDistance(LoggedUser
-                              .instance!.statistics!.averageElevationGain),
-                          ''),
-                    ),
-                  ],
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height / 18,
-                )
-              ],
-            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -469,11 +572,6 @@ class _WebDashBoardState extends State<WebDashBoard> {
     String meters = value.toString();
     String kilometers = (value / 1000).round().toString();
     return value > 1000 ? kilometers + " km" : meters + " meters";
-  }
-
-  Future<void> getRideHistory() async {
-    _miUser!.setRideHistory(
-        await MongoDB.instance.getAllRidesFromUser(_miUser!.userId));
   }
 
   Widget showBadges() {
