@@ -11,6 +11,7 @@ class SignInPage extends StatelessWidget {
   Widget  build(BuildContext  context) {
     Size size = MediaQuery.of(context).size;
     OutlineInputBorder border = OutlineInputBorder(borderSide: BorderSide(color: Colors.green, width: 3.0));
+    print("signin.dart");
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.green,

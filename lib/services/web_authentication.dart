@@ -30,6 +30,9 @@ Future<void> webSignInWithGoogle({required BuildContext context}) async {
         LoggedUser.initInstance(
             user.uid, user.photoURL ?? "", user.email!, username);
         await MongoDB.instance.initUser(user.uid);
+        LoggedUser.instance!.setRideHistory(
+          await MongoDB.instance.getAllRidesFromUser(LoggedUser.instance!.userId));
+        print("userId of the logged user is: " + LoggedUser.instance!.userId);
         Navigator.pushNamedAndRemoveUntil(
             context, '/web_dashboard', (route) => false);
       }
@@ -51,5 +54,5 @@ Future<void> webSignOut(BuildContext context) async {
   await GoogleSignIn().signOut();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   await prefs.remove("loggedIn");
-  Navigator.pushNamedAndRemoveUntil(context, '/sign_in_page', (route) => false);
+  //Navigator.pushNamedAndRemoveUntil(context, '/sign_in_page', (route) => false);
 }

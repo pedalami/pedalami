@@ -10,6 +10,7 @@ class StartPage extends StatelessWidget {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     User result = FirebaseAuth.instance.currentUser!;
+    print("start_page");
     return Container(
       decoration: BoxDecoration(
           gradient: LinearGradient(
