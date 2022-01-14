@@ -8,7 +8,6 @@ import 'package:pedala_mi/models/reward.dart';
 import 'package:pedala_mi/models/ride.dart';
 import 'package:pedala_mi/models/team.dart';
 import 'package:pedala_mi/services/mongodb_service.dart';
-import 'package:pedala_mi/utils/mobile_library.dart';
 
 MongoDB instance = MongoDB.instance;
 
@@ -183,11 +182,13 @@ void main() {
   test('get joinable events testing', () async {
     //instance.localDebug();
     String userId = "wqYXryHv31anGdjr2AsjjijLH0y1";
-    List<Event>? events = await instance.getJoinableEvents(userId,"");
+    List<Event>? events = await instance.getJoinableEvents(userId, "");
     print(events);
     print("Involved teams are:");
     events?.forEach((event) {
-      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+      if (event.isPrivate() &&
+          event.isTeam() &&
+          event.id == "61d975299bb79e9845222e34") {
         print(event.hostTeam);
         print(event.guestTeam);
         print(event.pendingRequest);
@@ -203,7 +204,9 @@ void main() {
     print(events);
     print("Involved teams are:");
     events?.forEach((event) {
-      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+      if (event.isPrivate() &&
+          event.isTeam() &&
+          event.id == "61d975299bb79e9845222e34") {
         print(event.hostTeamId);
         print(event.guestTeamId);
         print(event.pendingRequest);
@@ -220,7 +223,9 @@ void main() {
     //events!.forEach((element) {print(element);print(element.enrolledTeams); print("\n");});
     print("Involved teams are:");
     events?.forEach((event) {
-      if (event.isPrivate() && event.isTeam() && event.id == "61d975299bb79e9845222e34") {
+      if (event.isPrivate() &&
+          event.isTeam() &&
+          event.id == "61d975299bb79e9845222e34") {
         //print(event.id);
         print(event.hostTeamId);
         print(event.guestTeamId);
@@ -229,7 +234,6 @@ void main() {
     });
     assert(events != null);
   });
-
 
   test('get events of a user testing', () async {
     //instance.localDebug();
