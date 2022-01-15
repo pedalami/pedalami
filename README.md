@@ -59,6 +59,5 @@ Did you earn enough points? Go and get an amazing reward for your hard work, you
 And don't forget to check your statistics in the web application: <a href="https://pedala-mi.web.app/">https://pedala-mi.web.app/</a>
 <br><br>
 <p align="center">
-  <img src="Screenshots/dash1.png" width=300></img>
-  <img src="Screenshots/dash2.jpg" width=300></img>
+  <img src="Screenshots/dash2.jpg" width=600></img>
 </p>
