@@ -60,5 +60,5 @@ And don't forget to check your statistics in the web application: <a href="https
 <br><br>
 <p align="center">
   <img src="Screenshots/dash1.png" width=300></img>
-  <img src="Screenshots/dash2.png" width=300></img>
+  <img src="Screenshots/dash2.jpg" width=300></img>
 </p>
