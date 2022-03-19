@@ -12,7 +12,7 @@ attractive to everyday cyclists.
  
 # Video Commercial
 
-https://github.com/pedalami/pedalami/blob/833f9c254f40701a87f7167824e70f9142fb9bf1/PedalaMi%20Commercial%20Video.mp4
+https://user-images.githubusercontent.com/60050299/159116929-c7253a21-f313-4384-865f-eda6cc14993e.mp4
 
 # DEMO
 
