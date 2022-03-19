@@ -10,9 +10,9 @@ field. This is achieved by providing users with an interactive system that facil
 a fun reward and challenge-based system to enrich the standard riding experience, making it more
 attractive to everyday cyclists.
  
-# Promotional Video
+# Video Commercial
 
-https://user-images.githubusercontent.com/28793450/149619011-9a9cdb7d-7aff-44ff-8c40-28fabefbcdf2.mp4
+hthttps://github.com/pedalami/pedalami/blob/833f9c254f40701a87f7167824e70f9142fb9bf1/PedalaMi%20Commercial%20Video.mp4
 
 # DEMO
 
